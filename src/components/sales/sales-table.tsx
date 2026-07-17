@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Search, Plus, Receipt, Printer, RefreshCcw, ChevronLeft, ChevronRight, Banknote, CreditCard, ArrowLeftRight, ShieldCheck, Layers, Truck } from 'lucide-react'
+import { Search, Plus, Receipt, Printer, RefreshCcw, ChevronLeft, ChevronRight, Banknote, CreditCard, ArrowLeftRight, ShieldCheck, Layers, Truck, Wrench } from 'lucide-react'
 import { Sale, Credit, StoreStockTransfer } from '@/types'
 import { StoreBadge } from '@/components/ui/store-badge'
 import { usePermissions } from '@/hooks/usePermissions'
@@ -13,6 +13,7 @@ import { StoreStockTransferService } from '@/lib/store-stock-transfer-service'
 import { cn } from '@/lib/utils'
 import { SALES_PAGE_SIZE } from '@/lib/sales-service'
 import { cardShell } from '@/lib/card-shell'
+import { isServiceSaleItem } from '@/lib/sale-item-helpers'
 
 interface SalesTableProps {
   sales: Sale[]
@@ -351,6 +352,30 @@ export function SalesTable({
     }
   }
 
+  const saleHasService = (sale: Sale) =>
+    Boolean(sale.items?.some((item) => isServiceSaleItem(item)))
+
+  const getServiceLabel = (sale: Sale) => {
+    const services = sale.items?.filter((item) => isServiceSaleItem(item)) ?? []
+    if (services.length === 0) return ''
+    if (services.length === 1) return services[0].productName
+    return `${services.length} servicios de reparación`
+  }
+
+  const ServiceRepairBadge = ({ sale }: { sale: Sale }) => {
+    if (!saleHasService(sale)) return null
+    const label = getServiceLabel(sale)
+    return (
+      <span
+        className="inline-flex max-w-full items-center gap-1 rounded-md bg-[#DB462D] px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-white"
+        title={label || 'Servicio de reparación'}
+      >
+        <Wrench className="h-3 w-3 shrink-0" strokeWidth={2} aria-hidden />
+        Reparación
+      </span>
+    )
+  }
+
   const statuses = ['all', 'completed', 'pending', 'cancelled']
 
   // Usar resultados de búsqueda si hay un término de búsqueda, sino usar todas las ventas
@@ -537,6 +562,7 @@ export function SalesTable({
                             <span className="font-mono text-xs font-semibold text-zinc-600 dark:text-zinc-400">
                               {generateInvoiceNumber(sale)}
                             </span>
+                            <ServiceRepairBadge sale={sale} />
                             {sale.paymentMethod === 'credit' && credits[sale.id] && (
                               <span className="text-xs font-mono text-zinc-500 dark:text-zinc-400">
                                 Crédito #{getCreditId(credits[sale.id])}
@@ -546,6 +572,14 @@ export function SalesTable({
                           <p className="mt-1 truncate font-medium text-zinc-900 dark:text-zinc-50">
                             {sale.clientName}
                           </p>
+                          {saleHasService(sale) && (
+                            <p
+                              className="mt-0.5 truncate text-xs font-medium text-[#DB462D]"
+                              title={getServiceLabel(sale)}
+                            >
+                              {getServiceLabel(sale)}
+                            </p>
+                          )}
                           <dl className="mt-3 grid grid-cols-2 gap-2 border-t border-zinc-200/80 pt-3 text-left dark:border-zinc-800">
                             <div>
                               <dt className="text-[11px] font-medium uppercase tracking-wide text-zinc-500">Total</dt>
@@ -643,7 +677,18 @@ export function SalesTable({
                                   {getPaymentMethodIcon(getSaleDisplayMethod(sale), 'h-3.5 w-3.5')}
                                 </span>
                                 <div className="flex min-w-0 flex-col gap-0.5">
-                                  <span>{generateInvoiceNumber(sale)}</span>
+                                  <div className="flex flex-wrap items-center gap-1.5">
+                                    <span>{generateInvoiceNumber(sale)}</span>
+                                    <ServiceRepairBadge sale={sale} />
+                                  </div>
+                                  {saleHasService(sale) && (
+                                    <span
+                                      className="max-w-[16rem] truncate text-[11px] font-normal text-[#DB462D]"
+                                      title={getServiceLabel(sale)}
+                                    >
+                                      {getServiceLabel(sale)}
+                                    </span>
+                                  )}
                                   {sale.paymentMethod === 'credit' && credits[sale.id] && (
                                     <span className="text-[11px] font-normal text-zinc-500">
                                       Crédito #{getCreditId(credits[sale.id])}

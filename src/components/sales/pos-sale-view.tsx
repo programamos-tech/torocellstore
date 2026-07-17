@@ -322,21 +322,29 @@ export function PosSaleView({
                       className={cn(
                         'rounded-xl border p-2.5',
                         isService
-                          ? 'border-[#DB462D]/35 bg-[#DB462D]/5 dark:border-[#DB462D]/40 dark:bg-[#DB462D]/10'
+                          ? 'border-[#DB462D] bg-[#FDECEA] shadow-sm dark:border-[#DB462D]/60 dark:bg-[#DB462D]/15'
                           : 'border-zinc-200 bg-zinc-50/80 dark:border-zinc-700 dark:bg-zinc-900/40'
                       )}
                     >
                       <div className="mb-2 flex items-start justify-between gap-2">
                         <div className="min-w-0 flex-1">
                           {isService && (
-                            <span className="mb-0.5 inline-block rounded bg-[#DB462D] px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-white">
+                            <span className="mb-0.5 inline-flex items-center gap-1 rounded bg-[#DB462D] px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-white">
+                              <Wrench className="h-2.5 w-2.5" strokeWidth={2} />
                               Servicio
                             </span>
                           )}
                           <p className="line-clamp-2 text-sm font-semibold text-zinc-900 dark:text-zinc-100">
                             {item.productName}
                           </p>
-                          <p className="text-[10px] text-zinc-500">
+                          <p
+                            className={cn(
+                              'text-[10px]',
+                              isService
+                                ? 'font-medium text-[#A83420] dark:text-[#F0A090]'
+                                : 'text-zinc-500'
+                            )}
+                          >
                             {isService
                               ? 'Sin descuento de stock'
                               : `Ref: ${item.productReferenceCode || product?.reference || '—'}`}
@@ -571,7 +579,7 @@ export function PosSaleView({
               type="button"
               variant="outline"
               onClick={onOpenServiceDialog}
-              className="h-auto shrink-0 touch-manipulation border-[#DB462D]/40 px-3 text-[#DB462D] hover:bg-[#DB462D]/10"
+              className="h-auto shrink-0 touch-manipulation border-[#DB462D] bg-[#FDECEA] px-3 font-semibold text-[#DB462D] hover:bg-[#DB462D] hover:text-white"
             >
               <Wrench className="mr-1.5 h-4 w-4" strokeWidth={1.5} />
               Servicio

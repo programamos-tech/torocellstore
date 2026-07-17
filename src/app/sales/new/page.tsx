@@ -899,7 +899,7 @@ export default function NewSalePage() {
                       variant="outline"
                       size="sm"
                       onClick={() => setShowServiceDialog(true)}
-                      className="shrink-0 border-[#DB462D]/40 text-[#DB462D] hover:bg-[#DB462D]/10"
+                      className="shrink-0 border-[#DB462D] bg-[#FDECEA] font-semibold text-[#DB462D] hover:bg-[#DB462D] hover:text-white"
                     >
                       <Wrench className="mr-1.5 h-4 w-4" strokeWidth={1.5} />
                       Agregar servicio
@@ -1028,7 +1028,7 @@ export default function NewSalePage() {
                               className={cn(
                                 'rounded-lg border p-4',
                                 isService
-                                  ? 'border-[#DB462D]/30 bg-[#DB462D]/5 dark:border-[#DB462D]/40 dark:bg-[#DB462D]/10'
+                                  ? 'border-[#DB462D] bg-[#FDECEA] shadow-sm dark:border-[#DB462D]/60 dark:bg-[#DB462D]/15'
                                   : 'border-zinc-200/90 bg-zinc-50/80 dark:border-zinc-700 dark:bg-zinc-950/40'
                               )}
                             >
@@ -1036,21 +1036,36 @@ export default function NewSalePage() {
                                 <div className="min-w-0 flex-1">
                                   <div className="mb-1 flex flex-wrap items-center gap-2">
                                     {isService && (
-                                      <Badge className="border-transparent bg-[#DB462D] text-white hover:bg-[#DB462D]">
+                                      <span className="inline-flex items-center gap-1 rounded-md bg-[#DB462D] px-2 py-0.5 text-[11px] font-bold uppercase tracking-wide text-white">
+                                        <Wrench className="h-3 w-3" strokeWidth={2} />
                                         Servicio
-                                      </Badge>
+                                      </span>
                                     )}
                                     <h4 className="text-base font-semibold text-zinc-900 dark:text-zinc-50">
                                       {item.productName}
                                     </h4>
                                   </div>
-                                  <div className="mb-2 text-sm text-zinc-500 dark:text-zinc-400">
+                                  <div
+                                    className={cn(
+                                      'mb-2 text-sm',
+                                      isService
+                                        ? 'font-medium text-[#A83420] dark:text-[#F0A090]'
+                                        : 'text-zinc-500 dark:text-zinc-400'
+                                    )}
+                                  >
                                     {isService
                                       ? 'Sin descuento de stock · reparación / mantenimiento'
                                       : `Ref: ${reference} · Bodega: ${warehouseStock} · Local: ${localStock}`}
                                   </div>
                                   <div className="flex items-center gap-2">
-                                    <label className="text-sm font-medium text-zinc-600 dark:text-zinc-400">
+                                    <label
+                                      className={cn(
+                                        'text-sm font-medium',
+                                        isService
+                                          ? 'text-[#A83420] dark:text-[#F0A090]'
+                                          : 'text-zinc-600 dark:text-zinc-400'
+                                      )}
+                                    >
                                       {isService ? 'Valor' : 'Precio'}
                                     </label>
                                     <input
@@ -1064,7 +1079,12 @@ export default function NewSalePage() {
                                         }
                                       }}
                                       onBlur={() => handlePriceBlur(item.id)}
-                                      className="h-8 w-32 rounded-md border border-zinc-200 bg-white px-2 text-sm text-zinc-900 focus:border-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-400/25 dark:border-zinc-600 dark:bg-zinc-900 dark:text-zinc-100"
+                                      className={cn(
+                                        'h-8 w-32 rounded-md border bg-white px-2 text-sm text-zinc-900 focus:outline-none focus:ring-2 dark:bg-zinc-900 dark:text-zinc-100',
+                                        isService
+                                          ? 'border-[#DB462D]/50 focus:border-[#DB462D] focus:ring-[#DB462D]/25 dark:border-[#DB462D]/50'
+                                          : 'border-zinc-200 focus:border-zinc-400 focus:ring-zinc-400/25 dark:border-zinc-600'
+                                      )}
                                       min={product?.cost || 0}
                                       step="100"
                                       placeholder="0"
@@ -1075,11 +1095,27 @@ export default function NewSalePage() {
                                   <div className="text-lg font-bold tabular-nums text-zinc-900 dark:text-zinc-50">
                                     {formatCurrency(item.total)}
                                   </div>
-                                  <div className="text-sm text-zinc-500 dark:text-zinc-400">Subtotal línea</div>
+                                  <div
+                                    className={cn(
+                                      'text-sm',
+                                      isService
+                                        ? 'font-medium text-[#A83420] dark:text-[#F0A090]'
+                                        : 'text-zinc-500 dark:text-zinc-400'
+                                    )}
+                                  >
+                                    Subtotal línea
+                                  </div>
                                 </div>
                               </div>
                               
-                              <div className="flex items-center justify-between border-t border-zinc-200 pt-2 dark:border-zinc-700">
+                              <div
+                                className={cn(
+                                  'flex items-center justify-between border-t pt-2',
+                                  isService
+                                    ? 'border-[#DB462D]/25 dark:border-[#DB462D]/40'
+                                    : 'border-zinc-200 dark:border-zinc-700'
+                                )}
+                              >
                                 <div className="flex items-center gap-2">
                                   <span className="text-sm font-medium text-zinc-600 dark:text-zinc-400">Cantidad</span>
                                   <div className="flex items-center gap-1">

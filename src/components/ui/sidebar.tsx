@@ -1,7 +1,6 @@
 'use client'
 
 import Link from 'next/link'
-import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import {
@@ -335,15 +334,6 @@ export function Sidebar({ className, onMobileMenuToggle }: SidebarProps) {
           </nav>
 
           <div className="border-t border-zinc-800 px-2.5 pb-3 pt-3">
-            <div className="mb-2.5 flex justify-center px-1">
-              <Image
-                src="/logo.jpeg"
-                alt="Hecho por Berea — Software e IA a medida"
-                width={96}
-                height={40}
-                className="h-auto w-[5.5rem] max-w-full object-contain opacity-95"
-              />
-            </div>
             <p className="text-center text-[11px] font-medium leading-snug tracking-wide text-zinc-400">
               <span className="font-semibold text-zinc-300 tabular-nums">torocellstore v{APP_VERSION}</span>
             </p>

@@ -3,6 +3,7 @@ import { Sale, SaleItem, SalePayment } from '@/types'
 import { AuthService } from './auth-service'
 import { ProductsService } from './products-service'
 import { getCurrentUserStoreId, canAccessAllStores, getCurrentUser } from './store-helper'
+import { isServiceSaleItem, mapDbSaleItem, toDbSaleItemRow } from './sale-item-helpers'
 
 /** Tamaño de página de la lista de ventas (contexto + servicio + tabla). */
 export const SALES_PAGE_SIZE = 20
@@ -118,7 +119,8 @@ export class SalesService {
             quantity,
             unit_price,
             discount,
-            total
+            total,
+            item_type
           ),
           sale_payments (
             id,
@@ -151,7 +153,11 @@ export class SalesService {
       const productIdsNeedingRef = new Set<string>()
       for (const sale of data || []) {
         for (const item of sale.sale_items || []) {
-          if (!item.product_reference_code || item.product_reference_code === 'N/A' || item.product_reference_code === null) {
+          if (
+            item.product_id &&
+            item.item_type !== 'service' &&
+            (!item.product_reference_code || item.product_reference_code === 'N/A' || item.product_reference_code === null)
+          ) {
             productIdsNeedingRef.add(item.product_id)
           }
         }
@@ -202,22 +208,14 @@ export class SalesService {
       // 5. Mapear ventas sin queries adicionales
       const sales = (data || []).map((sale) => {
         const itemsWithReferences = (sale.sale_items || []).map((item: any) => {
-          let productReference = item.product_reference_code
-          if (!productReference || productReference === 'N/A' || productReference === null) {
-            productReference = productRefsMap.get(item.product_id) || 'N/A'
+          const mapped = mapDbSaleItem(item)
+          if (
+            mapped.itemType !== 'service' &&
+            (!mapped.productReferenceCode || mapped.productReferenceCode === 'N/A')
+          ) {
+            mapped.productReferenceCode = productRefsMap.get(item.product_id) || 'N/A'
           }
-          return {
-            id: item.id,
-            productId: item.product_id,
-            productName: item.product_name,
-            productReferenceCode: productReference,
-            quantity: item.quantity,
-            unitPrice: item.unit_price,
-            discount: item.discount || 0,
-            discountType: item.discount_type || 'amount',
-            tax: item.tax || 0,
-            total: item.total
-          }
+          return mapped
         })
 
         const creditStatus = sale.payment_method === 'credit' && sale.invoice_number
@@ -287,7 +285,8 @@ export class SalesService {
             quantity,
             unit_price,
             discount,
-            total
+            total,
+            item_type
           ),
           sale_payments (
             id,
@@ -356,7 +355,8 @@ export class SalesService {
               quantity,
               unit_price,
               discount,
-              total
+              total,
+              item_type
             ),
             sale_payments (
               id,
@@ -425,7 +425,11 @@ export class SalesService {
       const productIdsNeedingRef = new Set<string>()
       for (const sale of allSales) {
         for (const item of sale.sale_items || []) {
-          if (!item.product_reference_code || item.product_reference_code === 'N/A' || item.product_reference_code === null) {
+          if (
+            item.product_id &&
+            item.item_type !== 'service' &&
+            (!item.product_reference_code || item.product_reference_code === 'N/A' || item.product_reference_code === null)
+          ) {
             productIdsNeedingRef.add(item.product_id)
           }
         }
@@ -451,22 +455,14 @@ export class SalesService {
 
       const sales = allSales.map((sale) => {
         const itemsWithReferences = (sale.sale_items || []).map((item: any) => {
-          let productReference = item.product_reference_code
-          if (!productReference || productReference === 'N/A' || productReference === null) {
-            productReference = productRefsMap.get(item.product_id) || 'N/A'
+          const mapped = mapDbSaleItem(item)
+          if (
+            mapped.itemType !== 'service' &&
+            (!mapped.productReferenceCode || mapped.productReferenceCode === 'N/A')
+          ) {
+            mapped.productReferenceCode = productRefsMap.get(item.product_id) || 'N/A'
           }
-          return {
-            id: item.id,
-            productId: item.product_id,
-            productName: item.product_name,
-            productReferenceCode: productReference,
-            quantity: item.quantity,
-            unitPrice: item.unit_price,
-            discount: item.discount || 0,
-            discountType: item.discount_type || 'amount',
-            tax: item.tax || 0,
-            total: item.total
-          }
+          return mapped
         })
 
         return {
@@ -522,7 +518,8 @@ export class SalesService {
             quantity,
             unit_price,
             discount,
-            total
+            total,
+            item_type
           ),
           sale_payments (
             id,
@@ -551,7 +548,11 @@ export class SalesService {
       // OPTIMIZADO: Batch query para referencias faltantes
       const productIdsNeedingRef: string[] = []
       for (const item of data.sale_items || []) {
-        if (!item.product_reference_code || item.product_reference_code === 'N/A' || item.product_reference_code === null) {
+        if (
+          item.product_id &&
+          item.item_type !== 'service' &&
+          (!item.product_reference_code || item.product_reference_code === 'N/A' || item.product_reference_code === null)
+        ) {
           productIdsNeedingRef.push(item.product_id)
         }
       }
@@ -570,22 +571,14 @@ export class SalesService {
       }
 
       const itemsWithReferences = (data.sale_items || []).map((item: any) => {
-        let productReference = item.product_reference_code
-        if (!productReference || productReference === 'N/A' || productReference === null) {
-          productReference = productRefsMap.get(item.product_id) || 'N/A'
+        const mapped = mapDbSaleItem(item)
+        if (
+          mapped.itemType !== 'service' &&
+          (!mapped.productReferenceCode || mapped.productReferenceCode === 'N/A')
+        ) {
+          mapped.productReferenceCode = productRefsMap.get(item.product_id) || 'N/A'
         }
-        return {
-          id: item.id,
-          productId: item.product_id,
-          productName: item.product_name,
-          productReferenceCode: productReference,
-          quantity: item.quantity,
-          unitPrice: item.unit_price,
-          discount: item.discount || 0,
-          discountType: item.discount_type || 'amount',
-          tax: item.tax || 0,
-          total: item.total
-        }
+        return mapped
       })
 
       const result = {
@@ -662,19 +655,21 @@ export class SalesService {
         throw saleError
       }
 
-      // Crear los items de la venta y descontar stock (solo si no es borrador)
+      // Crear los items de la venta y descontar stock (solo productos; servicios no mueven inventario)
       let itemsWithStockInfo: Array<any> = []
-      let insertedItems: Array<{ id: string; product_id: string; product_name: string; product_reference_code: string | null; quantity: number; unit_price: number; discount: number; total: number }> = []
+      let insertedItems: Array<{ id: string; product_id: string | null; product_name: string; product_reference_code: string | null; quantity: number; unit_price: number; discount: number; total: number; item_type?: string }> = []
       if (saleData.items && saleData.items.length > 0) {
+        const productLineItems = saleData.items.filter((item) => !isServiceSaleItem(item))
+
         if (saleData.status !== 'draft') {
           const batchResult = await ProductsService.deductStockForSaleBatch(
-            saleData.items.map((item) => ({
-              productId: item.productId,
+            productLineItems.map((item) => ({
+              productId: item.productId as string,
               quantity: item.quantity,
               productName: item.productName,
               productReferenceCode: item.productReferenceCode,
               unitPrice: item.unitPrice,
-              totalPrice: item.totalPrice
+              totalPrice: item.total
             })),
             currentUserId
           )
@@ -682,32 +677,32 @@ export class SalesService {
             await supabase.from('sales').delete().eq('id', sale.id)
             throw new Error(`No hay suficiente stock para el producto: ${batchResult.failedProductName ?? 'desconocido'}`)
           }
-          itemsWithStockInfo = batchResult.itemsWithStockInfo
+          itemsWithStockInfo = [
+            ...batchResult.itemsWithStockInfo,
+            ...saleData.items.filter(isServiceSaleItem).map((item) => ({
+              productName: item.productName,
+              productReference: 'SERVICIO',
+              quantity: item.quantity,
+              unitPrice: item.unitPrice,
+              totalPrice: item.total,
+            })),
+          ]
         } else {
           itemsWithStockInfo = saleData.items.map((item) => ({
             productName: item.productName,
-            productReference: item.productReferenceCode,
+            productReference: isServiceSaleItem(item) ? 'SERVICIO' : item.productReferenceCode,
             quantity: item.quantity,
             unitPrice: item.unitPrice,
-            totalPrice: item.totalPrice
+            totalPrice: item.total
           }))
         }
 
-        const saleItems = saleData.items.map((item) => ({
-          sale_id: sale.id,
-          product_id: item.productId,
-          product_name: item.productName,
-          product_reference_code: item.productReferenceCode || null,
-          quantity: item.quantity,
-          unit_price: item.unitPrice,
-          discount: item.discount || 0,
-          total: item.total
-        }))
+        const saleItems = saleData.items.map((item) => toDbSaleItemRow(sale.id, item))
 
         const { data: insertedItemsData, error: itemsError } = await supabase
           .from('sale_items')
           .insert(saleItems)
-          .select('id, product_id, product_name, product_reference_code, quantity, unit_price, discount, total')
+          .select('id, product_id, product_name, product_reference_code, quantity, unit_price, discount, total, item_type')
 
         if (itemsError) throw itemsError
         insertedItems = insertedItemsData ?? []
@@ -847,16 +842,7 @@ export class SalesService {
         sellerEmail: sale.seller_email,
         storeId: sale.store_id ?? undefined,
         createdAt: sale.created_at,
-        items: insertedItems.map((row) => ({
-          id: row.id,
-          productId: row.product_id,
-          productName: row.product_name,
-          productReferenceCode: row.product_reference_code ?? undefined,
-          quantity: row.quantity,
-          unitPrice: row.unit_price,
-          discount: row.discount ?? 0,
-          total: row.total
-        })),
+        items: insertedItems.map((row) => mapDbSaleItem(row)),
         payments: saleData.paymentMethod === 'mixed' && saleData.payments?.length
           ? saleData.payments.map((p, i) => ({
               id: `temp-${sale.id}-${i}`,
@@ -931,16 +917,7 @@ export class SalesService {
         }
 
         // Crear nuevos items
-        const saleItems = saleData.items.map(item => ({
-          sale_id: id,
-          product_id: item.productId,
-          product_name: item.productName,
-          product_reference_code: item.productReferenceCode || null,
-          quantity: item.quantity,
-          unit_price: item.unitPrice,
-          discount: item.discount || 0,
-          total: item.total
-        }))
+        const saleItems = saleData.items.map((item) => toDbSaleItemRow(id, item))
 
         const { error: itemsError } = await supabase
           .from('sale_items')
@@ -994,10 +971,11 @@ export class SalesService {
       // Obtener información del usuario actual
       const currentUser = await AuthService.getCurrentUser()
 
-      // Descontar stock de todos los productos
+      // Descontar stock solo de productos (servicios no mueven inventario)
       if (draftSale.items && draftSale.items.length > 0) {
         for (const item of draftSale.items) {
-          // Verificar stock disponible antes de descontar
+          if (isServiceSaleItem(item) || !item.productId) continue
+
           const product = await ProductsService.getProductById(item.productId)
           if (!product) {
             throw new Error(`Producto no encontrado: ${item.productName}`)
@@ -1182,12 +1160,14 @@ export class SalesService {
           .reduce((sum, payment) => sum + payment.amount, 0)
       }
 
-      // Preparar items para devolución de stock
-      const stockReturnItems = sale.items.map(item => ({
-        productId: item.productId,
-        quantity: item.quantity,
-        productName: item.productName
-      }))
+      // Devolver stock solo de productos (servicios no afectan inventario)
+      const stockReturnItems = sale.items
+        .filter((item) => !isServiceSaleItem(item) && item.productId)
+        .map((item) => ({
+          productId: item.productId as string,
+          quantity: item.quantity,
+          productName: item.productName
+        }))
 
       // Devolver stock a la tienda que hizo la venta (microtienda o principal)
       const stockReturnResult = await ProductsService.returnStockFromSaleBatch(stockReturnItems, currentUserId, sale.storeId ?? null)
@@ -1453,7 +1433,8 @@ export class SalesService {
             quantity,
             unit_price,
             discount,
-            total
+            total,
+            item_type
           )
         `)
 
@@ -1541,18 +1522,7 @@ export class SalesService {
         sellerName: sale.seller_name,
         sellerEmail: sale.seller_email,
         createdAt: sale.created_at,
-        items: sale.sale_items?.map((item: any) => ({
-          id: item.id,
-          productId: item.product_id,
-          productName: item.product_name,
-          productReferenceCode: item.product_reference_code || 'N/A',
-          quantity: item.quantity,
-          unitPrice: item.unit_price,
-          discount: item.discount || 0,
-          discountType: item.discount_type || 'amount',
-          tax: item.tax || 0,
-          total: item.total
-        })) || []
+        items: sale.sale_items?.map((item: any) => mapDbSaleItem(item)) || []
       })) || []
 
       // Si el término es numérico, priorizar resultados que coincidan con el número de factura
@@ -1609,7 +1579,8 @@ export class SalesService {
             quantity,
             unit_price,
             discount,
-            total
+            total,
+            item_type
           )
         `)
 
@@ -1659,31 +1630,23 @@ export class SalesService {
       return await Promise.all(data?.map(async sale => {
         // Obtener items de la venta con referencia de productos
         const items = await Promise.all((sale.sale_items || []).map(async (item: any) => {
-          let productReference = item.product_reference_code
+          const mapped = mapDbSaleItem(item)
 
-          // Si no hay referencia guardada, obtenerla desde la tabla products (para ventas antiguas)
-          if (!productReference || productReference === 'N/A' || productReference === null) {
+          if (
+            mapped.itemType !== 'service' &&
+            item.product_id &&
+            (!mapped.productReferenceCode || mapped.productReferenceCode === 'N/A')
+          ) {
             const { data: product } = await supabase
               .from('products')
               .select('reference')
               .eq('id', item.product_id)
               .single()
 
-            productReference = product?.reference || 'N/A'
+            mapped.productReferenceCode = product?.reference || 'N/A'
           }
 
-          return {
-            id: item.id,
-            productId: item.product_id,
-            productName: item.product_name,
-            productReferenceCode: productReference,
-            quantity: item.quantity,
-            unitPrice: item.unit_price,
-            discount: item.discount || 0,
-            discountType: item.discount_type || 'amount',
-            tax: item.tax || 0,
-            total: item.total
-          }
+          return mapped
         }))
 
         // Obtener pagos mixtos si existe
@@ -1796,7 +1759,8 @@ export class SalesService {
               unit_price,
               discount,
               discount_type,
-              total
+              total,
+              item_type
             ),
             sale_payments (
               id,
@@ -1872,24 +1836,14 @@ export class SalesService {
       const sales = allSalesData.map((sale: any) => {
         // Obtener referencias de productos del mapa
         const itemsWithReferences = (sale.sale_items || []).map((item: any) => {
-          let productReference = item.product_reference_code
-
-          if (!productReference || productReference === 'N/A' || productReference === null) {
-            productReference = productReferencesMap.get(item.product_id) || 'N/A'
+          const mapped = mapDbSaleItem(item)
+          if (
+            mapped.itemType !== 'service' &&
+            (!mapped.productReferenceCode || mapped.productReferenceCode === 'N/A')
+          ) {
+            mapped.productReferenceCode = productReferencesMap.get(item.product_id) || 'N/A'
           }
-
-          return {
-            id: item.id,
-            productId: item.product_id,
-            productName: item.product_name,
-            productReferenceCode: productReference,
-            quantity: item.quantity,
-            unitPrice: item.unit_price,
-            discount: item.discount || 0,
-            discountType: item.discount_type || 'amount',
-            tax: item.tax || 0,
-            total: item.total
-          }
+          return mapped
         })
 
         return {

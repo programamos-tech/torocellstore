@@ -83,6 +83,7 @@ function computeSaleGrossMargin(
   if (!sale.items?.length) return 0
 
   return sale.items.reduce((itemProfit, item) => {
+    if (!item.productId || item.itemType === 'service') return itemProfit
     const cost = productLookup(item.productId)?.cost || 0
     const baseTotal = item.quantity * item.unitPrice
     const discountAmount =
@@ -726,6 +727,7 @@ export default function ReportesPage() {
     activeSales.forEach(sale => {
       if (sale.items) {
         sale.items.forEach(item => {
+          if (!item.productId || item.itemType === 'service') return
           if (!productSales[item.productId]) {
             productSales[item.productId] = {
               name: item.productName,
@@ -734,7 +736,7 @@ export default function ReportesPage() {
             }
           }
           productSales[item.productId].quantity += item.quantity
-          productSales[item.productId].revenue += item.price * item.quantity
+          productSales[item.productId].revenue += (item.unitPrice || 0) * item.quantity
         })
       }
     })

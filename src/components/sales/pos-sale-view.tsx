@@ -17,12 +17,14 @@ import {
   User,
   Wallet,
   X,
+  Wrench,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
 import type { Client, Product, SaleItem, SalePayment } from '@/types'
 import { StoreBadge } from '@/components/ui/store-badge'
+import { isServiceSaleItem } from '@/lib/sale-item-helpers'
 
 const inputClass =
   'w-full rounded-xl border border-zinc-200 bg-white px-3 py-2.5 text-sm text-zinc-900 placeholder:text-zinc-400 focus:border-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-400/25 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100 dark:placeholder:text-zinc-500 dark:focus:border-zinc-500 dark:focus:ring-zinc-500/20'
@@ -59,13 +61,14 @@ export interface PosSaleViewProps {
   gridProducts: Product[]
   loadingBestsellers?: boolean
   onAddProduct: (product: Product) => void
+  onOpenServiceDialog: () => void
   onRemoveProduct: (itemId: string) => void
   onUpdateQuantity: (itemId: string, quantity: number) => void
   onUpdatePrice: (itemId: string, newPrice: number) => void
   onPriceBlur: (itemId: string) => void
   formatInputNumber: (value: number) => string
   parseInputNumber: (value: string) => number
-  findProductById: (productId: string) => Product | undefined
+  findProductById: (productId: string | null | undefined) => Product | undefined
   paymentMethod: 'cash' | 'transfer' | 'warranty' | 'mixed' | ''
   setPaymentMethod: (value: 'cash' | 'transfer' | 'warranty' | 'mixed' | '') => void
   showMixedPayments: boolean
@@ -159,6 +162,7 @@ export function PosSaleView({
   gridProducts,
   loadingBestsellers = false,
   onAddProduct,
+  onOpenServiceDialog,
   onRemoveProduct,
   onUpdateQuantity,
   onUpdatePrice,
@@ -303,26 +307,39 @@ export function PosSaleView({
             {orderedSelectedProducts.length === 0 ? (
               <div className="py-8 text-center text-sm text-zinc-500">
                 <ShoppingCart className="mx-auto mb-2 h-8 w-8 opacity-40" />
-                Toca productos para agregar
+                Toca productos o agrega un servicio
               </div>
             ) : (
               <ul className="space-y-2">
                 {orderedSelectedProducts.map((item) => {
-                  const product = findProductById(item.productId)
+                  const isService = isServiceSaleItem(item)
+                  const product = isService ? undefined : findProductById(item.productId)
                   const catalogPrice = product?.price ?? item.unitPrice
-                  const priceAdjusted = item.unitPrice !== catalogPrice
+                  const priceAdjusted = !isService && item.unitPrice !== catalogPrice
                   return (
                     <li
                       key={item.id}
-                      className="rounded-xl border border-zinc-200 bg-zinc-50/80 p-2.5 dark:border-zinc-700 dark:bg-zinc-900/40"
+                      className={cn(
+                        'rounded-xl border p-2.5',
+                        isService
+                          ? 'border-[#DB462D]/35 bg-[#DB462D]/5 dark:border-[#DB462D]/40 dark:bg-[#DB462D]/10'
+                          : 'border-zinc-200 bg-zinc-50/80 dark:border-zinc-700 dark:bg-zinc-900/40'
+                      )}
                     >
                       <div className="mb-2 flex items-start justify-between gap-2">
                         <div className="min-w-0 flex-1">
+                          {isService && (
+                            <span className="mb-0.5 inline-block rounded bg-[#DB462D] px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-white">
+                              Servicio
+                            </span>
+                          )}
                           <p className="line-clamp-2 text-sm font-semibold text-zinc-900 dark:text-zinc-100">
                             {item.productName}
                           </p>
                           <p className="text-[10px] text-zinc-500">
-                            Ref: {item.productReferenceCode || product?.reference || '—'}
+                            {isService
+                              ? 'Sin descuento de stock'
+                              : `Ref: ${item.productReferenceCode || product?.reference || '—'}`}
                             {priceAdjusted && (
                               <span className="ml-1 text-amber-700 dark:text-amber-400">
                                 · Lista {formatCurrency(catalogPrice)}
@@ -536,18 +553,29 @@ export function PosSaleView({
 
         {/* Panel derecho: búsqueda + más vendidos + rejilla */}
         <section className="flex min-h-0 flex-col p-3 md:p-4">
-          <div className="relative mb-3 shrink-0">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-zinc-400" />
-            <input
-              type="text"
-              placeholder="Buscar por nombre, referencia o marca…"
-              value={productSearch}
-              onChange={(e) => {
-                setProductSearch(e.target.value)
-                setPage(0)
-              }}
-              className={cn(inputClass, 'py-3 pl-11 text-base')}
-            />
+          <div className="mb-3 flex shrink-0 gap-2">
+            <div className="relative min-w-0 flex-1">
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-zinc-400" />
+              <input
+                type="text"
+                placeholder="Buscar por nombre, referencia o marca…"
+                value={productSearch}
+                onChange={(e) => {
+                  setProductSearch(e.target.value)
+                  setPage(0)
+                }}
+                className={cn(inputClass, 'py-3 pl-11 text-base')}
+              />
+            </div>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onOpenServiceDialog}
+              className="h-auto shrink-0 touch-manipulation border-[#DB462D]/40 px-3 text-[#DB462D] hover:bg-[#DB462D]/10"
+            >
+              <Wrench className="mr-1.5 h-4 w-4" strokeWidth={1.5} />
+              Servicio
+            </Button>
           </div>
 
           {!isSearchMode && (

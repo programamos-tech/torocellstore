@@ -19,7 +19,8 @@ import {
   CheckCircle,
   ArrowLeft,
   ShoppingCart,
-  LayoutGrid
+  LayoutGrid,
+  Wrench
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { RoleProtectedRoute } from '@/components/auth/role-protected-route'
@@ -34,6 +35,8 @@ import { isStoreClient } from '@/lib/client-helpers'
 import { useSalesPosPreference } from '@/hooks/use-sales-pos-preference'
 import { useTopSoldProducts } from '@/hooks/use-top-sold-products'
 import { PosSaleView } from '@/components/sales/pos-sale-view'
+import { AddServiceDialog } from '@/components/sales/add-service-dialog'
+import { isServiceSaleItem } from '@/lib/sale-item-helpers'
 
 // Constante para identificar la tienda principal
 const MAIN_STORE_ID = '00000000-0000-0000-0000-000000000001'
@@ -78,6 +81,7 @@ export default function NewSalePage() {
   const [showMixedPayments, setShowMixedPayments] = useState(false)
   const [paymentError, setPaymentError] = useState('')
   const [receivedAmount, setReceivedAmount] = useState<string>('')
+  const [showServiceDialog, setShowServiceDialog] = useState(false)
 
   useEffect(() => {
     getAllClients()
@@ -335,7 +339,9 @@ export default function NewSalePage() {
   }
 
   const handleAddProduct = (product: Product) => {
-    const existingItem = selectedProducts.find(item => item.productId === product.id)
+    const existingItem = selectedProducts.find(
+      (item) => !isServiceSaleItem(item) && item.productId === product.id
+    )
     if (existingItem) {
       handleUpdateQuantity(existingItem.id, existingItem.quantity + 1)
       return
@@ -366,7 +372,8 @@ export default function NewSalePage() {
       quantity: 1,
       unitPrice: product.price,
       total: product.price,
-      addedAt: Date.now()
+      addedAt: Date.now(),
+      itemType: 'product',
     }
 
     setSelectedProducts([...selectedProducts, newItem])
@@ -375,21 +382,36 @@ export default function NewSalePage() {
     setHighlightedProductIndex(-1)
   }
 
+  const handleAddService = (description: string, unitPrice: number) => {
+    const newItem: SaleItem = {
+      id: `temp-service-${Date.now()}`,
+      productId: null,
+      productName: description,
+      productReferenceCode: 'SERVICIO',
+      quantity: 1,
+      unitPrice,
+      total: unitPrice,
+      addedAt: Date.now(),
+      itemType: 'service',
+    }
+    setSelectedProducts((prev) => [...prev, newItem])
+  }
+
   const handleRemoveProduct = (itemId: string) => {
     const item = selectedProducts.find(i => i.id === itemId)
     // Si el producto que se está quitando tiene una alerta activa, ocultarla
-    if (item && stockAlert.show && stockAlert.productId === item.productId) {
+    if (item && stockAlert.show && stockAlert.productId && stockAlert.productId === item.productId) {
       setStockAlert({ show: false, message: '', productId: undefined })
     }
     setSelectedProducts(selectedProducts.filter(item => item.id !== itemId))
     
     // Limpiar el cache solo si no hay más items de ese producto en la venta
-    if (item) {
+    if (item && !isServiceSaleItem(item) && item.productId) {
       const hasOtherItems = selectedProducts.some(i => i.id !== itemId && i.productId === item.productId)
       if (!hasOtherItems) {
         setProductsInSaleCache(prev => {
           const newCache = new Map(prev)
-          newCache.delete(item.productId)
+          newCache.delete(item.productId as string)
           return newCache
         })
       }
@@ -405,18 +427,18 @@ export default function NewSalePage() {
     const item = selectedProducts.find(i => i.id === itemId)
     if (!item) return
 
-    // Usar findProductById que busca en contexto y cache
-    const product = findProductById(item.productId)
-    const availableStock = (product?.stock.store || 0) + (product?.stock.warehouse || 0)
-    
-    // Verificar stock solo si la cantidad es mayor a 0
-    if (newQuantity > 0 && newQuantity > availableStock) {
-      setStockAlert({
-        show: true,
-        message: `Stock disponible: ${availableStock} unidades`, 
-        productId: item.productId 
-      })
-      return
+    if (!isServiceSaleItem(item) && item.productId) {
+      const product = findProductById(item.productId)
+      const availableStock = (product?.stock.store || 0) + (product?.stock.warehouse || 0)
+      
+      if (newQuantity > 0 && newQuantity > availableStock) {
+        setStockAlert({
+          show: true,
+          message: `Stock disponible: ${availableStock} unidades`, 
+          productId: item.productId 
+        })
+        return
+      }
     }
 
     setSelectedProducts(selectedProducts.map(i => {
@@ -459,7 +481,7 @@ export default function NewSalePage() {
   const handlePriceBlur = (itemId: string) => {
     // Validar precio al perder el foco y mostrar alerta si es inválido
     const item = selectedProducts.find(i => i.id === itemId)
-    if (!item) return
+    if (!item || isServiceSaleItem(item) || !item.productId) return
     // Usar findProductById que busca en contexto y cache
     const product = findProductById(item.productId)
     if (!product) return
@@ -483,7 +505,8 @@ export default function NewSalePage() {
     }
   }
 
-  const findProductById = (productId: string) => {
+  const findProductById = (productId: string | null | undefined) => {
+    if (!productId) return undefined
     // Primero buscar en el array de productos del contexto
     const productInContext = products.find(p => p.id === productId)
     if (productInContext) return productInContext
@@ -495,28 +518,24 @@ export default function NewSalePage() {
     return undefined
   }
 
-  const getAvailableStock = (productId: string) => {
+  const getAvailableStock = (productId: string | null | undefined) => {
     const product = findProductById(productId)
     if (!product) return 0
     return (product.stock.store || 0) + (product.stock.warehouse || 0)
   }
 
-  // Productos válidos para mostrar (incluye precio 0)
+  // Líneas válidas para mostrar (incluye precio 0)
   const validProducts = useMemo(() => {
-    // Filtrar productos válidos: cantidad > 0 (precio puede ser 0 para mostrarlos)
     const filtered = selectedProducts.filter(item => {
-      // Validaciones básicas
-      if (!item || !item.productId) {
-        return false
+      if (!item) return false
+      if (isServiceSaleItem(item)) {
+        return Boolean(item.productName?.trim()) && item.quantity > 0
       }
-      if (item.quantity <= 0) {
-        return false
-      }
-      // Permitir precio 0 para mostrarlos, pero no para calcular total
+      if (!item.productId) return false
+      if (item.quantity <= 0) return false
       return true
     })
     
-    // Recalcular el total para todos los productos (precio 0 = total 0)
     return filtered.map(item => {
       const calculatedTotal = (item.unitPrice || 0) * (item.quantity || 0)
       return { 
@@ -653,9 +672,10 @@ export default function NewSalePage() {
       return
     }
 
-    // Verificar que los precios sean >= costo de adquisición (en Sincelejo y microtiendas)
+    // Verificar que los precios sean >= costo de adquisición (solo productos de inventario)
     const invalidProducts: string[] = []
     validProducts.forEach(item => {
+      if (isServiceSaleItem(item) || !item.productId) return
       const product = findProductById(item.productId)
       if (!product) return
       
@@ -751,58 +771,69 @@ export default function NewSalePage() {
   if (posPrefReady && posMode) {
     return (
       <RoleProtectedRoute module="sales" requiredAction="create">
-        <PosSaleView
-          onBack={() => router.push('/sales')}
-          onSwitchToClassic={() => setPosMode(false)}
-          invoiceNumber={invoiceNumber}
-          orderedSelectedProducts={orderedSelectedProducts}
-          orderedValidProducts={orderedValidProducts}
-          selectedClient={selectedClient}
-          clientSearch={clientSearch}
-          setClientSearch={setClientSearch}
-          showClientDropdown={showClientDropdown}
-          setShowClientDropdown={setShowClientDropdown}
-          filteredClients={filteredClients}
-          setSelectedClient={setSelectedClient}
-          handleRemoveClient={handleRemoveClient}
-          getClientTypeColor={getClientTypeColor}
-          productSearch={productSearch}
-          setProductSearch={setProductSearch}
-          isSearchingProducts={isSearchingProducts}
-          gridProducts={posGridProducts}
-          loadingBestsellers={topSoldLoading}
-          onAddProduct={handleAddProduct}
-          onRemoveProduct={handleRemoveProduct}
-          onUpdateQuantity={handleUpdateQuantity}
-          onUpdatePrice={handleUpdatePrice}
-          onPriceBlur={handlePriceBlur}
-          formatInputNumber={formatNumber}
-          parseInputNumber={parseNumber}
-          findProductById={findProductById}
-          paymentMethod={paymentMethod}
-          setPaymentMethod={setPaymentMethod}
-          showMixedPayments={showMixedPayments}
-          mixedPayments={mixedPayments}
-          updateMixedPayment={updateMixedPayment}
-          paymentError={paymentError}
-          getPaymentTypeLabel={getPaymentTypeLabel}
-          getTotalMixedPayments={getTotalMixedPayments}
-          receivedAmount={receivedAmount}
-          setReceivedAmount={setReceivedAmount}
-          total={total}
-          formatCurrency={formatCurrency}
-          handleSave={handleSave}
-          isCreating={isCreating}
-          canSave={canSaveSale}
-          saleBlockingAlert={saleBlockingAlert}
-          validProducts={validProducts}
-        />
+        <>
+          <PosSaleView
+            onBack={() => router.push('/sales')}
+            onSwitchToClassic={() => setPosMode(false)}
+            invoiceNumber={invoiceNumber}
+            orderedSelectedProducts={orderedSelectedProducts}
+            orderedValidProducts={orderedValidProducts}
+            selectedClient={selectedClient}
+            clientSearch={clientSearch}
+            setClientSearch={setClientSearch}
+            showClientDropdown={showClientDropdown}
+            setShowClientDropdown={setShowClientDropdown}
+            filteredClients={filteredClients}
+            setSelectedClient={setSelectedClient}
+            handleRemoveClient={handleRemoveClient}
+            getClientTypeColor={getClientTypeColor}
+            productSearch={productSearch}
+            setProductSearch={setProductSearch}
+            isSearchingProducts={isSearchingProducts}
+            gridProducts={posGridProducts}
+            loadingBestsellers={topSoldLoading}
+            onAddProduct={handleAddProduct}
+            onOpenServiceDialog={() => setShowServiceDialog(true)}
+            onRemoveProduct={handleRemoveProduct}
+            onUpdateQuantity={handleUpdateQuantity}
+            onUpdatePrice={handleUpdatePrice}
+            onPriceBlur={handlePriceBlur}
+            formatInputNumber={formatNumber}
+            parseInputNumber={parseNumber}
+            findProductById={findProductById}
+            paymentMethod={paymentMethod}
+            setPaymentMethod={setPaymentMethod}
+            showMixedPayments={showMixedPayments}
+            mixedPayments={mixedPayments}
+            updateMixedPayment={updateMixedPayment}
+            paymentError={paymentError}
+            getPaymentTypeLabel={getPaymentTypeLabel}
+            getTotalMixedPayments={getTotalMixedPayments}
+            receivedAmount={receivedAmount}
+            setReceivedAmount={setReceivedAmount}
+            total={total}
+            formatCurrency={formatCurrency}
+            handleSave={handleSave}
+            isCreating={isCreating}
+            canSave={canSaveSale}
+            saleBlockingAlert={saleBlockingAlert}
+            validProducts={validProducts}
+          />
+          <AddServiceDialog
+            open={showServiceDialog}
+            onOpenChange={setShowServiceDialog}
+            onAdd={handleAddService}
+            formatNumber={formatNumber}
+            parseNumber={parseNumber}
+          />
+        </>
       </RoleProtectedRoute>
     )
   }
 
   return (
     <RoleProtectedRoute module="sales" requiredAction="create">
+      <>
       <div className="min-h-screen bg-gradient-to-b from-zinc-50/90 via-white to-zinc-50/80 pb-28 dark:from-zinc-950 dark:via-zinc-950 dark:to-zinc-900 xl:pb-8">
         <header className="sticky top-0 z-40 border-b border-zinc-200/80 bg-white/90 backdrop-blur-sm dark:border-zinc-800 dark:bg-zinc-950/80">
           <div className="flex w-full min-w-0 flex-wrap items-center gap-3 px-4 py-4 md:px-6">
@@ -853,13 +884,27 @@ export default function NewSalePage() {
               {/** sin overflow-hidden: el listado absoluto del buscador quedaría recortado */}
               <Card className={cardShell}>
                 <CardHeader className="space-y-0 border-b border-zinc-200 p-4 dark:border-zinc-800">
-                  <CardTitle className="flex items-center gap-2 text-base font-semibold text-zinc-900 dark:text-zinc-50">
-                    <Package className="h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400" strokeWidth={1.5} />
-                    Productos
-                  </CardTitle>
-                  <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-                    Busca por nombre, referencia o marca (desde 1 carácter en local; búsqueda amplia desde 2).
-                  </p>
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div>
+                      <CardTitle className="flex items-center gap-2 text-base font-semibold text-zinc-900 dark:text-zinc-50">
+                        <Package className="h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400" strokeWidth={1.5} />
+                        Productos y servicios
+                      </CardTitle>
+                      <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+                        Busca productos del inventario o agrega un servicio de reparación/mantenimiento.
+                      </p>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setShowServiceDialog(true)}
+                      className="shrink-0 border-[#DB462D]/40 text-[#DB462D] hover:bg-[#DB462D]/10"
+                    >
+                      <Wrench className="mr-1.5 h-4 w-4" strokeWidth={1.5} />
+                      Agregar servicio
+                    </Button>
+                  </div>
                 </CardHeader>
                 <CardContent className="space-y-4 overflow-visible p-4 md:p-6 md:pt-4">
                   <div className="relative z-0">
@@ -964,31 +1009,50 @@ export default function NewSalePage() {
                           variant="outline"
                           className="border-zinc-200/90 text-zinc-700 dark:border-zinc-700 dark:text-zinc-300"
                         >
-                          {orderedSelectedProducts.length} producto{orderedSelectedProducts.length !== 1 ? 's' : ''}
+                          {orderedSelectedProducts.length} línea{orderedSelectedProducts.length !== 1 ? 's' : ''}
                         </Badge>
                       </div>
                       <div className="space-y-3">
                         {orderedSelectedProducts.map(item => {
-                          const product = findProductById(item.productId)
+                          const isService = isServiceSaleItem(item)
+                          const product = isService ? undefined : findProductById(item.productId)
                           const warehouseStock = product?.stock?.warehouse || 0
                           const localStock = product?.stock?.store || 0
-                          const reference = item.productReferenceCode || product?.reference || 'N/A'
+                          const reference = isService
+                            ? 'SERVICIO'
+                            : item.productReferenceCode || product?.reference || 'N/A'
                           
                           return (
                             <div
                               key={item.id}
-                              className="rounded-lg border border-zinc-200/90 bg-zinc-50/80 p-4 dark:border-zinc-700 dark:bg-zinc-950/40"
+                              className={cn(
+                                'rounded-lg border p-4',
+                                isService
+                                  ? 'border-[#DB462D]/30 bg-[#DB462D]/5 dark:border-[#DB462D]/40 dark:bg-[#DB462D]/10'
+                                  : 'border-zinc-200/90 bg-zinc-50/80 dark:border-zinc-700 dark:bg-zinc-950/40'
+                              )}
                             >
                               <div className="mb-3 flex items-start justify-between">
                                 <div className="min-w-0 flex-1">
-                                  <h4 className="mb-1 text-base font-semibold text-zinc-900 dark:text-zinc-50">
-                                    {item.productName}
-                                  </h4>
+                                  <div className="mb-1 flex flex-wrap items-center gap-2">
+                                    {isService && (
+                                      <Badge className="border-transparent bg-[#DB462D] text-white hover:bg-[#DB462D]">
+                                        Servicio
+                                      </Badge>
+                                    )}
+                                    <h4 className="text-base font-semibold text-zinc-900 dark:text-zinc-50">
+                                      {item.productName}
+                                    </h4>
+                                  </div>
                                   <div className="mb-2 text-sm text-zinc-500 dark:text-zinc-400">
-                                    Ref: {reference} · Bodega: {warehouseStock} · Local: {localStock}
+                                    {isService
+                                      ? 'Sin descuento de stock · reparación / mantenimiento'
+                                      : `Ref: ${reference} · Bodega: ${warehouseStock} · Local: ${localStock}`}
                                   </div>
                                   <div className="flex items-center gap-2">
-                                    <label className="text-sm font-medium text-zinc-600 dark:text-zinc-400">Precio</label>
+                                    <label className="text-sm font-medium text-zinc-600 dark:text-zinc-400">
+                                      {isService ? 'Valor' : 'Precio'}
+                                    </label>
                                     <input
                                       type="text"
                                       inputMode="numeric"
@@ -1432,6 +1496,14 @@ export default function NewSalePage() {
           </div>
         </div>
       </div>
+      <AddServiceDialog
+        open={showServiceDialog}
+        onOpenChange={setShowServiceDialog}
+        onAdd={handleAddService}
+        formatNumber={formatNumber}
+        parseNumber={parseNumber}
+      />
+      </>
     </RoleProtectedRoute>
   )
 }

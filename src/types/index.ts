@@ -259,7 +259,8 @@ export interface Sale {
 
 export interface SaleItem {
   id: string
-  productId: string
+  /** Null cuando itemType === 'service' (sin producto de inventario). */
+  productId?: string | null
   productName: string
   productReferenceCode?: string
   quantity: number
@@ -269,6 +270,8 @@ export interface SaleItem {
   tax?: number
   total: number
   addedAt?: number
+  /** product = inventario; service = reparación/mantenimiento con texto libre */
+  itemType?: 'product' | 'service'
 }
 
 export interface Credit {

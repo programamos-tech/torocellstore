@@ -424,13 +424,13 @@ export function CreditModal({ isOpen, onClose, onCreateCredit }: CreditModalProp
   }
 
   const calculateTotal = () => {
-    const subtotal = selectedProducts.reduce((total, item) => total + item.totalPrice, 0)
+    const subtotal = selectedProducts.reduce((total, item) => total + (item as SaleItem & { totalPrice?: number }).totalPrice, 0)
     const tax = includeTax ? subtotal * 0.19 : 0
     return subtotal + tax
   }
 
   const calculateSubtotal = () => {
-    return selectedProducts.reduce((total, item) => total + item.totalPrice, 0)
+    return selectedProducts.reduce((total, item) => total + (item as SaleItem & { totalPrice?: number }).totalPrice, 0)
   }
 
   const calculateTax = () => {
@@ -487,15 +487,17 @@ export function CreditModal({ isOpen, onClose, onCreateCredit }: CreditModalProp
       }
       
       // Preparar los items para la venta
-      const saleItems = selectedProducts.map(item => ({
-        productId: item.productId,
+      const saleItems = selectedProducts
+        .filter((item) => item.productId)
+        .map(item => ({
+        productId: item.productId as string,
         productName: item.productName,
         productReferenceCode: item.productReferenceCode || undefined,
         quantity: item.quantity,
         unitPrice: item.unitPrice,
-        total: item.totalPrice,
+        total: item.total ?? (item as SaleItem & { totalPrice?: number }).totalPrice ?? 0,
         discount: 0,
-        discountType: 'amount',
+        discountType: 'amount' as const,
         tax: 0
       }))
       
@@ -739,13 +741,15 @@ export function CreditModal({ isOpen, onClose, onCreateCredit }: CreditModalProp
                 {selectedProducts.length > 0 && (
                   <div className="scrollbar-hide mt-2 min-h-0 min-w-0 flex-1 space-y-1.5 overflow-y-auto overflow-x-hidden md:mt-3">
                     {selectedProducts.map((item) => {
-                      const product = products.find(p => p.id === item.productId)
+                      const productId = item.productId
+                      if (!productId) return null
+                      const product = products.find(p => p.id === productId)
                       const warehouseStock = product?.stock?.warehouse || 0
                       const localStock = product?.stock?.store || 0
                       const reference = item.productReferenceCode || product?.reference || 'N/A'
                       
                       return (
-                      <div key={item.productId} className="min-w-0 space-y-3 overflow-hidden rounded-lg border border-zinc-200/90 bg-zinc-50/80 p-3 dark:border-zinc-700 dark:bg-zinc-950/40">
+                      <div key={item.id || productId} className="min-w-0 space-y-3 overflow-hidden rounded-lg border border-zinc-200/90 bg-zinc-50/80 p-3 dark:border-zinc-700 dark:bg-zinc-950/40">
                         <div className="flex min-w-0 items-center justify-between">
                           <div className="min-w-0 flex-1">
                             <div className="break-words font-medium text-zinc-900 dark:text-zinc-100">
@@ -769,9 +773,9 @@ export function CreditModal({ isOpen, onClose, onCreateCredit }: CreditModalProp
                               onChange={(e) => {
                                 const cleanValue = e.target.value.replace(/\./g, '')
                                 const numericValue = parseFloat(cleanValue) || 0
-                                updatePrice(item.productId, numericValue)
+                                updatePrice(productId, numericValue)
                               }}
-                              onBlur={() => handlePriceBlur(item.productId)}
+                              onBlur={() => handlePriceBlur(productId)}
                               className={cn('min-h-10 w-full px-3 py-2 text-sm', inputBase)}
                               placeholder="0"
                             />
@@ -783,7 +787,7 @@ export function CreditModal({ isOpen, onClose, onCreateCredit }: CreditModalProp
                             </label>
                             <div className="flex items-center gap-1.5">
                               <Button
-                                onClick={() => updateQuantity(item.productId, item.quantity - 1, true)}
+                                onClick={() => updateQuantity(productId, item.quantity - 1, true)}
                                 size="sm"
                                 variant="outline"
                                 className="h-9 w-9 shrink-0 p-0"
@@ -795,14 +799,14 @@ export function CreditModal({ isOpen, onClose, onCreateCredit }: CreditModalProp
                                 value={item.quantity}
                                 onChange={(e) => {
                                   const value = e.target.value === '' ? 0 : parseInt(e.target.value) || 0
-                                  updateQuantity(item.productId, value, false)
+                                  updateQuantity(productId, value, false)
                                 }}
-                                onBlur={() => handleQuantityBlur(item.productId)}
+                                onBlur={() => handleQuantityBlur(productId)}
                                 className={cn('h-9 w-14 text-center text-sm', inputBase)}
                                 min="0"
                               />
                               <Button
-                                onClick={() => updateQuantity(item.productId, item.quantity + 1, true)}
+                                onClick={() => updateQuantity(productId, item.quantity + 1, true)}
                                 size="sm"
                                 variant="outline"
                                 className="h-9 w-9 shrink-0 p-0"
@@ -814,7 +818,7 @@ export function CreditModal({ isOpen, onClose, onCreateCredit }: CreditModalProp
                           
                           <div className="flex shrink-0">
                             <Button
-                              onClick={() => removeProduct(item.productId)}
+                              onClick={() => removeProduct(productId)}
                               size="sm"
                               variant="outline"
                               className="h-9 min-w-9 px-2 text-red-600 hover:bg-red-50 hover:text-red-700 dark:hover:bg-red-900/20"
@@ -826,11 +830,11 @@ export function CreditModal({ isOpen, onClose, onCreateCredit }: CreditModalProp
                         </div>
                         
                         {/* Total del producto */}
-                        {item.totalPrice > 0 && (
+                        {(item as SaleItem & { totalPrice?: number }).totalPrice > 0 && (
                           <div className="flex min-w-0 items-center justify-between gap-2 border-t border-zinc-200 pt-1 dark:border-zinc-700">
                             <span className="shrink-0 text-xs text-zinc-600 dark:text-zinc-400">Total:</span>
                             <span className="min-w-0 break-all text-right font-semibold tabular-nums text-emerald-700 dark:text-emerald-400">
-                              ${item.totalPrice.toLocaleString('es-CO')}
+                              ${(item as SaleItem & { totalPrice?: number }).totalPrice.toLocaleString('es-CO')}
                             </span>
                           </div>
                         )}
@@ -958,7 +962,7 @@ export function CreditModal({ isOpen, onClose, onCreateCredit }: CreditModalProp
                     <div className="min-w-0 space-y-2">
                       <div className="scrollbar-hide max-h-40 space-y-1.5 overflow-y-auto overflow-x-hidden sm:max-h-48 md:max-h-64">
                         {selectedProducts.map((item) => (
-                          <div key={item.productId} className="flex min-w-0 items-start justify-between gap-2 text-sm">
+                          <div key={item.id || item.productId || item.productName} className="flex min-w-0 items-start justify-between gap-2 text-sm">
                             <div className="min-w-0 flex-1">
                               <div className="truncate font-medium text-zinc-900 dark:text-zinc-100">
                                 {item.productName}
@@ -968,7 +972,7 @@ export function CreditModal({ isOpen, onClose, onCreateCredit }: CreditModalProp
                               </div>
                             </div>
                             <div className="min-w-0 max-w-[min(12rem,45%)] text-right font-medium tabular-nums break-all text-zinc-900 dark:text-zinc-100">
-                              ${item.totalPrice.toLocaleString('es-CO')}
+                              ${(item.total ?? (item as SaleItem & { totalPrice?: number }).totalPrice ?? 0).toLocaleString('es-CO')}
                             </div>
                           </div>
                         ))}

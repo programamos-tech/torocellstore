@@ -19,7 +19,8 @@ import {
   Shield,
   RefreshCw,
   AlertTriangle,
-  CheckCircle
+  CheckCircle,
+  Wrench
 } from 'lucide-react'
 import { Sale, SaleItem, Product, Client, SalePayment } from '@/types'
 import { useClients } from '@/contexts/clients-context'
@@ -28,6 +29,8 @@ import { useAuth } from '@/contexts/auth-context'
 import { ProductsService } from '@/lib/products-service'
 import { ClientModal } from '@/components/clients/client-modal'
 import { isStoreClient } from '@/lib/client-helpers'
+import { AddServiceDialog } from '@/components/sales/add-service-dialog'
+import { isServiceSaleItem } from '@/lib/sale-item-helpers'
 
 // Constante para identificar la tienda principal
 const MAIN_STORE_ID = '00000000-0000-0000-0000-000000000001'
@@ -70,6 +73,7 @@ export function SaleModal({ isOpen, onClose, onSave, sale, onUpdate }: SaleModal
   
   // Estado para cálculo de vuelto (solo efectivo)
   const [receivedAmount, setReceivedAmount] = useState<string>('')
+  const [showServiceDialog, setShowServiceDialog] = useState(false)
 
   // Cargar clientes y productos cuando se abre el modal
   useEffect(() => {
@@ -338,11 +342,12 @@ export function SaleModal({ isOpen, onClose, onSave, sale, onUpdate }: SaleModal
   }
 
   // Función para obtener el stock disponible de un producto
-  const findProductById = useCallback((productId: string) => {
+  const findProductById = useCallback((productId: string | null | undefined) => {
+    if (!productId) return undefined
     return productCache[productId] || products.find(p => p.id === productId)
   }, [productCache, products])
 
-  const getAvailableStock = (productId: string) => {
+  const getAvailableStock = (productId: string | null | undefined) => {
     const product = findProductById(productId)
     if (!product) return 0
     return (product.stock.warehouse || 0) + (product.stock.store || 0)
@@ -482,13 +487,15 @@ export function SaleModal({ isOpen, onClose, onSave, sale, onUpdate }: SaleModal
       return
     }
     
-    const existingItem = selectedProducts.find(item => item.productId === product.id)
+    const existingItem = selectedProducts.find(
+      (item) => !isServiceSaleItem(item) && item.productId === product.id
+    )
     
     if (existingItem) {
       const updatedTimestamp = Date.now()
       setSelectedProducts(prev => 
         prev.map(item => {
-          if (item.productId === product.id) {
+          if (!isServiceSaleItem(item) && item.productId === product.id) {
             const updatedItem = { ...item, quantity: item.quantity + 1, addedAt: updatedTimestamp }
             // Recalcular total
             updatedItem.total = updatedItem.quantity * updatedItem.unitPrice
@@ -510,13 +517,33 @@ export function SaleModal({ isOpen, onClose, onSave, sale, onUpdate }: SaleModal
         discountType: 'amount',
         tax: 0,
         total: product.price,
-        addedAt: now
+        addedAt: now,
+        itemType: 'product',
       }
       console.log('[SALE MODAL] handleAddProduct - newItem unitPrice:', newItem.unitPrice)
       setSelectedProducts(prev => [newItem, ...prev])
     }
     setShowProductDropdown(false)
     setProductSearch('')
+  }
+
+  const handleAddService = (description: string, unitPrice: number) => {
+    const now = Date.now()
+    const newItem: SaleItem = {
+      id: `service-${now}`,
+      productId: null,
+      productName: description,
+      productReferenceCode: 'SERVICIO',
+      quantity: 1,
+      unitPrice,
+      discount: 0,
+      discountType: 'amount',
+      tax: 0,
+      total: unitPrice,
+      addedAt: now,
+      itemType: 'service',
+    }
+    setSelectedProducts((prev) => [newItem, ...prev])
   }
 
   const formatNumber = (value: number): string => {
@@ -558,9 +585,9 @@ export function SaleModal({ isOpen, onClose, onSave, sale, onUpdate }: SaleModal
   const handlePriceBlur = (itemId: string) => {
     // Validar precio al perder el foco y mostrar alerta si es inválido
     const item = selectedProducts.find(i => i.id === itemId)
-    if (item) {
-      const product = findProductById(item.productId)
-      if (!product) return
+    if (!item || isServiceSaleItem(item) || !item.productId) return
+    const product = findProductById(item.productId)
+    if (!product) return
       
       // Debug: ver qué valores tiene el producto
       console.log('[SALE MODAL] handlePriceBlur - product:', {
@@ -592,7 +619,6 @@ export function SaleModal({ isOpen, onClose, onSave, sale, onUpdate }: SaleModal
           setStockAlert({ show: false, message: '', productId: undefined })
         }
       }
-    }
   }
 
   const handleRemoveProduct = (itemId: string) => {
@@ -614,17 +640,19 @@ export function SaleModal({ isOpen, onClose, onSave, sale, onUpdate }: SaleModal
     const item = selectedProducts.find(item => item.id === itemId)
     if (!item) return
 
-    const availableStock = getAvailableStock(item.productId)
-    
-    // Verificar que no se exceda el stock disponible (solo si es mayor a 0)
-    if (newQuantity > 0 && newQuantity > availableStock) {
-      showStockAlert(`Solo hay ${availableStock} unidades disponibles de este producto`, item.productId)
-      return
-    }
+    if (!isServiceSaleItem(item) && item.productId) {
+      const availableStock = getAvailableStock(item.productId)
+      
+      // Verificar que no se exceda el stock disponible (solo si es mayor a 0)
+      if (newQuantity > 0 && newQuantity > availableStock) {
+        showStockAlert(`Solo hay ${availableStock} unidades disponibles de este producto`, item.productId)
+        return
+      }
 
-    // Si la cantidad es válida, ocultar la alerta
-    if (stockAlert.show && stockAlert.productId === item.productId) {
-      hideStockAlert()
+      // Si la cantidad es válida, ocultar la alerta
+      if (stockAlert.show && stockAlert.productId === item.productId) {
+        hideStockAlert()
+      }
     }
 
     setSelectedProducts(prev =>
@@ -653,7 +681,7 @@ export function SaleModal({ isOpen, onClose, onSave, sale, onUpdate }: SaleModal
     
     // Verificar que no se exceda el stock disponible
     if (quantity > availableStock) {
-      showStockAlert(`Solo hay ${availableStock} unidades disponibles de este producto`, item.productId)
+      showStockAlert(`Solo hay ${availableStock} unidades disponibles de este producto`, item.productId ?? undefined)
       return
     }
     
@@ -684,6 +712,7 @@ export function SaleModal({ isOpen, onClose, onSave, sale, onUpdate }: SaleModal
     // Validar que todos los precios de venta sean >= costo de adquisición (en Sincelejo y microtiendas)
     const invalidProducts: string[] = []
     validProducts.forEach(item => {
+      if (isServiceSaleItem(item) || !item.productId) return
       const product = findProductById(item.productId)
       if (!product) return
       
@@ -937,12 +966,24 @@ export function SaleModal({ isOpen, onClose, onSave, sale, onUpdate }: SaleModal
               {/* Product Selection */}
               <Card className="bg-white dark:bg-neutral-900 border-gray-200 dark:border-neutral-700 shadow-sm hover:shadow-md transition-shadow">
                 <CardHeader className="pb-3">
-                  <CardTitle className="flex items-center text-base font-semibold text-gray-900 dark:text-white">
-                    <div className="h-8 w-8 rounded-lg bg-green-100 dark:bg-green-900/30 flex items-center justify-center mr-3">
-                      <Package className="h-4 w-4 text-green-600 dark:text-green-400" />
-                    </div>
-                    Agregar Productos
-                  </CardTitle>
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <CardTitle className="flex items-center text-base font-semibold text-gray-900 dark:text-white">
+                      <div className="h-8 w-8 rounded-lg bg-green-100 dark:bg-green-900/30 flex items-center justify-center mr-3">
+                        <Package className="h-4 w-4 text-green-600 dark:text-green-400" />
+                      </div>
+                      Productos y servicios
+                    </CardTitle>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setShowServiceDialog(true)}
+                      className="border-[#DB462D]/40 text-[#DB462D] hover:bg-[#DB462D]/10"
+                    >
+                      <Wrench className="mr-1.5 h-4 w-4" />
+                      Servicio
+                    </Button>
+                  </div>
                 </CardHeader>
                 <CardContent className="p-4 pt-0">
                   <div className="space-y-3">
@@ -1551,6 +1592,13 @@ export function SaleModal({ isOpen, onClose, onSave, sale, onUpdate }: SaleModal
         categories={[]}
         client={null}
         isEdit={false}
+      />
+      <AddServiceDialog
+        open={showServiceDialog}
+        onOpenChange={setShowServiceDialog}
+        onAdd={handleAddService}
+        formatNumber={formatNumber}
+        parseNumber={parseNumber}
       />
     </div>
   )

@@ -681,7 +681,11 @@ export default function SaleDetailModal({
                       <tr>
                         <td>
                           <div style="font-weight: bold;">${item.productName}</div>
-                          <div style="font-size: 10px; color: #666;">Ref: ${item.productReferenceCode || 'N/A'}</div>
+                          <div style="font-size: 10px; color: #666;">${
+                            item.itemType === 'service' || !item.productId
+                              ? 'Servicio'
+                              : `Ref: ${item.productReferenceCode || 'N/A'}`
+                          }</div>
                         </td>
                         <td style="text-align: center;">${item.quantity}</td>
                         <td style="text-align: right;">${formatCurrency(item.unitPrice)}</td>
@@ -1033,7 +1037,11 @@ export default function SaleDetailModal({
                         <tr key={item.id} className={`border-b border-gray-600 ${index % 2 === 0 ? 'bg-gray-100 dark:bg-neutral-700' : ''}`}>
                           <td className="py-2 md:py-3 px-2 md:px-4">
                           <div className="font-medium text-gray-900 dark:text-white">{item.productName}</div>
-                            <div className="text-xs text-gray-500 dark:text-gray-400">Ref: {item.productReferenceCode || 'N/A'}</div>
+                            <div className="text-xs text-gray-500 dark:text-gray-400">
+                              {item.itemType === 'service' || !item.productId
+                                ? 'Servicio'
+                                : `Ref: ${item.productReferenceCode || 'N/A'}`}
+                            </div>
                           </td>
                           <td className="py-2 md:py-3 px-2 md:px-4 text-center">
                             <span className="inline-flex items-center justify-center w-8 h-8 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 rounded-full text-sm font-medium">

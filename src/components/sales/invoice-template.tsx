@@ -163,7 +163,11 @@ export function InvoiceTemplate({ sale, company, client }: InvoiceTemplateProps)
                 <tr key={item.id} className={index % 2 === 0 ? 'bg-gray-50' : ''}>
                   <td className="border border-gray-400 px-4 py-2">
                     <div className="font-medium">{item.productName}</div>
-                    <div className="text-sm text-gray-600">Ref: {item.productReferenceCode || 'N/A'}</div>
+                    <div className="text-sm text-gray-600">
+                      {item.itemType === 'service' || !item.productId
+                        ? 'Servicio'
+                        : `Ref: ${item.productReferenceCode || 'N/A'}`}
+                    </div>
                   </td>
                   <td className="border border-gray-400 px-4 py-2 text-center">{item.quantity}</td>
                   <td className="border border-gray-400 px-4 py-2 text-right">{formatCurrency(item.unitPrice)}</td>

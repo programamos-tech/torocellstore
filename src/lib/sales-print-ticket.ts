@@ -512,7 +512,11 @@ export async function printSaleTicket(sale: Sale): Promise<void> {
                     `
                         : ''
                     }
-                    <div class="product-ref" style="color: #000 !important; font-weight: bold !important;"><strong style="color: #000 !important; font-weight: bold !important;">Ref: ${item.productReferenceCode || 'N/A'}</strong></div>
+                    <div class="product-ref" style="color: #000 !important; font-weight: bold !important;"><strong style="color: #000 !important; font-weight: bold !important;">${
+                      item.itemType === 'service' || !item.productId
+                        ? 'Servicio'
+                        : `Ref: ${item.productReferenceCode || 'N/A'}`
+                    }</strong></div>
                   </div>
                 `
                 })

@@ -684,7 +684,9 @@ export function SaleDetailPageView({ sale, onBack, onPrint, onCancel }: SaleDeta
                             <td className="py-3 pr-3 align-top">
                               <div className="font-medium text-zinc-900 dark:text-zinc-100">{item.productName}</div>
                               <div className="text-xs text-zinc-500 dark:text-zinc-400">
-                                Ref: {item.productReferenceCode || 'N/A'}
+                                {item.itemType === 'service' || !item.productId
+                                  ? 'Servicio'
+                                  : `Ref: ${item.productReferenceCode || 'N/A'}`}
                               </div>
                             </td>
                             <td className="py-3 pr-3 text-center align-top">

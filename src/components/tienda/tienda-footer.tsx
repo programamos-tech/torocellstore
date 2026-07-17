@@ -15,7 +15,7 @@ export function TiendaFooter({ store }: TiendaFooterProps) {
   const phone = store?.phone?.trim()
 
   return (
-    <footer className="mt-auto bg-[#050505] text-[#9a968f]">
+    <footer className="mt-auto bg-[#000000] text-[#9DC2D1]">
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
         <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-12 lg:gap-8">
           <div className="lg:col-span-4">
@@ -29,8 +29,8 @@ export function TiendaFooter({ store }: TiendaFooterProps) {
                 unoptimized
               />
               <div>
-                <p className="tienda-display text-2xl font-semibold tracking-wide text-[#eceae6]">TOROCELL STORE</p>
-                <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-[#6b6560]">
+                <p className="tienda-display text-2xl font-semibold tracking-wide text-[#E8F2F5]">TOROCELL STORE</p>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-[#6B8A96]">
                   Más que tecnología
                 </p>
               </div>
@@ -40,32 +40,32 @@ export function TiendaFooter({ store }: TiendaFooterProps) {
               tienda.
             </p>
             <div className="mt-6 inline-flex rounded-full border border-white/[0.1] bg-white/[0.03] px-4 py-2">
-              <span className="text-[11px] font-medium uppercase tracking-[0.18em] text-[#9a968f]">
+              <span className="text-[11px] font-medium uppercase tracking-[0.18em] text-[#9DC2D1]">
                 Tecnología que te conecta
               </span>
             </div>
           </div>
 
           <div className="lg:col-span-3">
-            <p className="text-xs font-bold uppercase tracking-[0.22em] text-[#6b6560]">Tienda</p>
+            <p className="text-xs font-bold uppercase tracking-[0.22em] text-[#6B8A96]">Tienda</p>
             <ul className="mt-4 space-y-2.5 text-sm">
               <li>
-                <Link href="/tienda" className="transition-colors hover:text-[#eceae6]">
+                <Link href="/tienda" className="transition-colors hover:text-[#E8F2F5]">
                   Inicio
                 </Link>
               </li>
               <li>
-                <a href="#catalogo" className="transition-colors hover:text-[#eceae6]">
+                <a href="#catalogo" className="transition-colors hover:text-[#E8F2F5]">
                   Catálogo
                 </a>
               </li>
               <li>
-                <Link href="/tienda/favoritos" className="transition-colors hover:text-[#eceae6]">
+                <Link href="/tienda/favoritos" className="transition-colors hover:text-[#E8F2F5]">
                   Favoritos
                 </Link>
               </li>
               <li>
-                <Link href="/login" className="transition-colors hover:text-[#eceae6]">
+                <Link href="/login" className="transition-colors hover:text-[#E8F2F5]">
                   Acceso empresas
                 </Link>
               </li>
@@ -73,10 +73,10 @@ export function TiendaFooter({ store }: TiendaFooterProps) {
           </div>
 
           <div className="lg:col-span-3">
-            <p className="text-xs font-bold uppercase tracking-[0.22em] text-[#6b6560]">Contacto</p>
+            <p className="text-xs font-bold uppercase tracking-[0.22em] text-[#6B8A96]">Contacto</p>
             <ul className="mt-4 space-y-3 text-sm">
               <li className="flex items-start gap-2.5">
-                <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-[#9a968f]" strokeWidth={1.75} />
+                <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-[#9DC2D1]" strokeWidth={1.75} />
                 <span>
                   {address}
                   <br />
@@ -85,28 +85,28 @@ export function TiendaFooter({ store }: TiendaFooterProps) {
               </li>
               {phone && (
                 <li className="flex items-center gap-2.5">
-                  <Phone className="h-4 w-4 shrink-0 text-[#9a968f]" strokeWidth={1.75} />
-                  <a href={`tel:${phone.replace(/\s/g, '')}`} className="hover:text-[#eceae6]">
+                  <Phone className="h-4 w-4 shrink-0 text-[#9DC2D1]" strokeWidth={1.75} />
+                  <a href={`tel:${phone.replace(/\s/g, '')}`} className="hover:text-[#E8F2F5]">
                     {phone}
                   </a>
                 </li>
               )}
               <li className="flex items-center gap-2.5">
-                <MessageCircle className="h-4 w-4 shrink-0 text-[#9a968f]" strokeWidth={1.75} />
+                <MessageCircle className="h-4 w-4 shrink-0 text-[#9DC2D1]" strokeWidth={1.75} />
                 <span>Asesoría por WhatsApp en tienda</span>
               </li>
             </ul>
           </div>
 
           <div className="lg:col-span-2">
-            <p className="text-xs font-bold uppercase tracking-[0.22em] text-[#6b6560]">Síguenos</p>
+            <p className="text-xs font-bold uppercase tracking-[0.22em] text-[#6B8A96]">Síguenos</p>
             <ul className="mt-4 space-y-2.5 text-sm">
               <li>
                 <a
                   href="https://instagram.com"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 transition-colors hover:text-[#eceae6]"
+                  className="inline-flex items-center gap-2 transition-colors hover:text-[#E8F2F5]"
                 >
                   <Instagram className="h-4 w-4" strokeWidth={1.75} />
                   Instagram
@@ -119,7 +119,7 @@ export function TiendaFooter({ store }: TiendaFooterProps) {
         <div className="mt-12 flex items-center justify-between gap-4 pt-4 text-xs">
           <p>© {year} TOROCELL STORE. Todos los derechos reservados.</p>
           <Image
-            src="/logo-berea12.png"
+            src="/logo.jpeg"
             alt="Hecho por Berea — Software e IA a medida"
             width={72}
             height={32}

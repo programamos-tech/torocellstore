@@ -783,8 +783,8 @@ export default function SaleDetailModal({
   }
 
   return (
-    <div className="fixed inset-0 bg-white/70 dark:bg-black/60 backdrop-blur-sm z-50 flex flex-col p-4 xl:px-6">
-      <div className="bg-white dark:bg-neutral-900 rounded-none xl:rounded-2xl shadow-2xl w-full h-full xl:h-auto xl:w-auto xl:max-w-[95vw] xl:max-h-[85vh] xl:m-auto flex flex-col border-0 xl:border border-gray-200 dark:border-neutral-700 overflow-hidden">
+    <div className="fixed inset-0 zonat-modal-backdrop z-50 flex flex-col p-4 xl:px-6">
+      <div className="bg-white dark:bg-neutral-900 rounded-none xl:rounded-2xl shadow-2xl xl:m-auto flex w-full max-w-[min(72rem,calc(100vw-1.5rem))] max-h-[calc(100dvh-2.5rem)] sm:max-h-[calc(100dvh-4rem)] flex-col border-0 xl:border border-gray-200 dark:border-neutral-700 overflow-hidden">
         
         {/* Header */}
         <div className="flex items-center justify-between p-4 md:p-6 border-b border-gray-200 dark:border-neutral-600 flex-shrink-0 bg-green-50 dark:bg-green-900/20">

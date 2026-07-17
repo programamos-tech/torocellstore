@@ -17,12 +17,12 @@ const inputClass =
 
 /** Portal + z por encima del bottom nav (z-45); evita stacking atrapado en main (z-10). */
 const overlayClass =
-  'fixed inset-0 z-[100] overflow-hidden overscroll-none bg-black/50 px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-[max(1rem,env(safe-area-inset-top))] backdrop-blur-sm xl:left-56'
+  'fixed inset-0 z-[100] overflow-hidden overscroll-none zonat-modal-backdrop px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-[max(1rem,env(safe-area-inset-top))]  xl:left-56'
 
 const overlayInnerClass = 'flex h-full min-h-0 w-full touch-none items-center justify-center py-4'
 
 const shellClass =
-  'isolate flex max-h-[min(90dvh,calc(100dvh-env(safe-area-inset-top)-env(safe-area-inset-bottom)-2rem))] w-full max-w-4xl touch-auto flex-col overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-2xl dark:border-zinc-700 dark:bg-zinc-900'
+  'isolate flex w-full max-w-[min(72rem,calc(100vw-1.5rem))] max-h-[calc(100dvh-2.5rem)] sm:max-h-[calc(100dvh-4rem)] touch-auto flex-col overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-2xl dark:border-zinc-700 dark:bg-zinc-900'
 
 interface StockTransferModalProps {
   isOpen: boolean

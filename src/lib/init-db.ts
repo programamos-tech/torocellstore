@@ -101,13 +101,13 @@ export async function initializeDatabase() {
 
     }
 
-    // 5. Insertar usuario Diego
+    // 5. Insertar usuario admin
     const { error: diegoError } = await supabaseAdmin
       .from('users')
       .upsert({
         id: '1',
-        name: 'Diego Admin',
-        email: 'admin@torocell.store',
+        name: 'Wilson Admin',
+        email: 'wilson@torocell.com',
         password: 'admin123', // En producción, hashear la contraseña
         role: 'superadmin',
         permissions: [

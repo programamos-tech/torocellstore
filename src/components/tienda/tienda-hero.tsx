@@ -16,7 +16,7 @@ export function TiendaHero({ storeName, storeCity }: TiendaHeroProps) {
     : 'Bienvenido a TOROCELL STORE — tu tienda de confianza en tecnología'
 
   return (
-    <section className="relative w-full bg-[#0a0a0a]">
+    <section className="relative w-full bg-[#000000]">
       {!imgError ? (
         <div className="relative w-full">
           <img
@@ -30,19 +30,19 @@ export function TiendaHero({ storeName, storeCity }: TiendaHeroProps) {
             onError={() => setImgError(true)}
           />
           <div
-            className="pointer-events-none absolute inset-x-0 bottom-0 z-[1] h-20 bg-gradient-to-b from-transparent to-[#0a0a0a] sm:h-28"
+            className="pointer-events-none absolute inset-x-0 bottom-0 z-[1] h-20 bg-gradient-to-b from-transparent to-[#000000] sm:h-28"
             aria-hidden
           />
         </div>
       ) : (
         <div className="flex min-h-[240px] flex-col items-center justify-center px-6 py-16 text-center sm:min-h-[320px]">
-          <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#9a968f]">
+          <p className="text-xs font-semibold uppercase tracking-[0.28em] text-[#9DC2D1]">
             Más que tecnología
           </p>
-          <h1 className="tienda-display mt-3 text-3xl font-semibold text-[#eceae6] sm:text-4xl">
+          <h1 className="tienda-display mt-3 text-3xl font-semibold text-[#E8F2F5] sm:text-4xl">
             Bienvenido a TOROCELL STORE
           </h1>
-          {storeCity && <p className="mt-2 text-sm text-[#9a968f]">{storeCity}</p>}
+          {storeCity && <p className="mt-2 text-sm text-[#9DC2D1]">{storeCity}</p>}
         </div>
       )}
     </section>

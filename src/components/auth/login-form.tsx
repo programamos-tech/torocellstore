@@ -79,18 +79,18 @@ export function LoginForm() {
   return (
     <div
       data-auth-page
-      className="relative min-h-screen bg-zinc-50 text-zinc-900 dark:bg-zinc-950 dark:text-zinc-100"
+      className="relative min-h-screen bg-zinc-50 text-zinc-900 dark:bg-black dark:text-[#E8F2F5]"
     >
       <LoginThemeToggle className="fixed right-4 top-4 z-20 md:right-8 md:top-8" />
 
       <div
-        className="pointer-events-none fixed inset-0 bg-[radial-gradient(ellipse_100%_55%_at_50%_-15%,rgba(82,196,42,0.12),transparent_52%)] dark:bg-[radial-gradient(ellipse_100%_55%_at_50%_-15%,rgba(52,211,153,0.11),transparent_52%)]"
+        className="pointer-events-none fixed inset-0 bg-[radial-gradient(ellipse_100%_55%_at_50%_-15%,rgba(105, 178, 117,0.12),transparent_52%)] dark:bg-[radial-gradient(ellipse_100%_55%_at_50%_-15%,rgba(105, 178, 117,0.11),transparent_52%)]"
         aria-hidden
       />
       <div className="relative z-10 mx-auto flex min-h-screen max-w-md flex-col justify-center px-6 py-12">
         <div className="mb-10 flex justify-center">
-          <div className="relative h-20 w-20 md:h-24 md:w-24">
-            <Image src="/zonat-logo.webp" alt="TOROCELL STORE" width={96} height={96} className="object-contain" priority />
+          <div className="relative h-20 w-20 overflow-hidden rounded-full md:h-24 md:w-24">
+            <Image src="/logo.jpeg?v=2" alt="TOROCELL STORE" width={96} height={96} className="h-full w-full object-contain" priority />
           </div>
         </div>
 

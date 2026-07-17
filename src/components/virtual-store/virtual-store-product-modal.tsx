@@ -127,8 +127,8 @@ export function VirtualStoreProductModal({
   const previewSrc = uploadPreview || catalogImageUrl
 
   return createPortal(
-    <div className="fixed inset-0 z-[100] flex items-end justify-center bg-black/50 p-0 sm:items-center sm:p-4">
-      <div className="flex max-h-[92dvh] w-full max-w-lg flex-col overflow-hidden rounded-t-2xl border border-zinc-200 bg-white shadow-xl dark:border-zinc-700 dark:bg-zinc-900 sm:rounded-2xl">
+    <div className="fixed inset-0 z-[100] flex items-end justify-center zonat-modal-backdrop p-0 sm:items-center sm:p-4">
+      <div className="flex w-full max-w-[min(72rem,calc(100vw-1.5rem))] max-h-[calc(100dvh-2.5rem)] sm:max-h-[calc(100dvh-4rem)] flex-col overflow-hidden rounded-t-2xl border border-zinc-200 bg-white shadow-xl dark:border-zinc-700 dark:bg-zinc-900 sm:rounded-2xl">
         <div className="flex items-center justify-between border-b border-zinc-200 px-4 py-3 dark:border-zinc-800">
           <div className="min-w-0 pr-3">
             <p className="text-xs font-medium uppercase tracking-wide text-zinc-500">Tienda virtual</p>

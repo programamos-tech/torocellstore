@@ -47,46 +47,46 @@ export function StatsCards({ stats, period = 'month' }: StatsCardsProps) {
       title: 'Inversión Total',
       value: formatCurrency(stats.totalInvestment),
       icon: TrendingUp,
-      color: 'text-blue-600',
-      bgColor: 'bg-blue-100',
+      color: 'text-sky-600',
+      bgColor: 'bg-sky-100',
       change: changes.investment,
-      changeColor: 'text-blue-600'
+      changeColor: 'text-sky-600'
     },
     {
       title: 'Ganancia Total',
       value: formatCurrency(stats.totalProfit),
       icon: BarChart3,
-      color: 'text-purple-600',
-      bgColor: 'bg-purple-100',
+      color: 'text-amber-600',
+      bgColor: 'bg-amber-100',
       change: changes.profit,
-      changeColor: 'text-purple-600'
+      changeColor: 'text-amber-600'
     },
     {
       title: 'Margen de Ganancia',
       value: formatPercentage(stats.profitMargin),
       icon: TrendingUp,
-      color: 'text-orange-600',
-      bgColor: 'bg-orange-100',
+      color: 'text-amber-500',
+      bgColor: 'bg-amber-100',
       change: changes.margin,
-      changeColor: 'text-orange-600'
+      changeColor: 'text-amber-500'
     },
     {
       title: 'Productos en Stock',
       value: stats.totalProducts.toString(),
       icon: Package,
-      color: 'text-indigo-600',
-      bgColor: 'bg-indigo-100',
+      color: 'text-emerald-600',
+      bgColor: 'bg-emerald-100',
       change: changes.products,
-      changeColor: 'text-indigo-600'
+      changeColor: 'text-emerald-600'
     },
     {
       title: 'Clientes Activos',
       value: stats.totalClients.toString(),
       icon: Users,
-      color: 'text-emerald-600',
-      bgColor: 'bg-emerald-100',
+      color: 'text-sky-600',
+      bgColor: 'bg-sky-100',
       change: changes.clients,
-      changeColor: 'text-emerald-600'
+      changeColor: 'text-sky-600'
     },
     {
       title: 'Pagos Pendientes',
@@ -101,10 +101,10 @@ export function StatsCards({ stats, period = 'month' }: StatsCardsProps) {
       title: 'Stock Bajo',
       value: stats.lowStockProducts.toString(),
       icon: AlertTriangle,
-      color: 'text-yellow-600',
-      bgColor: 'bg-yellow-100',
+      color: 'text-amber-600',
+      bgColor: 'bg-amber-100',
       change: changes.stock,
-      changeColor: 'text-yellow-600'
+      changeColor: 'text-amber-600'
     }
   ]
 

@@ -1,6 +1,6 @@
-/** Imagen del hero en /tienda (public/hero-zonat-gold.png o vía env). */
+/** Imagen del hero en /tienda (public/logo.jpeg o vía env). */
 export const TIENDA_HERO_IMAGE =
-  process.env.NEXT_PUBLIC_TIENDA_HERO_IMAGE?.trim() || '/hero-zonat-gold.png'
+  process.env.NEXT_PUBLIC_TIENDA_HERO_IMAGE?.trim() || '/logo.jpeg'
 
 export const TIENDA_ANNOUNCEMENT_ITEMS = [
   'Envíos a toda Colombia · 100% seguros',

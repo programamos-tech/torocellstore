@@ -8,6 +8,7 @@ import { SupplierInvoice } from '@/types'
 import { SupplierInvoicesService } from '@/lib/supplier-invoices-service'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
+import { MODAL_PANEL, MODAL_BACKDROP_PAD } from '@/config/modal-layout'
 
 interface SupplierInvoiceHeaderActionsProps {
   invoice: SupplierInvoice | null
@@ -111,12 +112,15 @@ export function SupplierInvoiceHeaderActions({
 
       {cancelModalOpen && (
         <div
-          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm xl:left-56"
+          className={cn(
+            'fixed inset-0 z-[60] flex items-center justify-center zonat-modal-backdrop xl:left-56',
+            MODAL_BACKDROP_PAD
+          )}
           role="dialog"
           aria-modal="true"
           aria-labelledby="cancel-invoice-title"
         >
-          <div className="w-full max-w-md overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-2xl dark:border-zinc-700 dark:bg-zinc-900">
+          <div className={cn(MODAL_PANEL, 'border border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-900')}>
             <div className="flex items-center justify-between border-b border-red-200 bg-red-50 p-4 dark:border-red-900/40 dark:bg-red-950/30">
               <div className="flex min-w-0 items-center gap-2">
                 <AlertTriangle className="h-5 w-5 shrink-0 text-red-600" />

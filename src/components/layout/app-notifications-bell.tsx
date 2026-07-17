@@ -41,20 +41,20 @@ const KIND_ICON: Record<
 
 const KIND_STYLE: Record<AppNotificationKind, { wrap: string; icon: string }> = {
   receptions_pending: {
-    wrap: 'bg-orange-100 dark:bg-orange-950/70',
-    icon: 'text-orange-700 dark:text-orange-400',
+    wrap: 'bg-sky-100 dark:bg-sky-950/70',
+    icon: 'text-sky-700 dark:text-sky-400',
   },
   products_out_of_stock: {
-    wrap: 'bg-emerald-100 dark:bg-emerald-950/70',
-    icon: 'text-emerald-700 dark:text-emerald-400',
+    wrap: 'bg-amber-100 dark:bg-amber-950/70',
+    icon: 'text-amber-700 dark:text-amber-400',
   },
   credits_overdue: {
-    wrap: 'bg-rose-100 dark:bg-rose-950/70',
-    icon: 'text-rose-700 dark:text-rose-400',
+    wrap: 'bg-red-100 dark:bg-red-950/70',
+    icon: 'text-red-600 dark:text-red-400',
   },
   supplier_invoices_overdue: {
     wrap: 'bg-amber-100 dark:bg-amber-950/70',
-    icon: 'text-amber-800 dark:text-amber-400',
+    icon: 'text-amber-700 dark:text-amber-400',
   },
 }
 

@@ -117,7 +117,7 @@ export function WarrantyTable({
             <div className="min-w-0 flex-1 space-y-1.5">
               <CardTitle className="flex flex-wrap items-center gap-2 text-lg font-semibold tracking-tight text-zinc-900 dark:text-zinc-50 md:text-xl">
                 <Shield
-                  className="h-5 w-5 shrink-0 text-zinc-400 dark:text-zinc-500"
+                  className="h-5 w-5 shrink-0 text-sky-600 dark:text-sky-400"
                   strokeWidth={1.5}
                   aria-hidden
                 />
@@ -175,7 +175,7 @@ export function WarrantyTable({
           ) : warranties.length === 0 ? (
             <div className="py-16 text-center">
               <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full border border-dashed border-zinc-300 dark:border-zinc-600">
-                <Shield className="h-5 w-5 text-zinc-400" strokeWidth={1.5} />
+                <Shield className="h-5 w-5 text-sky-500/70" strokeWidth={1.5} />
               </div>
               <h3 className="text-base font-medium text-zinc-900 dark:text-zinc-100">No hay garantías</h3>
               <p className="mx-auto mt-1 max-w-sm text-sm text-zinc-500 dark:text-zinc-400">

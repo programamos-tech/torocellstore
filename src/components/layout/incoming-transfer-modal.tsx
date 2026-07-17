@@ -141,7 +141,7 @@ export function IncomingTransferModal() {
     >
       <DialogContent
         className={cn(
-          'max-w-md gap-0 overflow-hidden border-orange-200/90 p-0 dark:border-orange-800/60',
+          'gap-0 overflow-hidden border-orange-200/90 p-0 dark:border-orange-800/60',
           'bg-white dark:bg-zinc-950'
         )}
       >

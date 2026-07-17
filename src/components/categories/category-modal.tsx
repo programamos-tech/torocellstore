@@ -1,11 +1,13 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useLayoutEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { X, Tag, Plus, Trash2, FileText } from 'lucide-react'
 import { Category } from '@/types'
+import { cn } from '@/lib/utils'
+import { MODAL_PANEL, MODAL_BACKDROP_PAD } from '@/config/modal-layout'
 
 interface CategoryModalProps {
   isOpen: boolean
@@ -16,30 +18,41 @@ interface CategoryModalProps {
   categories: Category[]
 }
 
-export function CategoryModal({ 
-  isOpen, 
-  onClose, 
+const fieldLabel = 'mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300'
+const fieldInput =
+  'h-10 w-full rounded-lg border border-zinc-300 bg-white px-3 text-sm text-zinc-900 placeholder:text-zinc-400 transition-colors focus:border-zinc-500 focus:outline-none focus:ring-2 focus:ring-zinc-500/20 dark:border-zinc-600 dark:bg-zinc-800/80 dark:text-zinc-100 dark:placeholder:text-zinc-500'
+const sectionTitle = 'flex items-center gap-2 text-base font-semibold text-zinc-900 dark:text-zinc-100'
+const modalCard =
+  'rounded-xl border border-zinc-200 bg-white shadow-none outline-none dark:border-zinc-700 dark:bg-zinc-900'
+
+export function CategoryModal({
+  isOpen,
+  onClose,
   onSave,
-  onToggleStatus, 
+  onToggleStatus,
   onDelete,
-  categories 
+  categories,
 }: CategoryModalProps) {
+  const [mounted, setMounted] = useState(false)
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    status: 'active' as 'active' | 'inactive'
+    status: 'active' as 'active' | 'inactive',
   })
-
   const [errors, setErrors] = useState<Record<string, string>>({})
+
+  useLayoutEffect(() => {
+    setMounted(true)
+  }, [])
 
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'active':
-        return 'bg-cyan-100 text-cyan-800 dark:bg-cyan-900/20 dark:text-cyan-400'
+        return 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300'
       case 'inactive':
-        return 'bg-gray-100 text-gray-800 dark:bg-neutral-950/20 dark:text-gray-400'
+        return 'bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300'
       default:
-        return 'bg-gray-100 text-gray-800 dark:bg-neutral-950/20 dark:text-gray-400'
+        return 'bg-zinc-100 text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300'
     }
   }
 
@@ -56,14 +69,8 @@ export function CategoryModal({
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {}
-    
-    if (!formData.name.trim()) {
-      newErrors.name = 'El nombre es requerido'
-    }
-    if (!formData.description.trim()) {
-      newErrors.description = 'La descripción es requerida'
-    }
-    
+    if (!formData.name.trim()) newErrors.name = 'El nombre es requerido'
+    if (!formData.description.trim()) newErrors.description = 'La descripción es requerida'
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
@@ -76,46 +83,51 @@ export function CategoryModal({
   }
 
   const handleSave = () => {
-    if (validateForm()) {
-      onSave({
-        name: formData.name.trim(),
-        description: formData.description.trim(),
-        status: formData.status
-      })
-      // Limpiar el formulario después de crear una categoría
-      setFormData({
-        name: '',
-        description: '',
-        status: 'active'
-      })
-      setErrors({})
-    }
+    if (!validateForm()) return
+    onSave({
+      name: formData.name.trim(),
+      description: formData.description.trim(),
+      status: formData.status,
+    })
+    setFormData({ name: '', description: '', status: 'active' })
+    setErrors({})
   }
 
   const handleClose = () => {
-    setFormData({
-      name: '',
-      description: '',
-      status: 'active'
-    })
+    setFormData({ name: '', description: '', status: 'active' })
     setErrors({})
     onClose()
   }
 
-  if (!isOpen) return null
+  if (!isOpen || !mounted) return null
 
-  return (
-    <div className="fixed inset-0 bg-white/70 dark:bg-black/60 backdrop-blur-sm z-50 flex flex-col xl:items-center xl:justify-center p-4">
-      <div className="bg-white dark:bg-neutral-950 rounded-none xl:rounded-2xl shadow-2xl w-full h-full xl:h-auto xl:w-auto xl:max-w-6xl xl:max-h-[95vh] overflow-hidden flex flex-col border-0 xl:border border-gray-200 dark:border-neutral-700">
-        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain flex flex-col">
-        <div className="flex items-center justify-between border-b border-gray-200 bg-gradient-to-r from-cyan-50 to-cyan-100 p-4 dark:border-neutral-700 dark:from-cyan-900/20 dark:to-cyan-800/20 md:p-6">
-          <div className="flex items-center gap-3">
-            <Tag className="h-5 w-5 md:h-8 md:w-8 text-cyan-600" />
-            <div>
-              <h2 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">
-                Gestión de Categorías
+  const modal = (
+    <div
+      className={cn(
+        'fixed inset-0 z-[100] flex items-center justify-center zonat-modal-backdrop xl:left-60',
+        MODAL_BACKDROP_PAD
+      )}
+    >
+      <div
+        className={cn(
+          MODAL_PANEL,
+          'zonat-preserve-surface border border-zinc-200 bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-950'
+        )}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="category-modal-title"
+      >
+        <header className="flex shrink-0 items-start justify-between gap-3 border-b border-zinc-200 bg-white px-4 py-4 dark:border-zinc-800 dark:bg-zinc-950 sm:px-5">
+          <div className="flex min-w-0 items-start gap-2.5">
+            <Tag className="mt-0.5 h-5 w-5 shrink-0 text-emerald-600 dark:text-emerald-400" strokeWidth={1.5} aria-hidden />
+            <div className="min-w-0">
+              <h2
+                id="category-modal-title"
+                className="text-base font-semibold leading-tight tracking-tight text-zinc-900 dark:text-zinc-50 sm:text-lg"
+              >
+                Gestión de categorías
               </h2>
-              <p className="text-xs md:text-sm text-gray-600 dark:text-gray-300">
+              <p className="mt-0.5 text-sm text-zinc-500 dark:text-zinc-400">
                 Crea nuevas categorías y gestiona las existentes
               </p>
             </div>
@@ -125,196 +137,207 @@ export function CategoryModal({
             onClick={handleClose}
             variant="ghost"
             size="sm"
-            className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+            className="h-9 w-9 shrink-0 rounded-lg p-0 text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100"
+            aria-label="Cerrar"
           >
             <X className="h-5 w-5" />
           </Button>
-        </div>
+        </header>
 
         <form
-          onSubmit={(e) => { e.preventDefault(); handleSave() }}
-          className="flex flex-col p-4 md:p-6"
-          style={{ paddingBottom: 'max(1rem, calc(env(safe-area-inset-bottom, 0px) + 0.75rem))' }}
+          onSubmit={e => {
+            e.preventDefault()
+            handleSave()
+          }}
+          className="flex min-h-0 flex-1 flex-col overflow-hidden"
         >
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 md:gap-6">
-            {/* Información de la Categoría */}
-            <Card className="bg-white dark:bg-neutral-900 border-gray-200 dark:border-neutral-700">
-              <CardHeader>
-                <CardTitle className="text-lg text-gray-900 dark:text-white flex items-center gap-2">
-                  <FileText className="h-5 w-5 text-cyan-600" />
-                  Información de la Categoría
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Nombre de la Categoría *
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.name}
-                    onChange={(e) => handleInputChange('name', e.target.value)}
-                    className={`w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-cyan-500 focus:border-transparent text-gray-900 dark:text-white bg-white dark:bg-neutral-800 ${
-                      errors.name ? 'border-red-500' : 'border-gray-300 dark:border-neutral-600'
-                    }`}
-                    placeholder="Nombre de la categoría"
-                  />
-                  {errors.name && (
-                    <p className="mt-1 text-sm text-red-500">{errors.name}</p>
-                  )}
+          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain bg-zinc-50 px-3 py-3 scrollbar-hide dark:bg-zinc-950 sm:px-5 sm:py-4 lg:overflow-hidden">
+            <div className="grid grid-cols-1 gap-3 lg:grid-cols-2 lg:gap-4 lg:items-stretch lg:h-full">
+              {/* Formulario */}
+              <div className={cn(modalCard, 'flex flex-col p-4')}>
+                <div className={cn(sectionTitle, 'mb-3')}>
+                  <FileText className="h-4 w-4 text-sky-600 dark:text-sky-400" strokeWidth={1.5} aria-hidden />
+                  Información de la categoría
                 </div>
+                <div className="space-y-3">
+                  <div>
+                    <label className={fieldLabel}>
+                      Nombre <span className="text-zinc-400">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={formData.name}
+                      onChange={e => handleInputChange('name', e.target.value)}
+                      className={cn(fieldInput, errors.name && 'border-red-500/70 ring-1 ring-red-500/30')}
+                      placeholder="Nombre de la categoría"
+                    />
+                    {errors.name && <p className="mt-1 text-sm text-red-500">{errors.name}</p>}
+                  </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    Descripción *
-                  </label>
-                  <textarea
-                    value={formData.description}
-                    onChange={(e) => handleInputChange('description', e.target.value)}
-                    className={`w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-cyan-500 focus:border-transparent text-gray-900 dark:text-white bg-white dark:bg-neutral-800 ${
-                      errors.description ? 'border-red-500' : 'border-gray-300 dark:border-neutral-600'
-                    }`}
-                    placeholder="Descripción de la categoría"
-                    rows={3}
-                  />
-                  {errors.description && (
-                    <p className="mt-1 text-sm text-red-500">{errors.description}</p>
-                  )}
-                </div>
+                  <div>
+                    <label className={fieldLabel}>
+                      Descripción <span className="text-zinc-400">*</span>
+                    </label>
+                    <textarea
+                      value={formData.description}
+                      onChange={e => handleInputChange('description', e.target.value)}
+                      className={cn(
+                        'min-h-[5rem] w-full resize-y rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 placeholder:text-zinc-400 focus:border-zinc-500 focus:outline-none focus:ring-2 focus:ring-zinc-500/20 dark:border-zinc-600 dark:bg-zinc-800/80 dark:text-zinc-100',
+                        errors.description && 'border-red-500/70 ring-1 ring-red-500/30'
+                      )}
+                      placeholder="Descripción de la categoría"
+                      rows={3}
+                    />
+                    {errors.description && (
+                      <p className="mt-1 text-sm text-red-500">{errors.description}</p>
+                    )}
+                  </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-3">
-                    Estado
-                  </label>
-                  <div className="grid grid-cols-2 gap-3">
-                    <button
-                      type="button"
-                      onClick={() => handleInputChange('status', 'active')}
-                      className={`p-4 rounded-lg border-2 transition-all ${
-                        formData.status === 'active'
-                          ? 'border-cyan-500 bg-cyan-50 dark:bg-cyan-900/20'
-                          : 'border-gray-300 dark:border-neutral-600 hover:border-gray-400 dark:hover:border-gray-500'
-                      }`}
-                    >
-                      <div className="flex items-center space-x-3">
-                        <div className={`w-3 h-3 rounded-full ${formData.status === 'active' ? 'bg-cyan-500' : 'bg-gray-400'}`}></div>
-                        <div className="text-left">
-                          <div className={`font-medium ${formData.status === 'active' ? 'text-cyan-600' : 'text-gray-700 dark:text-gray-300'}`}>
-                            Activa
-                          </div>
-                          <div className="text-sm text-gray-500 dark:text-gray-400">
-                            Categoría disponible
-                          </div>
-                        </div>
-                      </div>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleInputChange('status', 'inactive')}
-                      className={`p-4 rounded-lg border-2 transition-all ${
-                        formData.status === 'inactive'
-                          ? 'border-cyan-500 bg-cyan-50 dark:bg-cyan-900/20'
-                          : 'border-gray-300 dark:border-neutral-600 hover:border-gray-400 dark:hover:border-gray-500'
-                      }`}
-                    >
-                      <div className="flex items-center space-x-3">
-                        <div className={`w-3 h-3 rounded-full ${formData.status === 'inactive' ? 'bg-cyan-500' : 'bg-gray-400'}`}></div>
-                        <div className="text-left">
-                          <div className={`font-medium ${formData.status === 'inactive' ? 'text-cyan-600' : 'text-gray-700 dark:text-gray-300'}`}>
-                            Inactiva
-                          </div>
-                          <div className="text-sm text-gray-500 dark:text-gray-400">
-                            Categoría deshabilitada
-                          </div>
-                        </div>
-                      </div>
-                    </button>
+                  <div>
+                    <label className={fieldLabel}>Estado</label>
+                    <div className="grid grid-cols-2 gap-2">
+                      {(['active', 'inactive'] as const).map(status => {
+                        const selected = formData.status === status
+                        return (
+                          <button
+                            key={status}
+                            type="button"
+                            onClick={() => handleInputChange('status', status)}
+                            className={cn(
+                              'rounded-lg border px-3 py-2.5 text-left transition-colors',
+                              selected
+                                ? 'border-emerald-500/50 bg-emerald-500/[0.08] dark:border-emerald-500/40 dark:bg-emerald-500/10'
+                                : 'border-zinc-200 bg-white hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900 dark:hover:bg-zinc-800'
+                            )}
+                          >
+                            <div className="flex items-center gap-2">
+                              <span
+                                className={cn(
+                                  'h-2.5 w-2.5 rounded-full',
+                                  selected ? 'bg-emerald-500' : 'bg-zinc-400'
+                                )}
+                              />
+                              <div>
+                                <div
+                                  className={cn(
+                                    'text-sm font-medium',
+                                    selected
+                                      ? 'text-emerald-700 dark:text-emerald-300'
+                                      : 'text-zinc-700 dark:text-zinc-300'
+                                  )}
+                                >
+                                  {getStatusLabel(status)}
+                                </div>
+                                <div className="text-xs text-zinc-500 dark:text-zinc-400">
+                                  {status === 'active' ? 'Disponible' : 'Deshabilitada'}
+                                </div>
+                              </div>
+                            </div>
+                          </button>
+                        )
+                      })}
+                    </div>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
 
-            {/* Categorías Existentes */}
-            <Card className="bg-white dark:bg-neutral-900 border-gray-200 dark:border-neutral-700">
-              <CardHeader>
-                <CardTitle className="text-lg text-gray-900 dark:text-white flex items-center gap-2">
-                  <Tag className="h-5 w-5 text-cyan-600" />
-                  Categorías Existentes
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3 max-h-96 overflow-y-auto">
+              {/* Lista */}
+              <div className={cn(modalCard, 'flex min-h-0 flex-col overflow-hidden')}>
+                <div className="flex shrink-0 items-center justify-between gap-2 border-b border-zinc-200 px-4 py-3 dark:border-zinc-800">
+                  <div className={sectionTitle}>
+                    <Tag className="h-4 w-4 text-emerald-600 dark:text-emerald-400" strokeWidth={1.5} aria-hidden />
+                    Categorías existentes
+                  </div>
+                  <span className="text-xs tabular-nums text-zinc-500 dark:text-zinc-400">
+                    {categories.length}
+                  </span>
+                </div>
+                <div className="min-h-0 flex-1 space-y-1.5 overflow-y-auto p-3 scrollbar-hide lg:max-h-[calc(100dvh-16rem)]">
                   {categories
+                    .slice()
                     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-                    .map((cat) => (
-                    <div key={cat.id} className="flex items-center justify-between p-3 border border-gray-200 dark:border-neutral-600 rounded-lg bg-gray-50 dark:bg-neutral-800 hover:bg-gray-100 dark:hover:bg-neutral-700 transition-colors">
-                      <div className="flex-1">
-                        <div className="flex items-center space-x-3">
-                          <h4 className="font-medium text-gray-900 dark:text-white">{cat.name}</h4>
-                          <Badge className={getStatusColor(cat.status)}>
-                            {getStatusLabel(cat.status)}
-                          </Badge>
+                    .map(cat => (
+                      <div
+                        key={cat.id}
+                        className="flex items-center gap-3 rounded-lg border border-zinc-200 bg-zinc-50/80 px-3 py-2 dark:border-zinc-700 dark:bg-zinc-950/40"
+                      >
+                        <div className="min-w-0 flex-1">
+                          <div className="flex min-w-0 flex-wrap items-center gap-2">
+                            <h4 className="truncate text-sm font-medium text-zinc-900 dark:text-zinc-100">
+                              {cat.name}
+                            </h4>
+                            <Badge className={cn('text-[11px]', getStatusColor(cat.status))}>
+                              {getStatusLabel(cat.status)}
+                            </Badge>
+                          </div>
+                          <p className="mt-0.5 line-clamp-1 text-xs text-zinc-500 dark:text-zinc-400">
+                            {cat.description}
+                          </p>
                         </div>
-                        <p className="text-sm text-gray-600 dark:text-gray-300 mt-1">{cat.description}</p>
+                        <div className="flex shrink-0 items-center gap-1.5">
+                          <button
+                            type="button"
+                            onClick={() =>
+                              onToggleStatus(cat.id, cat.status === 'active' ? 'inactive' : 'active')
+                            }
+                            className={cn(
+                              'relative inline-flex h-5 w-9 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500/40',
+                              cat.status === 'active'
+                                ? 'bg-emerald-600'
+                                : 'bg-zinc-200 dark:bg-zinc-700'
+                            )}
+                            title={cat.status === 'active' ? 'Desactivar' : 'Activar'}
+                            aria-label={cat.status === 'active' ? 'Desactivar categoría' : 'Activar categoría'}
+                          >
+                            <span
+                              className={cn(
+                                'inline-block h-3.5 w-3.5 transform rounded-full bg-white transition-transform',
+                                cat.status === 'active' ? 'translate-x-[1.125rem]' : 'translate-x-0.5'
+                              )}
+                            />
+                          </button>
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => onDelete(cat.id)}
+                            className="h-8 w-8 p-0 text-red-500 hover:bg-red-50 hover:text-red-700 dark:hover:bg-red-950/30"
+                            title="Eliminar categoría"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
                       </div>
-                      <div className="flex items-center space-x-3">
-                        {/* Toggle estilo iOS */}
-                        <button
-                          onClick={() => onToggleStatus(cat.id, cat.status === 'active' ? 'inactive' : 'active')}
-                          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 ${
-                            cat.status === 'active' 
-                              ? 'bg-cyan-600' 
-                              : 'bg-gray-200 dark:bg-neutral-700'
-                          }`}
-                          title={cat.status === 'active' ? 'Desactivar categoría' : 'Activar categoría'}
-                        >
-                          <span
-                            className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                              cat.status === 'active' ? 'translate-x-6' : 'translate-x-1'
-                            }`}
-                          />
-                        </button>
-                        
-                        {/* Botón de eliminar */}
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => onDelete(cat.id)}
-                          className="h-8 w-8 p-0 text-red-500 hover:text-red-700 hover:bg-red-50 dark:text-red-400 dark:hover:text-red-300 dark:hover:bg-red-900/20"
-                          title="Eliminar categoría"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </div>
-                  ))}
+                    ))}
                   {categories.length === 0 && (
-                    <div className="text-center py-8 text-gray-500 dark:text-gray-400">
-                      <Tag className="h-12 w-12 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
-                      <p>No hay categorías creadas</p>
+                    <div className="py-10 text-center text-sm text-zinc-500 dark:text-zinc-400">
+                      <Tag className="mx-auto mb-2 h-8 w-8 text-zinc-300 dark:text-zinc-600" />
+                      No hay categorías creadas
                     </div>
                   )}
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           </div>
 
-          <div className="mt-6 flex items-center justify-end space-x-3 pt-2">
-            <Button
-              type="button"
-              onClick={handleClose}
-              variant="outline"
-            >
+          <div
+            className="flex shrink-0 justify-end gap-2 border-t border-zinc-200 bg-white px-4 py-3 dark:border-zinc-800 dark:bg-zinc-950 sm:px-5"
+            style={{
+              paddingBottom: 'max(0.75rem, calc(env(safe-area-inset-bottom, 0px) + 0.5rem))',
+            }}
+          >
+            <Button type="button" onClick={handleClose} variant="outline" size="sm">
               Cancelar
             </Button>
-            <Button type="submit">
-              <Plus className="h-4 w-4 mr-2" />
-              Crear Categoría
+            <Button type="submit" size="sm">
+              <Plus className="mr-1.5 h-4 w-4" />
+              Crear categoría
             </Button>
           </div>
         </form>
-        </div>
       </div>
     </div>
   )
+
+  return createPortal(modal, document.body)
 }

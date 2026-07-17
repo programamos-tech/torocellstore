@@ -1,14 +1,20 @@
 /** Logo premium para catálogo público /tienda */
-export const TIENDA_LOGO = '/zonat-gold.png'
+export const TIENDA_LOGO = '/logo.jpeg'
 
-/** Paleta matte black + dorado (referencia listado premium TOROCELL STORE) */
+/**
+ * Paleta tienda pública alineada a marca Torocell:
+ * #000000 · #9DC2D1 · #DB462D · #F7BE4B · #69B275
+ */
 export const TIENDA_COLORS = {
-  black: '#0a0a0a',
-  blackSoft: '#121212',
-  blackCard: '#161616',
-  gold: '#b8973f',
-  goldLight: '#d4c9a8',
-  goldMuted: 'rgba(184, 151, 63, 0.45)',
-  cream: '#f5f0e6',
-  creamMuted: '#9a968f',
+  black: '#000000',
+  blackSoft: '#0a0a0a',
+  blackCard: '#141414',
+  gold: '#F7BE4B',
+  goldLight: '#F9CC6E',
+  goldMuted: 'rgba(247, 190, 75, 0.45)',
+  cream: '#E8F2F5',
+  creamMuted: '#9DC2D1',
+  blue: '#9DC2D1',
+  red: '#DB462D',
+  green: '#69B275',
 } as const

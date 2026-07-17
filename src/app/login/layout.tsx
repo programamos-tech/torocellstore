@@ -16,9 +16,9 @@ export const metadata: Metadata = {
   title: "TOROCELL STORE - Iniciar Sesión",
   description: "Sistema de gestión de inventario y ventas para TOROCELL STORE",
   icons: {
-    icon: '/zonat-logo.png',
-    shortcut: '/zonat-logo.png',
-    apple: '/zonat-logo.png'
+    icon: '/logo.jpeg',
+    shortcut: '/logo.jpeg',
+    apple: '/logo.jpeg'
   },
 };
 

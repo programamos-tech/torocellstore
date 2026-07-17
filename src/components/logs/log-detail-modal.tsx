@@ -425,7 +425,7 @@ export function LogDetailModal({ isOpen, onClose, log }: LogDetailModalProps) {
 
   const modal = (
     <div
-      className="scrollbar-hide fixed inset-0 z-[100] flex items-center justify-center overflow-y-auto overscroll-contain bg-black/45 px-3 backdrop-blur-sm dark:bg-black/65 sm:px-6"
+      className="scrollbar-hide fixed inset-0 z-[100] flex items-center justify-center overflow-y-auto overscroll-contain zonat-modal-backdrop px-3 sm:px-6"
       style={{
         paddingTop: 'max(0.75rem, env(safe-area-inset-top, 0px))',
         paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom, 0px))'
@@ -438,7 +438,7 @@ export function LogDetailModal({ isOpen, onClose, log }: LogDetailModalProps) {
       }}
     >
       <div
-        className="my-4 flex w-full max-w-4xl flex-col overflow-hidden rounded-2xl border border-zinc-200/80 bg-white shadow-xl dark:border-zinc-800 dark:bg-zinc-900/95"
+        className="my-4 flex w-full max-w-[min(72rem,calc(100vw-1.5rem))] max-h-[calc(100dvh-2.5rem)] sm:max-h-[calc(100dvh-4rem)] flex-col overflow-hidden rounded-2xl border border-zinc-200/80 bg-white shadow-xl dark:border-zinc-800 dark:bg-zinc-900/95"
         onClick={e => e.stopPropagation()}
       >
         {/* Header — misma línea visual que registro de actividades */}

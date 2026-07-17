@@ -18,6 +18,7 @@ import {
 } from '@/lib/supplier-invoice-image-limits'
 import { useAuth } from '@/contexts/auth-context'
 import { cn } from '@/lib/utils'
+import { MODAL_PANEL, MODAL_BACKDROP_PAD } from '@/config/modal-layout'
 import { toast } from 'sonner'
 
 /** Valor guardado en BD: URL absoluta o ruta `invoices/...` dentro del bucket. */
@@ -307,22 +308,30 @@ export function SupplierInvoiceModal({
   const blocked =
     invoice?.status === 'cancelled' || invoice?.status === 'paid'
 
-  /* Portal + z-[100]: el <main> tiene z-10; la bottom nav del body es z-40 y robaba los toques en iPad.
-     Overlay con overflow-y-auto + min-h-full para poder desplazar modales altos en tablet. */
+  /* Portal + z-[100]: solo workspace (xl:left-56 = no sidebar), mismo tamaño que productos. */
   const modal = (
-    <div className="fixed inset-0 z-[100] overflow-y-auto overflow-x-hidden bg-white/70 backdrop-blur-sm dark:bg-black/60 xl:left-56">
+    <div
+      className={cn(
+        'fixed inset-0 z-[100] flex items-center justify-center zonat-modal-backdrop xl:left-56',
+        MODAL_BACKDROP_PAD
+      )}
+    >
       <div
-        className="flex min-h-[100dvh] w-full items-center justify-center p-3 sm:p-6 sm:py-8 lg:px-12"
-        style={{
-          paddingTop: 'max(0.75rem, env(safe-area-inset-top, 0px))',
-          paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom, 0px))'
-        }}
+        className={cn(
+          MODAL_PANEL,
+          'zonat-preserve-surface border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950'
+        )}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="supplier-invoice-modal-title"
       >
-        <div className="my-auto flex w-full max-h-[min(92dvh,880px)] min-h-0 max-w-full flex-col overflow-hidden rounded-2xl border border-zinc-200/90 bg-white shadow-xl dark:border-zinc-800 dark:bg-zinc-900/95 sm:max-w-2xl lg:max-w-3xl">
           <div className="flex shrink-0 items-center justify-between gap-3 border-b border-zinc-200/90 px-4 py-3.5 sm:px-5 dark:border-zinc-800">
             <div className="flex min-w-0 items-center gap-2.5">
               <FileText className="h-5 w-5 shrink-0 text-zinc-500 dark:text-zinc-400" aria-hidden />
-              <h2 className="line-clamp-2 text-base font-semibold leading-tight tracking-tight text-zinc-900 dark:text-zinc-50 sm:text-lg">
+              <h2
+                id="supplier-invoice-modal-title"
+                className="line-clamp-2 text-base font-semibold leading-tight tracking-tight text-zinc-900 dark:text-zinc-50 sm:text-lg"
+              >
                 {isEdit ? 'Editar factura' : 'Nueva factura de proveedor'}
               </h2>
             </div>
@@ -566,7 +575,6 @@ export function SupplierInvoiceModal({
             </Button>
           </div>
         </form>
-        </div>
       </div>
     </div>
   )

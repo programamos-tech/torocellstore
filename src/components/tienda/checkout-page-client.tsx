@@ -22,7 +22,7 @@ function formatCOP(n: number) {
 }
 
 const inputClass =
-  'h-11 w-full rounded-xl border border-white/10 bg-[#141414] px-3 text-sm text-[#eceae6] placeholder:text-[#6b6560] focus:border-[#b8973f]/40 focus:outline-none focus:ring-2 focus:ring-[#b8973f]/15'
+  'h-11 w-full rounded-xl border border-white/10 bg-[#1a1819] px-3 text-sm text-[#E8F2F5] placeholder:text-[#6B8A96] focus:border-[#F7BE4B]/40 focus:outline-none focus:ring-2 focus:ring-[#F7BE4B]/15'
 
 export function CheckoutPageClient({
   storeName,
@@ -95,26 +95,26 @@ export function CheckoutPageClient({
       <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-8 sm:px-6 lg:px-8">
         <Link
           href="/tienda"
-          className="mb-6 inline-flex items-center gap-1 text-sm text-[#9a968f] transition-colors hover:text-[#eceae6]"
+          className="mb-6 inline-flex items-center gap-1 text-sm text-[#9DC2D1] transition-colors hover:text-[#E8F2F5]"
         >
           <ArrowLeft className="h-4 w-4" />
           Volver al catálogo
         </Link>
 
-        <h1 className="tienda-display text-3xl font-semibold text-[#eceae6] sm:text-4xl">Checkout</h1>
-        <p className="mt-2 text-sm text-[#9a968f]">
+        <h1 className="tienda-display text-3xl font-semibold text-[#E8F2F5] sm:text-4xl">Checkout</h1>
+        <p className="mt-2 text-sm text-[#9DC2D1]">
           Completa tus datos y confirma el pedido. El pago es por transferencia bancaria.
         </p>
 
         <div className="mt-8 grid gap-8 lg:grid-cols-5">
           <form onSubmit={handleSubmit} className="space-y-4 lg:col-span-3">
             <div className="tienda-card-premium rounded-2xl p-5 sm:p-6">
-              <h2 className="text-sm font-semibold uppercase tracking-[0.16em] text-[#d4d0c8]">
+              <h2 className="text-sm font-semibold uppercase tracking-[0.16em] text-[#9DC2D1]">
                 Datos de entrega
               </h2>
               <div className="mt-4 grid gap-3 sm:grid-cols-2">
                 <div className="sm:col-span-2">
-                  <label className="mb-1 block text-xs text-[#9a968f]">Nombre completo *</label>
+                  <label className="mb-1 block text-xs text-[#9DC2D1]">Nombre completo *</label>
                   <input
                     required
                     className={inputClass}
@@ -123,7 +123,7 @@ export function CheckoutPageClient({
                   />
                 </div>
                 <div>
-                  <label className="mb-1 block text-xs text-[#9a968f]">Teléfono / WhatsApp *</label>
+                  <label className="mb-1 block text-xs text-[#9DC2D1]">Teléfono / WhatsApp *</label>
                   <input
                     required
                     type="tel"
@@ -133,7 +133,7 @@ export function CheckoutPageClient({
                   />
                 </div>
                 <div>
-                  <label className="mb-1 block text-xs text-[#9a968f]">Correo</label>
+                  <label className="mb-1 block text-xs text-[#9DC2D1]">Correo</label>
                   <input
                     type="email"
                     className={inputClass}
@@ -142,7 +142,7 @@ export function CheckoutPageClient({
                   />
                 </div>
                 <div>
-                  <label className="mb-1 block text-xs text-[#9a968f]">Ciudad *</label>
+                  <label className="mb-1 block text-xs text-[#9DC2D1]">Ciudad *</label>
                   <input
                     required
                     className={inputClass}
@@ -151,7 +151,7 @@ export function CheckoutPageClient({
                   />
                 </div>
                 <div className="sm:col-span-2">
-                  <label className="mb-1 block text-xs text-[#9a968f]">Dirección de entrega *</label>
+                  <label className="mb-1 block text-xs text-[#9DC2D1]">Dirección de entrega *</label>
                   <input
                     required
                     className={inputClass}
@@ -160,7 +160,7 @@ export function CheckoutPageClient({
                   />
                 </div>
                 <div className="sm:col-span-2">
-                  <label className="mb-1 block text-xs text-[#9a968f]">Notas del pedido</label>
+                  <label className="mb-1 block text-xs text-[#9DC2D1]">Notas del pedido</label>
                   <textarea
                     rows={3}
                     className={cn(inputClass, 'h-auto py-2')}
@@ -173,29 +173,29 @@ export function CheckoutPageClient({
 
             {bank && (
               <div className="tienda-card-premium rounded-2xl p-5 sm:p-6">
-                <div className="flex items-center gap-2 text-[#b8973f]">
+                <div className="flex items-center gap-2 text-[#F7BE4B]">
                   <Banknote className="h-5 w-5" strokeWidth={1.5} />
                   <h2 className="text-sm font-semibold uppercase tracking-[0.16em]">Pago por transferencia</h2>
                 </div>
-                <p className="mt-3 text-sm text-[#9a968f]">
+                <p className="mt-3 text-sm text-[#9DC2D1]">
                   Después de confirmar el pedido tendrás un tiempo limitado para subir el comprobante.
                 </p>
                 <dl className="mt-4 space-y-2 text-sm">
                   <div className="flex justify-between gap-4 border-b border-white/[0.06] pb-2">
-                    <dt className="text-[#6b6560]">Banco</dt>
-                    <dd className="font-medium text-[#eceae6]">{bank.bankName}</dd>
+                    <dt className="text-[#6B8A96]">Banco</dt>
+                    <dd className="font-medium text-[#E8F2F5]">{bank.bankName}</dd>
                   </div>
                   <div className="flex justify-between gap-4 border-b border-white/[0.06] pb-2">
-                    <dt className="text-[#6b6560]">Tipo de cuenta</dt>
-                    <dd className="font-medium text-[#eceae6]">{bank.accountType}</dd>
+                    <dt className="text-[#6B8A96]">Tipo de cuenta</dt>
+                    <dd className="font-medium text-[#E8F2F5]">{bank.accountType}</dd>
                   </div>
                   <div className="flex justify-between gap-4 border-b border-white/[0.06] pb-2">
-                    <dt className="text-[#6b6560]">Número</dt>
-                    <dd className="font-mono font-medium text-[#eceae6]">{bank.accountNumber}</dd>
+                    <dt className="text-[#6B8A96]">Número</dt>
+                    <dd className="font-mono font-medium text-[#E8F2F5]">{bank.accountNumber}</dd>
                   </div>
                   <div className="flex justify-between gap-4">
-                    <dt className="text-[#6b6560]">Titular</dt>
-                    <dd className="text-right font-medium text-[#eceae6]">{bank.accountHolder}</dd>
+                    <dt className="text-[#6B8A96]">Titular</dt>
+                    <dd className="text-right font-medium text-[#E8F2F5]">{bank.accountHolder}</dd>
                   </div>
                 </dl>
               </div>
@@ -228,7 +228,7 @@ export function CheckoutPageClient({
 
           <aside className="lg:col-span-2">
             <div className="tienda-card-premium sticky top-24 rounded-2xl p-5 sm:p-6">
-              <h2 className="text-sm font-semibold uppercase tracking-[0.16em] text-[#d4d0c8]">
+              <h2 className="text-sm font-semibold uppercase tracking-[0.16em] text-[#9DC2D1]">
                 Resumen ({itemCount} {itemCount === 1 ? 'artículo' : 'artículos'})
               </h2>
               <ul className="mt-4 max-h-80 space-y-3 overflow-y-auto">
@@ -249,18 +249,18 @@ export function CheckoutPageClient({
                       )}
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="line-clamp-2 text-sm font-medium text-[#eceae6]">{line.name}</p>
-                      <p className="text-xs text-[#6b6560]">× {line.quantity}</p>
+                      <p className="line-clamp-2 text-sm font-medium text-[#E8F2F5]">{line.name}</p>
+                      <p className="text-xs text-[#6B8A96]">× {line.quantity}</p>
                     </div>
-                    <p className="shrink-0 text-sm font-semibold tabular-nums text-[#b8973f]">
+                    <p className="shrink-0 text-sm font-semibold tabular-nums text-[#F7BE4B]">
                       {formatCOP(line.price * line.quantity)}
                     </p>
                   </li>
                 ))}
               </ul>
               <div className="mt-5 flex items-center justify-between border-t border-white/[0.08] pt-4">
-                <span className="text-sm text-[#9a968f]">Total</span>
-                <span className="tienda-display text-2xl font-semibold tabular-nums text-[#b8973f]">
+                <span className="text-sm text-[#9DC2D1]">Total</span>
+                <span className="tienda-display text-2xl font-semibold tabular-nums text-[#F7BE4B]">
                   {formatCOP(subtotal)}
                 </span>
               </div>

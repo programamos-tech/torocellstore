@@ -33,7 +33,7 @@ npm run dev
 
 ### Login local
 
-- Email: `admin@torocell.store`
+- Email: `wilson@torocell.com`
 - Password: `admin123`
 
 ### Puertos (para no chocar con Zonat en :3000 / :54321)

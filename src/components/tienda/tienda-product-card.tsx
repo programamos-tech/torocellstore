@@ -51,8 +51,8 @@ export function TiendaProductCard({ product }: { product: PublicCatalogProduct }
             toggleFavorite(product.id)
           }}
           className={cn(
-            'absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-[#0a0a0a]/80 backdrop-blur-sm transition-colors',
-            fav ? 'text-rose-400' : 'text-[#6b6560] hover:text-[#d4d0c8]'
+            'absolute right-3 top-3 flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-[#000000]/80 backdrop-blur-sm transition-colors',
+            fav ? 'text-rose-400' : 'text-[#6B8A96] hover:text-[#9DC2D1]'
           )}
           aria-label={fav ? 'Quitar de favoritos' : 'Agregar a favoritos'}
         >
@@ -60,7 +60,7 @@ export function TiendaProductCard({ product }: { product: PublicCatalogProduct }
         </button>
 
         {out && (
-          <span className="absolute bottom-3 left-3 rounded-full border border-white/10 bg-[#0a0a0a]/90 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-[#9a968f]">
+          <span className="absolute bottom-3 left-3 rounded-full border border-white/10 bg-[#000000]/90 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-[#9DC2D1]">
             Agotado
           </span>
         )}
@@ -68,16 +68,16 @@ export function TiendaProductCard({ product }: { product: PublicCatalogProduct }
 
       <div className="flex flex-1 flex-col pt-3">
         {product.brand?.trim() && (
-          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#6b6560]">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#6B8A96]">
             {product.brand}
           </p>
         )}
         <Link href={`/tienda/p/${product.id}`}>
-          <h2 className="mt-0.5 line-clamp-2 text-sm font-medium leading-snug text-[#eceae6] transition-colors group-hover:text-white">
+          <h2 className="mt-0.5 line-clamp-2 text-sm font-medium leading-snug text-[#E8F2F5] transition-colors group-hover:text-white">
             {product.name}
           </h2>
         </Link>
-        <p className="tienda-display mt-2 text-lg font-semibold tabular-nums text-[#b8973f] sm:text-xl">
+        <p className="tienda-display mt-2 text-lg font-semibold tabular-nums text-[#F7BE4B] sm:text-xl">
           {formatCOP(product.price)}
         </p>
 

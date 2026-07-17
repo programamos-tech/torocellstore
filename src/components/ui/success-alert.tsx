@@ -1,4 +1,6 @@
 import { CheckCircle, X } from 'lucide-react'
+import { cn } from '@/lib/utils'
+import { MODAL_PANEL, MODAL_BACKDROP_PAD } from '@/config/modal-layout'
 
 interface SuccessAlertProps {
   isOpen: boolean
@@ -11,8 +13,8 @@ export function SuccessAlert({ isOpen, onClose, title, message }: SuccessAlertPr
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
-      <div className="bg-white dark:bg-neutral-900 rounded-2xl shadow-2xl max-w-md w-full mx-4 border border-gray-200 dark:border-neutral-700">
+    <div className={cn('fixed inset-0 zonat-modal-backdrop z-[9999] flex items-center justify-center', MODAL_BACKDROP_PAD)}>
+      <div className={cn(MODAL_PANEL, 'border border-gray-200 bg-white dark:border-neutral-700 dark:bg-neutral-900')}>
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-neutral-700">
           <div className="flex items-center gap-3">

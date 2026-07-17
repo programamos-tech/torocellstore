@@ -3,10 +3,9 @@
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { BarChart3, Receipt, Package, Users, CreditCard, ShieldCheck, Activity, UserCog, UserCircle, Truck, PackageCheck, Store, FileText, Globe } from 'lucide-react'
+import { BarChart3, Receipt, Package, Users, CreditCard, ShieldCheck, Activity, UserCog, UserCircle, FileText } from 'lucide-react'
 import { usePermissions } from '@/hooks/usePermissions'
 import { useAuth } from '@/contexts/auth-context'
-import { isMainStoreUser, canAccessAllStores } from '@/lib/store-helper'
 import { StoresService } from '@/lib/stores-service'
 import type { Store as StoreType } from '@/types/store'
 import { Logo } from '@/components/ui/logo'
@@ -14,15 +13,11 @@ import { Logo } from '@/components/ui/logo'
 const items = [
   { href: '/reportes', label: 'Reportes', icon: BarChart3, module: 'dashboard', alwaysVisible: true },
   { href: '/inventory/products', label: 'Productos', icon: Package, module: 'products' },
-  { href: '/inventory/virtual-store', label: 'Tienda virtual', icon: Globe, module: 'virtual_store' },
-  { href: '/inventory/transfers', label: 'Traslados', icon: Truck, module: 'transfers', requiresMainStore: true },
-  { href: '/inventory/receptions', label: 'Recepciones', icon: PackageCheck, module: 'receptions' },
   { href: '/clients', label: 'Clientes', icon: Users, module: 'clients' },
   { href: '/sales', label: 'Ventas', icon: Receipt, module: 'sales' },
   { href: '/warranties', label: 'Garantías', icon: ShieldCheck, module: 'warranties' },
   { href: '/payments', label: 'Créditos', icon: CreditCard, module: 'payments' },
-  { href: '/purchases/invoices', label: 'Facturador', icon: FileText, module: 'supplier_invoices' },
-  { href: '/stores', label: 'Tiendas', icon: Store, module: 'roles' },
+  { href: '/purchases/invoices', label: 'Proveedores', icon: FileText, module: 'supplier_invoices' },
   { href: '/roles', label: 'Roles', icon: UserCog, module: 'roles' },
   { href: '/logs', label: 'Actividades', icon: Activity, module: 'logs' },
   { href: '/profile', label: 'Perfil', icon: UserCircle, module: 'dashboard', alwaysVisible: true },
@@ -78,14 +73,6 @@ export function BottomNav() {
       if (item.alwaysVisible && user) {
         return true
       }
-      // Traslados: tienda principal o admin/superadmin con acceso global (misma regla que el sidebar)
-      if (item.requiresMainStore && !isMainStoreUser(user) && !canAccessAllStores(user)) {
-        return false
-      }
-      // Para el módulo de Tiendas, siempre mostrarlo pero solo permitir acceso si es super admin
-      if (item.href === '/stores') {
-        return canView(item.module) // Mostrar siempre si tiene permisos del módulo
-      }
       return canView(item.module)
     })
     .sort((a, b) => {
@@ -135,7 +122,7 @@ export function BottomNav() {
     <nav className="zonat-preserve-surface pointer-events-auto fixed bottom-0 left-0 right-0 z-[90] isolate translate-z-0 transform-gpu touch-manipulation xl:hidden">
       {/* Barra pegada al borde inferior: padding seguro dentro del contenedor para que el fondo llegue hasta abajo */}
       <div
-        className="zonat-preserve-surface relative flex flex-col overflow-hidden border-t border-zinc-800 bg-gradient-to-b from-zinc-950 via-zinc-950 to-zinc-950 pt-0 shadow-none backdrop-blur-xl"
+        className="zonat-preserve-surface relative flex flex-col overflow-hidden border-t border-zinc-800 bg-black pt-0 shadow-none backdrop-blur-xl"
         style={{ paddingBottom: 'max(0px, env(safe-area-inset-bottom))' }}
       >
         {/* Móvil y tablet: barra oscura; en móvil solo iconos (sin texto debajo) */}
@@ -167,19 +154,12 @@ export function BottomNav() {
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
           {visibleItems.map(({ href, label, icon: Icon }) => {
-            const isStoresModule = href === '/stores'
-            const canAccessStores = isStoresModule ? canAccessAllStores(user) : true
-            
             const active = currentPathname === href || 
               (href !== '/reportes' && currentPathname?.startsWith(href)) ||
               (href === '/payments' && currentPathname?.startsWith('/payments')) ||
               (href === '/purchases/invoices' && currentPathname?.startsWith('/purchases')) ||
               (href === '/inventory/products' && currentPathname?.startsWith('/inventory/products')) ||
-              (href === '/inventory/virtual-store' && currentPathname?.startsWith('/inventory/virtual-store')) ||
-              (href === '/inventory/transfers' && currentPathname?.startsWith('/inventory/transfers')) ||
-              (href === '/inventory/receptions' && currentPathname?.startsWith('/inventory/receptions')) ||
-              (href === '/sales' && currentPathname?.startsWith('/sales')) ||
-              (href === '/stores' && currentPathname?.startsWith('/stores'))
+              (href === '/sales' && currentPathname?.startsWith('/sales'))
             
             // Barra oscura: iconos en zinc; activo resaltado sin color extra
             const getIconColor = () => {
@@ -194,18 +174,6 @@ export function BottomNav() {
                 key={href}
                 className="flex min-w-[44px] shrink-0 md:min-w-0"
               >
-                {isStoresModule && !canAccessStores ? (
-                  <div
-                    className={`flex h-full w-full min-w-0 cursor-not-allowed flex-col items-center justify-center gap-0 px-1.5 text-[9px] opacity-50 transition-all duration-200 md:gap-1 md:px-1 md:text-[10px] ${
-                      active ? activeLabelClass : 'text-zinc-500'
-                    }`}
-                    title="Solo disponible para Super Administradores"
-                    aria-label={`${label} — solo super administradores`}
-                  >
-                    <Icon strokeWidth={1.5} className={`h-5 w-5 shrink-0 transition-colors md:h-5 md:w-5 ${getIconColor()}`} />
-                    <span className="hidden max-w-full truncate whitespace-nowrap px-0.5 text-center leading-tight md:block">{label}</span>
-                  </div>
-                ) : (
                 <Link
                   href={href}
                   aria-label={label}
@@ -216,10 +184,9 @@ export function BottomNav() {
                       : 'text-zinc-400 hover:bg-white/5 hover:text-zinc-100 active:scale-95'
                   }`}
                 >
-                    <Icon strokeWidth={1.5} className={`h-5 w-5 shrink-0 transition-colors md:h-5 md:w-5 ${getIconColor()}`} />
+                  <Icon strokeWidth={1.5} className={`h-5 w-5 shrink-0 transition-colors md:h-5 md:w-5 ${getIconColor()}`} />
                   <span className="hidden max-w-full truncate whitespace-nowrap px-0.5 text-center leading-tight md:block">{label}</span>
                 </Link>
-                )}
               </li>
             )
           })}
@@ -229,14 +196,14 @@ export function BottomNav() {
         {/* Difuminado derecha: indica que hay más opciones sin quitar espacio */}
         {showRightButton && (
           <div
-            className="pointer-events-none absolute bottom-0 right-0 top-0 z-10 w-8 bg-gradient-to-l from-zinc-950 to-transparent md:w-10"
+            className="pointer-events-none absolute bottom-0 right-0 top-0 z-10 w-8 bg-gradient-to-l from-black to-transparent md:w-10"
             aria-hidden
           />
         )}
         {/* Difuminado izquierda: cuando hay scroll, indica que hay más a la izquierda */}
         {showLeftButton && (
           <div
-            className="pointer-events-none absolute bottom-0 left-14 top-0 z-10 w-8 bg-gradient-to-r from-zinc-950 to-transparent md:left-16 md:w-10"
+            className="pointer-events-none absolute bottom-0 left-14 top-0 z-10 w-8 bg-gradient-to-r from-black to-transparent md:left-16 md:w-10"
             aria-hidden
           />
         )}

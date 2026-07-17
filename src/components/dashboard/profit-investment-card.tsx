@@ -46,7 +46,7 @@ export function ProfitInvestmentCard({
   const getChangeColor = (changeType: string) => {
     switch (changeType) {
       case 'positive':
-        return 'text-green-600 dark:text-green-400'
+        return 'text-emerald-600 dark:text-emerald-400'
       case 'negative':
         return 'text-red-600 dark:text-red-400'
       default:
@@ -69,21 +69,21 @@ export function ProfitInvestmentCard({
     if (profitMargin >= 50) {
       return {
         status: 'excellent',
-        color: 'text-green-600 dark:text-green-400',
+        color: 'text-emerald-600 dark:text-emerald-400',
         bgColor: 'bg-green-100 dark:bg-green-900/20',
         label: 'Excelente'
       }
     } else if (profitMargin >= 30) {
       return {
         status: 'good',
-        color: 'text-blue-600 dark:text-blue-400',
-        bgColor: 'bg-blue-100 dark:bg-blue-900/20',
+        color: 'text-sky-600 dark:text-sky-400',
+        bgColor: 'bg-sky-100 dark:bg-sky-950/20',
         label: 'Bueno'
       }
     } else if (profitMargin >= 15) {
       return {
         status: 'fair',
-        color: 'text-yellow-600 dark:text-yellow-400',
+        color: 'text-amber-600 dark:text-yellow-400',
         bgColor: 'bg-yellow-100 dark:bg-yellow-900/20',
         label: 'Regular'
       }
@@ -126,8 +126,8 @@ export function ProfitInvestmentCard({
             </div>
 
             <div className="text-center p-5 rounded-xl bg-white dark:bg-neutral-800/50 shadow-sm">
-              <div className="p-3 rounded-xl bg-blue-50 dark:bg-blue-900/20 w-12 h-12 mx-auto mb-3 flex items-center justify-center">
-                <Target className="h-6 w-6 text-blue-600" />
+              <div className="p-3 rounded-xl bg-blue-50 dark:bg-sky-950/20 w-12 h-12 mx-auto mb-3 flex items-center justify-center">
+                <Target className="h-6 w-6 text-sky-600" />
               </div>
               <p className="text-xl font-bold text-gray-900 dark:text-white mb-1">
                 {formatCurrency(totalInvestment)}
@@ -138,8 +138,8 @@ export function ProfitInvestmentCard({
             </div>
 
             <div className="text-center p-5 rounded-xl bg-white dark:bg-neutral-800/50 shadow-sm">
-              <div className="p-3 rounded-xl bg-purple-50 dark:bg-purple-900/20 w-12 h-12 mx-auto mb-3 flex items-center justify-center">
-                <TrendingUp className="h-6 w-6 text-purple-600" />
+              <div className="p-3 rounded-xl bg-purple-50 dark:bg-amber-950/20 w-12 h-12 mx-auto mb-3 flex items-center justify-center">
+                <TrendingUp className="h-6 w-6 text-amber-600" />
               </div>
               <p className="text-xl font-bold text-gray-900 dark:text-white mb-1">
                 {formatCurrency(totalProfit)}

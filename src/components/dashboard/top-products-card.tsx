@@ -29,7 +29,7 @@ export function TopProductsCard({ products, limit = 5 }: TopProductsCardProps) {
   const getRankIcon = (index: number) => {
     switch (index) {
       case 0:
-        return <Award className="h-4 w-4 text-yellow-500" />
+        return <Award className="h-4 w-4 text-amber-400" />
       case 1:
         return <Award className="h-4 w-4 text-gray-400" />
       case 2:
@@ -48,7 +48,7 @@ export function TopProductsCard({ products, limit = 5 }: TopProductsCardProps) {
       case 2:
         return 'bg-amber-100 dark:bg-amber-900/20 text-amber-800 dark:text-amber-400'
       default:
-        return 'bg-blue-100 dark:bg-blue-900/20 text-blue-800 dark:text-blue-400'
+        return 'bg-sky-100 dark:bg-sky-950/20 text-sky-800 dark:text-sky-400'
     }
   }
 

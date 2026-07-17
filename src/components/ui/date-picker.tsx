@@ -256,7 +256,7 @@ export function DatePicker({
                   'cursor-not-allowed bg-zinc-100 text-zinc-300 dark:bg-zinc-950 dark:text-zinc-700',
                 !isDisabled &&
                   isSelectedDay &&
-                  'z-[1] bg-emerald-600 font-semibold text-white shadow-[0_0_0_1px_rgba(16,185,129,0.45)] hover:bg-emerald-700 focus-visible:bg-emerald-700 dark:bg-emerald-500 dark:text-white dark:shadow-[0_0_0_1px_rgba(52,211,153,0.5)] dark:hover:bg-emerald-400',
+                  'z-[1] bg-emerald-600 font-semibold text-white shadow-[0_0_0_1px_rgba(105,178,117,0.45)] hover:bg-emerald-700 focus-visible:bg-emerald-700 dark:bg-emerald-500 dark:text-white dark:shadow-[0_0_0_1px_rgba(105,178,117,0.5)] dark:hover:bg-emerald-400',
                 !isDisabled &&
                   !isSelectedDay &&
                   isCurrentMonth &&

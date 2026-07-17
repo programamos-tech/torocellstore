@@ -52,21 +52,21 @@ export function PaymentMethodsCard({ paymentMethods }: PaymentMethodsCardProps) 
       case 'efectivo':
         return {
           bg: 'bg-green-100 dark:bg-green-900/20',
-          text: 'text-green-800 dark:text-green-400',
+          text: 'text-green-800 dark:text-emerald-400',
           bar: 'bg-green-500'
         }
       case 'credit':
       case 'crédito':
         return {
-          bg: 'bg-blue-100 dark:bg-blue-900/20',
-          text: 'text-blue-800 dark:text-blue-400',
+          bg: 'bg-sky-100 dark:bg-sky-950/20',
+          text: 'text-sky-800 dark:text-sky-400',
           bar: 'bg-blue-500'
         }
       case 'transfer':
       case 'transferencia':
         return {
-          bg: 'bg-purple-100 dark:bg-purple-900/20',
-          text: 'text-purple-800 dark:text-purple-400',
+          bg: 'bg-amber-100 dark:bg-amber-950/20',
+          text: 'text-amber-800 dark:text-amber-400',
           bar: 'bg-purple-500'
         }
       case 'warranty':
@@ -79,8 +79,8 @@ export function PaymentMethodsCard({ paymentMethods }: PaymentMethodsCardProps) 
       case 'mixed':
       case 'mixto':
         return {
-          bg: 'bg-orange-100 dark:bg-orange-900/20',
-          text: 'text-orange-800 dark:text-orange-400',
+          bg: 'bg-amber-100 dark:bg-amber-950/20',
+          text: 'text-amber-800 dark:text-amber-400',
           bar: 'bg-orange-500'
         }
       default:
@@ -115,8 +115,8 @@ export function PaymentMethodsCard({ paymentMethods }: PaymentMethodsCardProps) 
     <Card className="border-0 bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 shadow-sm">
       <CardHeader className="pb-4">
         <CardTitle className="flex items-center">
-          <div className="p-2 rounded-xl bg-purple-50 dark:bg-purple-900/20 mr-3">
-            <CreditCard className="h-5 w-5 text-purple-600" />
+          <div className="p-2 rounded-xl bg-purple-50 dark:bg-amber-950/20 mr-3">
+            <CreditCard className="h-5 w-5 text-amber-600" />
           </div>
           <span className="text-lg font-medium text-gray-800 dark:text-gray-200">Métodos de Pago Más Utilizados</span>
         </CardTitle>

@@ -57,7 +57,7 @@ export function ReleaseNotesModal() {
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent
         className={cn(
-          'max-h-[min(90vh,32rem)] gap-0 overflow-hidden border-zinc-200/90 p-0 dark:border-zinc-700 sm:max-w-lg',
+          'gap-0 overflow-hidden border-zinc-200/90 p-0 dark:border-zinc-700',
           'bg-white dark:bg-zinc-950'
         )}
       >

@@ -407,7 +407,7 @@ export function SalesTable({
             <div className="min-w-0 flex-1 space-y-1.5">
               <CardTitle className="flex flex-wrap items-center gap-2 text-lg font-semibold tracking-tight text-zinc-900 dark:text-zinc-50 md:text-xl">
                 <Receipt
-                  className="h-5 w-5 shrink-0 text-zinc-400 dark:text-zinc-500"
+                  className="h-5 w-5 shrink-0 text-amber-500 dark:text-amber-400"
                   strokeWidth={1.5}
                   aria-hidden
                 />

@@ -21,14 +21,14 @@ const inputClass =
 /** Por encima del bottom nav (z-45) y del sidebar (z-40); portal a body evita quedar atrapado en main (z-10). */
 /** Sin scroll en el overlay: evita que en iPad el gesto arrastre todo el modal. El scroll solo va en el cuerpo del diálogo. */
 const overlayClass =
-  'fixed inset-0 z-[100] overflow-hidden overscroll-none bg-black/50 px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-[max(1rem,env(safe-area-inset-top))] backdrop-blur-sm xl:left-56'
+  'fixed inset-0 z-[100] overflow-hidden overscroll-none zonat-modal-backdrop px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-[max(1rem,env(safe-area-inset-top))]  xl:left-56'
 
 /** touch-none en el contenedor centrador; touch-auto en la caja del modal para inputs y scroll interno. */
 const overlayInnerClass = 'flex h-full min-h-0 w-full touch-none items-center justify-center py-4'
 
 /** Una sola caja: sin overflow en el borde; solo el cuerpo hace scroll (header + footer fijos al card). */
 const shellClass =
-  'isolate flex max-h-[min(90dvh,calc(100dvh-env(safe-area-inset-top)-env(safe-area-inset-bottom)-2rem))] w-full max-w-3xl touch-auto flex-col overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-2xl dark:border-zinc-700 dark:bg-zinc-900'
+  'isolate flex w-full max-w-[min(72rem,calc(100vw-1.5rem))] max-h-[calc(100dvh-2.5rem)] sm:max-h-[calc(100dvh-4rem)] touch-auto flex-col overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-2xl dark:border-zinc-700 dark:bg-zinc-900'
 
 // Constante para identificar la tienda principal
 const MAIN_STORE_ID = '00000000-0000-0000-0000-000000000001'

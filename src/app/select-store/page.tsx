@@ -107,11 +107,11 @@ export default function SelectStorePage() {
         <div className="text-center mb-6 md:mb-8">
           <div className="flex justify-center mb-3 md:mb-4">
             <Image
-              src="/zonat-logo.webp"
+              src="/logo.jpeg"
               alt="TOROCELL STORE Logo"
               width={80}
               height={80}
-              className="object-contain"
+              className="h-20 w-20 rounded-full object-contain bg-black"
             />
           </div>
           <h1 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">

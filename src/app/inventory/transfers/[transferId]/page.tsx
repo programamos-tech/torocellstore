@@ -78,7 +78,7 @@ export default function TransferDetailPage() {
     try {
       toast.loading('Generando PDF...')
       await PDFService.generateTransferPDF(transfer, {
-        logoUrl: '/zonat-logo.png',
+        logoUrl: '/logo.jpeg',
         companyName: transfer.fromStoreName || 'TOROCELL STORE',
         companyAddress: '',
         companyPhone: '',

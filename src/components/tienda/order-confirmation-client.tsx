@@ -97,7 +97,7 @@ export function OrderConfirmationClient({
         <TiendaAnnouncementBar />
         <TiendaHeader />
         <main className="mx-auto flex flex-1 flex-col items-center justify-center px-4 py-20 text-center">
-          <p className="text-lg font-medium text-[#eceae6]">Pedido no encontrado</p>
+          <p className="text-lg font-medium text-[#E8F2F5]">Pedido no encontrado</p>
           <Link href="/tienda" className="tienda-btn-gold mt-6 inline-flex h-10 items-center rounded-full px-8 text-sm font-semibold">
             Ir al catálogo
           </Link>
@@ -114,21 +114,21 @@ export function OrderConfirmationClient({
 
       <main className="mx-auto w-full max-w-2xl flex-1 px-4 py-10 sm:px-6">
         <div className="text-center">
-          <CheckCircle2 className="mx-auto h-12 w-12 text-[#b8973f]" strokeWidth={1.25} />
-          <h1 className="tienda-display mt-4 text-3xl font-semibold text-[#eceae6]">¡Pedido registrado!</h1>
-          <p className="mt-2 text-sm text-[#9a968f]">
-            Pedido <span className="font-mono text-[#d4d0c8]">{order.invoiceNumber}</span> · {order.clientName}
+          <CheckCircle2 className="mx-auto h-12 w-12 text-[#F7BE4B]" strokeWidth={1.25} />
+          <h1 className="tienda-display mt-4 text-3xl font-semibold text-[#E8F2F5]">¡Pedido registrado!</h1>
+          <p className="mt-2 text-sm text-[#9DC2D1]">
+            Pedido <span className="font-mono text-[#9DC2D1]">{order.invoiceNumber}</span> · {order.clientName}
           </p>
-          <p className="tienda-display mt-3 text-2xl font-semibold tabular-nums text-[#b8973f]">
+          <p className="tienda-display mt-3 text-2xl font-semibold tabular-nums text-[#F7BE4B]">
             {formatCOP(order.total)}
           </p>
         </div>
 
         <div className="tienda-card-premium mt-8 rounded-2xl p-5 sm:p-6">
-          <p className="text-center text-sm font-medium text-[#eceae6]">{statusLabel}</p>
+          <p className="text-center text-sm font-medium text-[#E8F2F5]">{statusLabel}</p>
 
           {!hasProof && !expired && (
-            <div className="mt-4 flex items-center justify-center gap-2 text-[#b8973f]">
+            <div className="mt-4 flex items-center justify-center gap-2 text-[#F7BE4B]">
               <Clock className="h-4 w-4" />
               <span className="text-sm font-semibold tabular-nums">
                 Tiempo restante: {formatCountdown(deadlineMs)}
@@ -138,16 +138,16 @@ export function OrderConfirmationClient({
 
           <dl className="mt-6 space-y-2 border-t border-white/[0.08] pt-5 text-sm">
             <div className="flex justify-between gap-4">
-              <dt className="text-[#6b6560]">Banco</dt>
-              <dd className="text-[#eceae6]">{order.bank.bankName}</dd>
+              <dt className="text-[#6B8A96]">Banco</dt>
+              <dd className="text-[#E8F2F5]">{order.bank.bankName}</dd>
             </div>
             <div className="flex justify-between gap-4">
-              <dt className="text-[#6b6560]">Cuenta {order.bank.accountType}</dt>
-              <dd className="font-mono text-[#eceae6]">{order.bank.accountNumber}</dd>
+              <dt className="text-[#6B8A96]">Cuenta {order.bank.accountType}</dt>
+              <dd className="font-mono text-[#E8F2F5]">{order.bank.accountNumber}</dd>
             </div>
             <div className="flex justify-between gap-4">
-              <dt className="text-[#6b6560]">Titular</dt>
-              <dd className="text-right text-[#eceae6]">{order.bank.accountHolder}</dd>
+              <dt className="text-[#6B8A96]">Titular</dt>
+              <dd className="text-right text-[#E8F2F5]">{order.bank.accountHolder}</dd>
             </div>
           </dl>
 
@@ -156,7 +156,7 @@ export function OrderConfirmationClient({
               <label
                 className={cn(
                   'flex cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed border-white/15 bg-white/[0.03] px-4 py-8 transition-colors',
-                  uploading ? 'pointer-events-none opacity-60' : 'hover:border-[#b8973f]/35 hover:bg-white/[0.05]'
+                  uploading ? 'pointer-events-none opacity-60' : 'hover:border-[#F7BE4B]/35 hover:bg-white/[0.05]'
                 )}
               >
                 <input
@@ -172,14 +172,14 @@ export function OrderConfirmationClient({
                   }}
                 />
                 {uploading ? (
-                  <Loader2 className="h-8 w-8 animate-spin text-[#b8973f]" />
+                  <Loader2 className="h-8 w-8 animate-spin text-[#F7BE4B]" />
                 ) : (
-                  <Upload className="h-8 w-8 text-[#9a968f]" strokeWidth={1.5} />
+                  <Upload className="h-8 w-8 text-[#9DC2D1]" strokeWidth={1.5} />
                 )}
-                <span className="mt-3 text-sm font-medium text-[#eceae6]">
+                <span className="mt-3 text-sm font-medium text-[#E8F2F5]">
                   {uploading ? 'Subiendo comprobante…' : 'Subir comprobante de transferencia'}
                 </span>
-                <span className="mt-1 text-xs text-[#6b6560]">JPG o PNG · máx. 2 MB</span>
+                <span className="mt-1 text-xs text-[#6B8A96]">JPG o PNG · máx. 2 MB</span>
               </label>
               {preview && !uploading && (
                 <div className="relative mt-4 aspect-[4/3] overflow-hidden rounded-xl bg-[#111]">
@@ -194,7 +194,7 @@ export function OrderConfirmationClient({
 
           {hasProof && order.paymentProofUrl && (
             <div className="mt-6">
-              <p className="mb-2 text-center text-xs text-[#9a968f]">Comprobante enviado</p>
+              <p className="mb-2 text-center text-xs text-[#9DC2D1]">Comprobante enviado</p>
               <div className="relative aspect-[4/3] overflow-hidden rounded-xl bg-[#111]">
                 <Image
                   src={order.paymentProofUrl}
@@ -204,16 +204,16 @@ export function OrderConfirmationClient({
                   unoptimized
                 />
               </div>
-              <p className="mt-4 text-center text-sm text-[#9a968f]">
+              <p className="mt-4 text-center text-sm text-[#9DC2D1]">
                 Tu pedido quedó en ventas como pendiente. Te contactaremos para confirmar envío o entrega.
               </p>
             </div>
           )}
 
           {expired && !hasProof && (
-            <p className="mt-6 text-center text-sm text-[#9a968f]">
+            <p className="mt-6 text-center text-sm text-[#9DC2D1]">
               El plazo para subir el comprobante terminó. Escríbenos por WhatsApp con tu número de pedido{' '}
-              <span className="font-mono text-[#d4d0c8]">{order.invoiceNumber}</span>.
+              <span className="font-mono text-[#9DC2D1]">{order.invoiceNumber}</span>.
             </p>
           )}
         </div>

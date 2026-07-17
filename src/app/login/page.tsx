@@ -83,21 +83,21 @@ export default function LoginPage() {
   return (
     <div
       data-auth-page
-      className="relative min-h-screen bg-zinc-50 text-zinc-900 dark:bg-zinc-950 dark:text-zinc-100"
+      className="relative min-h-screen bg-zinc-50 text-zinc-900 dark:bg-black dark:text-[#E8F2F5]"
     >
       <LoginThemeToggle className="fixed right-4 top-4 z-20 md:right-8 md:top-8" />
 
       <div
-        className="pointer-events-none fixed inset-0 bg-[radial-gradient(ellipse_100%_55%_at_50%_-15%,rgba(82,196,42,0.14),transparent_52%)] dark:bg-[radial-gradient(ellipse_100%_55%_at_50%_-15%,rgba(52,211,153,0.11),transparent_52%)]"
+        className="pointer-events-none fixed inset-0 bg-[radial-gradient(ellipse_100%_55%_at_50%_-15%,rgba(105, 178, 117,0.14),transparent_52%)] dark:bg-[radial-gradient(ellipse_100%_55%_at_50%_-15%,rgba(105, 178, 117,0.11),transparent_52%)]"
         aria-hidden
       />
       <div className="relative z-10 mx-auto flex min-h-screen max-w-6xl flex-col md:flex-row">
         <div className="flex flex-shrink-0 flex-col items-center justify-center px-8 pb-8 pt-12 md:w-[46%] md:pb-16 md:pt-16 lg:w-1/2">
-          <div className="relative flex h-28 w-28 items-center justify-center md:h-[220px] md:w-[220px]">
+          <div className="relative h-28 w-28 overflow-hidden rounded-full md:h-[220px] md:w-[220px]">
             <img
-              src="/zonat-logo.png"
+              src="/logo.jpeg?v=2"
               alt="TOROCELL STORE"
-              className="h-full w-full object-contain drop-shadow-[0_0_20px_rgba(82,196,42,0.2)] dark:drop-shadow-[0_0_28px_rgba(52,211,153,0.12)]"
+              className="h-full w-full object-contain drop-shadow-[0_0_20px_rgba(105,178,117,0.2)] dark:drop-shadow-[0_0_28px_rgba(105,178,117,0.12)]"
             />
           </div>
         </div>

@@ -174,8 +174,8 @@ export function CSVImportModal({ isOpen, onClose, onImport }: CSVImportModalProp
   if (!isOpen) return null
 
   return (
-    <div className="fixed inset-0 bg-black/20 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-white dark:bg-neutral-950 rounded-2xl shadow-2xl w-full max-w-4xl max-h-[95vh] overflow-hidden flex flex-col border border-gray-200 dark:border-neutral-700">
+    <div className="fixed inset-0 zonat-modal-backdrop z-50 flex items-center justify-center p-4">
+      <div className="bg-white dark:bg-neutral-950 rounded-2xl shadow-2xl overflow-hidden flex w-full max-w-[min(72rem,calc(100vw-1.5rem))] max-h-[calc(100dvh-2.5rem)] sm:max-h-[calc(100dvh-4rem)] flex-col border border-gray-200 dark:border-neutral-700">
         {/* Header */}
         <div className="flex items-center justify-between p-6 bg-cyan-50 dark:bg-cyan-900/20 border-b border-cyan-200 dark:border-cyan-800">
           <div className="flex items-center space-x-3">

@@ -29,7 +29,7 @@ export function ConfirmationModal({
 }: ConfirmationModalProps) {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="p-6">
         <DialogHeader>
           <div className="flex items-center space-x-3">
             <div className={`p-3 rounded-full ${

@@ -82,9 +82,8 @@ export function StatisticsCards({ stats, previousStats }: StatisticsCardsProps) 
       change: salesChange.change,
       changeType: salesChange.changeType,
       icon: DollarSign,
-      color: 'emerald',
-      bgColor: 'bg-emerald-100 dark:bg-emerald-900/20',
-      iconColor: 'text-emerald-600'
+      bgColor: 'bg-emerald-100 dark:bg-emerald-950/50',
+      iconColor: 'text-emerald-600 dark:text-emerald-400'
     },
     {
       title: 'Ganancia Total',
@@ -92,9 +91,8 @@ export function StatisticsCards({ stats, previousStats }: StatisticsCardsProps) 
       change: profitChange.change,
       changeType: profitChange.changeType,
       icon: TrendingUp,
-      color: 'purple',
-      bgColor: 'bg-purple-100 dark:bg-purple-900/20',
-      iconColor: 'text-purple-600'
+      bgColor: 'bg-amber-100 dark:bg-amber-950/50',
+      iconColor: 'text-amber-600 dark:text-amber-400'
     },
     {
       title: 'Productos Activos',
@@ -102,9 +100,8 @@ export function StatisticsCards({ stats, previousStats }: StatisticsCardsProps) 
       change: productsChange.change,
       changeType: productsChange.changeType,
       icon: Package,
-      color: 'blue',
-      bgColor: 'bg-blue-100 dark:bg-blue-900/20',
-      iconColor: 'text-blue-600'
+      bgColor: 'bg-sky-100 dark:bg-sky-950/50',
+      iconColor: 'text-sky-600 dark:text-sky-400'
     },
     {
       title: 'Clientes Activos',
@@ -112,9 +109,8 @@ export function StatisticsCards({ stats, previousStats }: StatisticsCardsProps) 
       change: clientsChange.change,
       changeType: clientsChange.changeType,
       icon: Users,
-      color: 'green',
-      bgColor: 'bg-green-100 dark:bg-green-900/20',
-      iconColor: 'text-green-600'
+      bgColor: 'bg-emerald-100 dark:bg-emerald-950/50',
+      iconColor: 'text-emerald-600 dark:text-emerald-400'
     },
     {
       title: 'Margen de Ganancia',
@@ -122,9 +118,8 @@ export function StatisticsCards({ stats, previousStats }: StatisticsCardsProps) 
       change: marginChange.change,
       changeType: marginChange.changeType,
       icon: Target,
-      color: 'orange',
-      bgColor: 'bg-orange-100 dark:bg-orange-900/20',
-      iconColor: 'text-orange-600'
+      bgColor: 'bg-amber-100 dark:bg-amber-950/50',
+      iconColor: 'text-amber-600 dark:text-amber-400'
     },
     {
       title: 'Pagos Pendientes',
@@ -132,9 +127,8 @@ export function StatisticsCards({ stats, previousStats }: StatisticsCardsProps) 
       change: paymentsChange.change,
       changeType: paymentsChange.changeType,
       icon: CreditCard,
-      color: 'red',
-      bgColor: 'bg-red-100 dark:bg-red-900/20',
-      iconColor: 'text-red-600'
+      bgColor: 'bg-red-100 dark:bg-red-950/50',
+      iconColor: 'text-red-600 dark:text-red-400'
     },
     {
       title: 'Stock Bajo',
@@ -142,9 +136,8 @@ export function StatisticsCards({ stats, previousStats }: StatisticsCardsProps) 
       change: stats.lowStockProducts > 0 ? 'Requiere atención' : stockChange.change,
       changeType: stats.lowStockProducts > 0 ? 'warning' as const : stockChange.changeType,
       icon: AlertTriangle,
-      color: 'yellow',
-      bgColor: 'bg-yellow-100 dark:bg-yellow-900/20',
-      iconColor: 'text-yellow-600'
+      bgColor: 'bg-amber-100 dark:bg-amber-950/50',
+      iconColor: 'text-amber-600 dark:text-amber-400'
     },
     {
       title: 'Ventas Este Mes',
@@ -152,20 +145,19 @@ export function StatisticsCards({ stats, previousStats }: StatisticsCardsProps) 
       change: `${monthlySalesChange.change} transacciones`,
       changeType: monthlySalesChange.changeType,
       icon: ShoppingCart,
-      color: 'emerald',
-      bgColor: 'bg-emerald-100 dark:bg-emerald-900/20',
-      iconColor: 'text-emerald-600'
+      bgColor: 'bg-emerald-100 dark:bg-emerald-950/50',
+      iconColor: 'text-emerald-600 dark:text-emerald-400'
     }
   ]
 
   const getChangeColor = (changeType: string) => {
     switch (changeType) {
       case 'positive':
-        return 'text-green-600 dark:text-green-400'
+        return 'text-emerald-600 dark:text-emerald-400'
       case 'negative':
         return 'text-red-600 dark:text-red-400'
       case 'warning':
-        return 'text-yellow-600 dark:text-yellow-400'
+        return 'text-amber-600 dark:text-amber-400'
       default:
         return 'text-gray-600 dark:text-gray-400'
     }

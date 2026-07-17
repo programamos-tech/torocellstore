@@ -108,7 +108,7 @@ export function ClientTable({
           <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
             <div className="min-w-0 flex-1 space-y-1.5">
               <CardTitle className="flex flex-wrap items-center gap-2 text-lg font-semibold tracking-tight text-zinc-900 dark:text-zinc-50 md:text-xl">
-                <Users className="h-5 w-5 shrink-0 text-zinc-400 dark:text-zinc-500" strokeWidth={1.5} aria-hidden />
+                <Users className="h-5 w-5 shrink-0 text-sky-500 dark:text-sky-300" strokeWidth={1.5} aria-hidden />
                 <span>Gestión de clientes</span>
                 <StoreBadge />
               </CardTitle>
@@ -176,7 +176,7 @@ export function ClientTable({
           {filteredClients.length === 0 ? (
             <div className="py-16 text-center">
               <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full border border-dashed border-zinc-300 dark:border-zinc-600">
-                <Users className="h-5 w-5 text-zinc-400" strokeWidth={1.5} />
+                <Users className="h-5 w-5 text-sky-500/70" strokeWidth={1.5} />
               </div>
               <h3 className="text-base font-medium text-zinc-900 dark:text-zinc-100">No se encontraron clientes</h3>
               <p className="mx-auto mt-1 max-w-sm text-sm text-zinc-500 dark:text-zinc-400">

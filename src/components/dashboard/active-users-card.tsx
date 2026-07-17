@@ -21,7 +21,7 @@ export function ActiveUsersCard({
     if (onlineUsers > 0) {
       return {
         status: 'online',
-        color: 'text-green-600 dark:text-green-400',
+        color: 'text-emerald-600 dark:text-emerald-400',
         bgColor: 'bg-green-100 dark:bg-green-900/20',
         label: 'Usuarios en línea'
       }
@@ -42,8 +42,8 @@ export function ActiveUsersCard({
     <Card className="border-0 bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 shadow-sm">
       <CardHeader className="pb-4">
         <CardTitle className="flex items-center">
-          <div className="p-2 rounded-xl bg-blue-50 dark:bg-blue-900/20 mr-3">
-            <Users className="h-5 w-5 text-blue-600" />
+          <div className="p-2 rounded-xl bg-blue-50 dark:bg-sky-950/20 mr-3">
+            <Users className="h-5 w-5 text-sky-600" />
           </div>
           <span className="text-lg font-medium text-gray-800 dark:text-gray-200">Usuarios en Línea</span>
         </CardTitle>
@@ -83,7 +83,7 @@ export function ActiveUsersCard({
 
             <div className="text-center p-5 rounded-xl bg-white dark:bg-neutral-800/50 shadow-sm">
               <div className="p-3 rounded-xl bg-green-50 dark:bg-green-900/20 w-12 h-12 mx-auto mb-3 flex items-center justify-center">
-                <UserCheck className="h-6 w-6 text-green-600" />
+                <UserCheck className="h-6 w-6 text-emerald-600" />
               </div>
               <p className="text-xl font-bold text-gray-900 dark:text-white mb-1">
                 {onlineUsers}

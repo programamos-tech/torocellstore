@@ -19,14 +19,13 @@ export function Logo({ className, showText = false, size = 'md' }: LogoProps) {
   return (
     <div className={cn("flex items-center", className)}>
       {/* Logo Image */}
-      <div className="relative">
+      <div className="relative overflow-hidden rounded-full" style={{ width: logoSize, height: logoSize }}>
         <Image
-          src="/zonat-logo.png"
+          src="/logo.jpeg?v=2"
           alt="TOROCELL STORE Logo"
           width={logoSize}
           height={logoSize}
-          className="object-contain"
-          style={{ width: logoSize, height: 'auto' }}
+          className="h-full w-full object-contain"
           priority
           unoptimized
         />

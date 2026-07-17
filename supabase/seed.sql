@@ -14,8 +14,8 @@ ON CONFLICT DO NOTHING;
 -- Password local de desarrollo: admin123 (texto plano, igual que el login local)
 INSERT INTO users (name, email, password, role, permissions, is_active) VALUES
 (
-  'Admin Torocell',
-  'admin@torocell.store',
+  'Wilson Admin',
+  'wilson@torocell.com',
   'admin123',
   'superadmin',
   '["all"]'::jsonb,

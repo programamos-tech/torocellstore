@@ -47,7 +47,7 @@ export function ConditionalLayout({ children }: ConditionalLayoutProps) {
     <ProtectedRoute>
       <div
         className={cn(
-          'flex h-dvh min-h-0 min-w-0 bg-white dark:bg-neutral-950',
+          'flex h-dvh min-h-0 min-w-0 bg-white dark:bg-black',
           /* Reservar hueco inferior en móvil/tablet para que el scroll no intercepte toques del menú fijo (WebKit/iPad). */
           showMobileBottomNavInset && 'max-xl:pb-[var(--zonat-bottom-nav-height)]'
         )}
@@ -55,7 +55,7 @@ export function ConditionalLayout({ children }: ConditionalLayoutProps) {
         <Sidebar onMobileMenuToggle={setIsMobileMenuOpen} />
         <main
           className={cn(
-            'zonat-app-main relative z-10 grid min-h-0 min-w-0 w-full flex-1 overflow-hidden bg-white transition-all duration-300 dark:bg-neutral-950 xl:ml-60',
+            'zonat-app-main relative z-10 grid min-h-0 min-w-0 w-full flex-1 overflow-hidden bg-white transition-all duration-300 dark:bg-black xl:ml-60',
             showTopBar ? 'grid-rows-[auto_1fr]' : 'grid-rows-[1fr]',
             isMobileMenuOpen && 'blur-sm'
           )}
@@ -67,7 +67,7 @@ export function ConditionalLayout({ children }: ConditionalLayoutProps) {
           )}
           <div
             className={cn(
-              'zonat-app-scroll min-h-0 min-w-0 overscroll-contain bg-white dark:bg-neutral-950',
+              'zonat-app-scroll min-h-0 min-w-0 overscroll-contain bg-white dark:bg-black',
               isPosSalePage
                 ? 'overflow-hidden'
                 : 'overflow-y-auto overflow-x-hidden',

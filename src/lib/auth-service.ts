@@ -470,11 +470,11 @@ export class AuthService {
   // Inicializar datos por defecto (solo para Diego)
   static async initializeDefaultData(): Promise<void> {
     try {
-      // Verificar si Diego ya existe
+      // Verificar si el admin ya existe
       const { data: existingUser } = await supabase
         .from('users')
         .select('id')
-        .eq('email', 'admin@torocell.store')
+        .eq('email', 'wilson@torocell.com')
         .single()
 
       if (existingUser) {
@@ -482,10 +482,10 @@ export class AuthService {
         return
       }
 
-      // Crear Diego como superadmin
+      // Crear admin como superadmin
       await this.createUser({
-        name: 'Diego Admin',
-        email: 'admin@torocell.store',
+        name: 'Wilson Admin',
+        email: 'wilson@torocell.com',
         password: 'admin123',
         role: 'superadmin',
         permissions: [

@@ -109,7 +109,7 @@ function StoreCard({
                   )}
                 >
                   <Image
-                    src="/zonat-logo.png"
+                    src="/logo.jpeg"
                     alt="TOROCELL STORE"
                     width={44}
                     height={44}

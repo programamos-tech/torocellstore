@@ -45,7 +45,7 @@ export function ProductDetailClient({
       <main className="mx-auto w-full max-w-7xl flex-1 px-3 py-4 sm:px-6 sm:py-8 lg:px-8">
         <Link
           href="/tienda"
-          className="mb-4 inline-flex items-center gap-1 text-xs font-medium text-[#9a968f] transition-colors hover:text-[#eceae6] sm:mb-6 sm:text-sm"
+          className="mb-4 inline-flex items-center gap-1 text-xs font-medium text-[#9DC2D1] transition-colors hover:text-[#E8F2F5] sm:mb-6 sm:text-sm"
         >
           <ChevronLeft className="h-4 w-4" strokeWidth={1.75} />
           Volver al catálogo
@@ -71,8 +71,8 @@ export function ProductDetailClient({
               type="button"
               onClick={() => toggleFavorite(product.id)}
               className={cn(
-                'absolute right-3 top-3 flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-[#0a0a0a]/85 backdrop-blur-sm transition-colors',
-                fav ? 'text-rose-400' : 'text-[#6b6560] hover:text-[#d4d0c8]'
+                'absolute right-3 top-3 flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-[#000000]/85 backdrop-blur-sm transition-colors',
+                fav ? 'text-rose-400' : 'text-[#6B8A96] hover:text-[#9DC2D1]'
               )}
               aria-label={fav ? 'Quitar de favoritos' : 'Agregar a favoritos'}
             >
@@ -80,7 +80,7 @@ export function ProductDetailClient({
             </button>
 
             {out && (
-              <span className="absolute bottom-3 left-3 rounded-full border border-white/10 bg-[#0a0a0a]/90 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-[#9a968f]">
+              <span className="absolute bottom-3 left-3 rounded-full border border-white/10 bg-[#000000]/90 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wide text-[#9DC2D1]">
                 Agotado
               </span>
             )}
@@ -88,62 +88,62 @@ export function ProductDetailClient({
 
           <div className="flex flex-col lg:py-2">
             {product.brand?.trim() && (
-              <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-[#6b6560]">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-[#6B8A96]">
                 {product.brand}
               </p>
             )}
 
-            <h1 className="tienda-display mt-1 text-2xl font-semibold leading-snug text-[#f5f0e6] sm:text-3xl lg:text-4xl">
+            <h1 className="tienda-display mt-1 text-2xl font-semibold leading-snug text-[#E8F2F5] sm:text-3xl lg:text-4xl">
               {product.name}
             </h1>
 
-            <p className="mt-2 font-mono text-xs text-[#6b6560]">Ref. {product.reference}</p>
+            <p className="mt-2 font-mono text-xs text-[#6B8A96]">Ref. {product.reference}</p>
 
-            <p className="tienda-display mt-5 text-3xl font-semibold tabular-nums text-[#b8973f] sm:text-4xl">
+            <p className="tienda-display mt-5 text-3xl font-semibold tabular-nums text-[#F7BE4B] sm:text-4xl">
               {formatCOP(product.price)}
             </p>
-            <p className="mt-1 text-[11px] uppercase tracking-[0.14em] text-[#6b6560]">Precio referencial en COP</p>
+            <p className="mt-1 text-[11px] uppercase tracking-[0.14em] text-[#6B8A96]">Precio referencial en COP</p>
 
             {!out && (
-              <p className="mt-4 inline-flex w-fit items-center rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-xs font-medium text-[#9a968f]">
+              <p className="mt-4 inline-flex w-fit items-center rounded-full border border-white/10 bg-white/[0.04] px-3 py-1 text-xs font-medium text-[#9DC2D1]">
                 {formatUnits(product.totalUnits)} disponible{product.totalUnits === 1 ? '' : 's'} en tienda
               </p>
             )}
 
-            <div className="mt-6 flex items-start gap-2.5 text-sm text-[#9a968f]">
-              <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-[#9a968f]" strokeWidth={1.5} aria-hidden />
+            <div className="mt-6 flex items-start gap-2.5 text-sm text-[#9DC2D1]">
+              <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-[#9DC2D1]" strokeWidth={1.5} aria-hidden />
               <div>
-                <p className="font-medium text-[#f5f0e6]">{storeLabel}</p>
+                <p className="font-medium text-[#E8F2F5]">{storeLabel}</p>
                 {storeCity && <p className="mt-0.5 text-xs">{storeCity}</p>}
                 {store?.address && (
-                  <p className="mt-0.5 text-xs text-[#6b6560]">{store.address}</p>
+                  <p className="mt-0.5 text-xs text-[#6B8A96]">{store.address}</p>
                 )}
               </div>
             </div>
 
             {product.description?.trim() && (
               <div className="mt-6">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-[#6b6560]">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-[#6B8A96]">
                   Descripción
                 </p>
-                <p className="mt-2 text-sm leading-relaxed text-[#9a968f]">{product.description}</p>
+                <p className="mt-2 text-sm leading-relaxed text-[#9DC2D1]">{product.description}</p>
               </div>
             )}
 
             <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
-              <div className="inline-flex h-10 items-center rounded-full border border-white/10 bg-[#141414] px-1">
+              <div className="inline-flex h-10 items-center rounded-full border border-white/10 bg-[#1a1819] px-1">
                 <button
                   type="button"
-                  className="flex h-8 w-8 items-center justify-center rounded-full text-[#9a968f] hover:text-[#eceae6]"
+                  className="flex h-8 w-8 items-center justify-center rounded-full text-[#9DC2D1] hover:text-[#E8F2F5]"
                   onClick={() => setQty((q) => Math.max(1, q - 1))}
                   aria-label="Menos"
                 >
                   <Minus className="h-4 w-4" />
                 </button>
-                <span className="min-w-[2.5rem] text-center text-sm font-semibold tabular-nums text-[#f5f0e6]">{qty}</span>
+                <span className="min-w-[2.5rem] text-center text-sm font-semibold tabular-nums text-[#E8F2F5]">{qty}</span>
                 <button
                   type="button"
-                  className="flex h-8 w-8 items-center justify-center rounded-full text-[#9a968f] hover:text-[#eceae6]"
+                  className="flex h-8 w-8 items-center justify-center rounded-full text-[#9DC2D1] hover:text-[#E8F2F5]"
                   onClick={() => setQty((q) => Math.min(product.totalUnits || 99, q + 1))}
                   aria-label="Más"
                 >
@@ -177,7 +177,7 @@ export function ProductDetailClient({
               </button>
             </div>
 
-            <p className="mt-5 rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 py-3 text-xs leading-relaxed text-[#6b6560]">
+            <p className="mt-5 rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 py-3 text-xs leading-relaxed text-[#6B8A96]">
               Disponibilidad y pago se confirman en tienda o con tu asesor TOROCELL STORE. Envíos a toda Colombia.
             </p>
           </div>

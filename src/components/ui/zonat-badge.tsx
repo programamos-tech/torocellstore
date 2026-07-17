@@ -28,9 +28,9 @@ export function ZonatBadge({ className, size = 'md', showText = true }: ZonatBad
       className
     )}>
       <img 
-        src="/zonat-logo.webp" 
+        src="/logo.jpeg" 
         alt="TOROCELL STORE Logo" 
-        className={cn(logoSize[size])}
+        className={cn(logoSize[size], 'rounded-full object-contain')}
       />
       {showText && (
         <span>TOROCELL STORE</span>

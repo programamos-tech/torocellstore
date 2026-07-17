@@ -66,15 +66,15 @@ export function RecentSalesCard({ sales, limit = 8 }: RecentSalesCardProps) {
   const getPaymentMethodColor = (method: string) => {
     switch (method.toLowerCase()) {
       case 'cash':
-        return 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400'
+        return 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-emerald-400'
       case 'credit':
-        return 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400'
+        return 'bg-sky-100 text-sky-800 dark:bg-sky-950/20 dark:text-sky-400'
       case 'transfer':
-        return 'bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-400'
+        return 'bg-amber-100 text-amber-800 dark:bg-amber-950/20 dark:text-amber-400'
       case 'warranty':
         return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400'
       case 'mixed':
-        return 'bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-400'
+        return 'bg-amber-100 text-amber-800 dark:bg-amber-950/20 dark:text-amber-400'
       default:
         return 'bg-gray-100 text-gray-800 dark:bg-neutral-800 dark:text-gray-400'
     }
@@ -100,7 +100,7 @@ export function RecentSalesCard({ sales, limit = 8 }: RecentSalesCardProps) {
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
       case 'completed':
-        return 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400'
+        return 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-emerald-400'
       case 'pending':
         return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400'
       case 'cancelled':

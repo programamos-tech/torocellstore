@@ -42,9 +42,9 @@ export function RecentSales({ sales }: RecentSalesProps) {
       case 'cash':
         return 'bg-green-100 text-green-800'
       case 'credit':
-        return 'bg-blue-100 text-blue-800'
+        return 'bg-sky-100 text-sky-800'
       case 'transfer':
-        return 'bg-purple-100 text-purple-800'
+        return 'bg-amber-100 text-amber-800'
       default:
         return 'bg-gray-100 text-gray-800'
     }

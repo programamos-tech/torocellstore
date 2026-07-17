@@ -11,6 +11,7 @@ import { SupplierInvoicesService } from '@/lib/supplier-invoices-service'
 import { supabase } from '@/lib/supabase'
 import { compressImageForUpload } from '@/lib/compress-image-for-upload'
 import { cn } from '@/lib/utils'
+import { MODAL_PANEL, MODAL_BACKDROP_PAD } from '@/config/modal-layout'
 import { toast } from 'sonner'
 
 function paymentReceiptStoredToPublicUrl(stored: string): string {
@@ -200,9 +201,14 @@ export function SupplierPaymentModal({
     'w-full rounded-lg border border-zinc-300 bg-white px-4 text-zinc-900 transition-colors placeholder:text-zinc-400 focus:border-zinc-500 focus:outline-none focus:ring-2 focus:ring-zinc-400/30 dark:border-zinc-600 dark:bg-zinc-950/50 dark:text-zinc-100 dark:focus:border-zinc-500 dark:focus:ring-zinc-500/25'
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-[max(1rem,env(safe-area-inset-top))] backdrop-blur-sm xl:left-56">
+    <div
+      className={cn(
+        'fixed inset-0 z-[60] flex items-center justify-center zonat-modal-backdrop xl:left-56',
+        MODAL_BACKDROP_PAD
+      )}
+    >
       <div
-        className="max-h-[min(90dvh,calc(100dvh-env(safe-area-inset-top)-env(safe-area-inset-bottom)-2rem))] w-full max-w-md overflow-y-auto rounded-2xl border border-zinc-200 bg-white shadow-2xl dark:border-zinc-700 dark:bg-zinc-900"
+        className={cn(MODAL_PANEL, 'border border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-900')}
         role="dialog"
         aria-modal="true"
         aria-labelledby="payment-modal-title"

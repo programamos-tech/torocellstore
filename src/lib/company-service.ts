@@ -88,7 +88,7 @@ export class CompanyService {
       address: 'Carrera 20 #22-02, Sincelejo, Sucre',
       phone: '3135206736',
       email: 'info@torocell.store',
-      logo: '/zonat-logo.png',
+      logo: '/logo.jpeg',
       dianResolution: undefined,
       numberingRange: undefined
     }

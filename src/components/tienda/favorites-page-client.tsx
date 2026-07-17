@@ -31,9 +31,9 @@ export function FavoritesPageClient({
       <TiendaHeader storeName={store?.name} />
 
       <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-10 sm:px-6 lg:px-8">
-        <p className="text-[10px] font-bold uppercase tracking-[0.32em] text-[#6b6560]">Tu selección</p>
-        <h1 className="tienda-display mt-2 text-3xl font-semibold text-[#f5f0e6] sm:text-4xl">Favoritos</h1>
-        <p className="mt-2 text-sm text-[#9a968f]">
+        <p className="text-[10px] font-bold uppercase tracking-[0.32em] text-[#6B8A96]">Tu selección</p>
+        <h1 className="tienda-display mt-2 text-3xl font-semibold text-[#E8F2F5] sm:text-4xl">Favoritos</h1>
+        <p className="mt-2 text-sm text-[#9DC2D1]">
           {favorites.length === 0
             ? 'Guarda los celulares que te interesen tocando el corazón en el catálogo.'
             : `${favorites.length} producto${favorites.length === 1 ? '' : 's'} guardado${favorites.length === 1 ? '' : 's'}.`}
@@ -42,7 +42,7 @@ export function FavoritesPageClient({
         {favorites.length === 0 ? (
           <div className={cn('tienda-card-premium mt-12 flex flex-col items-center rounded-3xl py-16 text-center')}>
             <Heart className="h-12 w-12 text-white/15" strokeWidth={1.25} />
-            <p className="mt-4 text-sm font-medium text-[#eceae6]">Aún no tienes favoritos</p>
+            <p className="mt-4 text-sm font-medium text-[#E8F2F5]">Aún no tienes favoritos</p>
             <Link
               href="/tienda"
               className="tienda-btn-gold mt-6 inline-flex h-10 items-center rounded-full px-8 text-sm font-semibold"

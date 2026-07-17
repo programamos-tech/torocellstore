@@ -22,7 +22,7 @@ export function LowStockProducts({ products }: LowStockProductsProps) {
     <Card className="border-gray-200">
       <CardHeader>
         <CardTitle className="flex items-center">
-          <AlertTriangle className="h-5 w-5 text-yellow-600 mr-2" />
+          <AlertTriangle className="h-5 w-5 text-amber-600 mr-2" />
           Productos con Stock Bajo
         </CardTitle>
       </CardHeader>

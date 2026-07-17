@@ -317,10 +317,21 @@ export default function NewSalePage() {
     return 'Disponible'
   }
 
+  const getClientTypeLabel = (type: string) => {
+    if (type === 'mayorista') return 'Mayorista'
+    if (type === 'minorista') return 'Minorista'
+    // Un solo término: evita “Consumidor final” + “Cliente final” a la vez
+    return 'Cliente final'
+  }
+
   const getClientTypeColor = (type: string) => {
-    if (type === 'mayorista') return 'bg-blue-100 text-blue-800 border-blue-300 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-600'
-    if (type === 'minorista') return 'bg-purple-100 text-purple-800 border-purple-300 dark:bg-purple-900/30 dark:text-purple-300 dark:border-purple-600'
-    return 'bg-gray-100 text-gray-800 border-gray-300 dark:bg-neutral-950/30 dark:text-gray-300 dark:border-neutral-600'
+    if (type === 'mayorista') {
+      return 'border-amber-500/40 bg-amber-500/15 text-amber-800 dark:border-amber-400/40 dark:bg-amber-500/20 dark:text-amber-300'
+    }
+    if (type === 'minorista') {
+      return 'border-sky-500/40 bg-sky-500/15 text-sky-800 dark:border-sky-400/40 dark:bg-sky-500/20 dark:text-sky-300'
+    }
+    return 'border-emerald-500/40 bg-emerald-500/15 text-emerald-800 dark:border-emerald-400/40 dark:bg-emerald-500/20 dark:text-emerald-300'
   }
 
   const handleAddProduct = (product: Product) => {
@@ -803,9 +814,9 @@ export default function NewSalePage() {
               className="-ml-2 shrink-0"
               aria-label="Volver a ventas"
             >
-              <ArrowLeft className="h-5 w-5" strokeWidth={1.5} />
+              <ArrowLeft className="h-5 w-5 text-zinc-600 dark:text-zinc-300" strokeWidth={1.5} />
             </Button>
-            <FileText className="h-6 w-6 shrink-0 text-zinc-400 dark:text-zinc-500" strokeWidth={1.5} />
+            <FileText className="h-6 w-6 shrink-0 text-amber-600 dark:text-amber-400" strokeWidth={1.5} />
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center gap-2">
                 <h1 className="truncate text-lg font-semibold tracking-tight text-zinc-900 dark:text-zinc-50 md:text-xl">
@@ -827,7 +838,7 @@ export default function NewSalePage() {
               onClick={() => setPosMode(true)}
               className="shrink-0 touch-manipulation"
             >
-              <LayoutGrid className="mr-1.5 h-4 w-4" strokeWidth={1.5} />
+              <LayoutGrid className="mr-1.5 h-4 w-4 text-sky-600 dark:text-sky-400" strokeWidth={1.5} />
               Modo POS
             </Button>
           </div>
@@ -843,7 +854,7 @@ export default function NewSalePage() {
               <Card className={cardShell}>
                 <CardHeader className="space-y-0 border-b border-zinc-200 p-4 dark:border-zinc-800">
                   <CardTitle className="flex items-center gap-2 text-base font-semibold text-zinc-900 dark:text-zinc-50">
-                    <Package className="h-4 w-4 shrink-0 text-zinc-500 dark:text-zinc-300" strokeWidth={1.5} />
+                    <Package className="h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400" strokeWidth={1.5} />
                     Productos
                   </CardTitle>
                   <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
@@ -856,7 +867,7 @@ export default function NewSalePage() {
                       Buscar producto
                     </label>
                     <div className="relative">
-                      <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
+                      <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-emerald-600/70 dark:text-emerald-400/70" />
                       <input
                         type="text"
                         placeholder="Nombre, referencia o marca…"
@@ -1066,18 +1077,19 @@ export default function NewSalePage() {
               <Card className={cardShell}>
                 <CardHeader className="space-y-0 border-b border-zinc-200 p-4 dark:border-zinc-800">
                   <CardTitle className="flex items-center gap-2 text-base font-semibold text-zinc-900 dark:text-zinc-50">
-                    <User className="h-4 w-4 shrink-0 text-zinc-500 dark:text-zinc-300" strokeWidth={1.5} />
+                    <User className="h-4 w-4 shrink-0 text-sky-600 dark:text-sky-400" strokeWidth={1.5} />
                     Cliente
                   </CardTitle>
                   <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">Quién recibe la factura.</p>
                 </CardHeader>
                 <CardContent className="space-y-3 overflow-visible p-4 md:p-6 md:pt-4">
+                  {!selectedClient ? (
                   <div>
                     <label className="mb-2 block text-[11px] font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
                       Buscar cliente
                     </label>
                     <div className="relative isolate">
-                      <Search className="pointer-events-none absolute left-3 top-1/2 z-10 h-4 w-4 -translate-y-1/2 text-zinc-400" />
+                      <Search className="pointer-events-none absolute left-3 top-1/2 z-10 h-4 w-4 -translate-y-1/2 text-sky-600/70 dark:text-sky-400/70" />
                       <input
                         type="text"
                         placeholder="Nombre, email o teléfono…"
@@ -1097,7 +1109,7 @@ export default function NewSalePage() {
                         className={cn(inputClass, 'pl-10')}
                       />
                       
-                      {showClientDropdown && !selectedClient && filteredClients.length > 0 && (
+                      {showClientDropdown && filteredClients.length > 0 && (
                         <div className="scrollbar-hide absolute left-0 right-0 top-full z-[130] mt-1 max-h-80 overflow-y-auto overscroll-contain rounded-xl border border-zinc-200 bg-white shadow-2xl dark:border-zinc-600 dark:bg-zinc-950">
                           <div className="rounded-[inherit] bg-white p-2 dark:bg-zinc-950">
                             {filteredClients.map((client) => (
@@ -1129,9 +1141,8 @@ export default function NewSalePage() {
                                     )}
                                   </div>
                                   <div className="shrink-0">
-                                    <Badge className={cn(getClientTypeColor(client.type), 'whitespace-nowrap text-xs')}>
-                                      {client.type === 'mayorista' ? 'Mayorista' : 
-                                       client.type === 'minorista' ? 'Minorista' : 'Consumidor Final'}
+                                    <Badge className={cn(getClientTypeColor(client.type), 'whitespace-nowrap border text-xs font-medium')}>
+                                      {getClientTypeLabel(client.type)}
                                     </Badge>
                                   </div>
                                 </div>
@@ -1141,49 +1152,50 @@ export default function NewSalePage() {
                         </div>
                       )}
                       
-                      {showClientDropdown && !selectedClient && filteredClients.length === 0 && clientSearch.trim().length > 0 && (
+                      {showClientDropdown && filteredClients.length === 0 && clientSearch.trim().length > 0 && (
                         <div className="absolute left-0 right-0 top-full z-[130] mt-1 rounded-xl border border-zinc-200 bg-white p-4 shadow-2xl dark:border-zinc-600 dark:bg-zinc-950">
                           <div className="text-center">
-                            <User className="mx-auto mb-2 h-8 w-8 text-zinc-400" />
+                            <User className="mx-auto mb-2 h-8 w-8 text-sky-500/60" />
                             <div className="text-sm text-zinc-500 dark:text-zinc-400">No se encontraron clientes</div>
                           </div>
                         </div>
                       )}
                     </div>
                   </div>
-
-                  {selectedClient && (
-                    <div className="rounded-lg border border-zinc-200/90 bg-zinc-50/90 p-3 dark:border-zinc-700 dark:bg-zinc-900/50">
+                  ) : (
+                    <div className="rounded-lg border border-sky-500/25 bg-sky-500/[0.06] p-3 dark:border-sky-400/30 dark:bg-sky-500/10">
                       <div className="flex items-center justify-between gap-2">
-                        <div className="flex min-w-0 flex-1 items-center gap-2">
-                          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-zinc-200 bg-white dark:border-zinc-600 dark:bg-zinc-800">
-                            <User className="h-4 w-4 text-zinc-500 dark:text-zinc-400" strokeWidth={1.5} />
+                        <div className="flex min-w-0 flex-1 items-center gap-2.5">
+                          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-sky-600/15 dark:bg-sky-500/20">
+                            <User className="h-4 w-4 text-sky-600 dark:text-sky-400" strokeWidth={1.5} />
                           </div>
                           <div className="min-w-0 flex-1">
                             <div className="truncate text-sm font-semibold text-zinc-900 dark:text-zinc-50">
                               {selectedClient.name}
                             </div>
-                            {selectedClient.email && (
-                              <div className="truncate text-xs text-zinc-500 dark:text-zinc-400">
-                                {selectedClient.email}
+                            {(selectedClient.phone || selectedClient.email) && (
+                              <div className="mt-0.5 truncate text-xs text-zinc-500 dark:text-zinc-400">
+                                {selectedClient.phone || selectedClient.email}
+                              </div>
+                            )}
+                            {!/cliente\s*final|consumidor/i.test(selectedClient.name) && (
+                              <div className="mt-1">
+                                <Badge className={cn(getClientTypeColor(selectedClient.type), 'border text-[11px] font-medium')}>
+                                  {getClientTypeLabel(selectedClient.type)}
+                                </Badge>
                               </div>
                             )}
                           </div>
                         </div>
-                        <div className="flex shrink-0 items-center gap-2">
-                          <Badge className={cn(getClientTypeColor(selectedClient.type), 'whitespace-nowrap text-xs')}>
-                            {selectedClient.type === 'mayorista' ? 'Mayorista' : 
-                             selectedClient.type === 'minorista' ? 'Minorista' : 'Consumidor Final'}
-                          </Badge>
-                          <Button
-                            onClick={handleRemoveClient}
-                            size="sm"
-                            variant="ghost"
-                            className="h-8 w-8 p-0 text-zinc-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/40"
-                          >
-                            <X className="h-4 w-4" />
-                          </Button>
-                        </div>
+                        <Button
+                          onClick={handleRemoveClient}
+                          size="sm"
+                          variant="ghost"
+                          className="h-8 w-8 shrink-0 p-0 text-zinc-400 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/40"
+                          aria-label="Quitar cliente"
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
                       </div>
                     </div>
                   )}
@@ -1195,7 +1207,7 @@ export default function NewSalePage() {
               <Card className={cn(cardShell, 'relative z-0 overflow-hidden')}>
                 <CardHeader className="space-y-0 border-b border-zinc-200 p-4 dark:border-zinc-800">
                   <CardTitle className="flex items-center gap-2 text-base font-semibold text-zinc-900 dark:text-zinc-50">
-                    <CreditCard className="h-4 w-4 shrink-0 text-zinc-500 dark:text-zinc-300" strokeWidth={1.5} />
+                    <CreditCard className="h-4 w-4 shrink-0 text-amber-600 dark:text-amber-400" strokeWidth={1.5} />
                     Método de pago
                   </CardTitle>
                   <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">Cómo se liquida la venta.</p>
@@ -1311,7 +1323,7 @@ export default function NewSalePage() {
               <Card className={cn(cardShell, 'relative z-0 overflow-hidden md:sticky md:top-24')}>
                 <CardHeader className="space-y-0 border-b border-zinc-200 p-4 dark:border-zinc-800">
                   <CardTitle className="flex items-center gap-2 text-base font-semibold text-zinc-900 dark:text-zinc-50">
-                    <DollarSign className="h-4 w-4 shrink-0 text-zinc-500 dark:text-zinc-300" strokeWidth={1.5} />
+                    <DollarSign className="h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400" strokeWidth={1.5} />
                     Resumen
                   </CardTitle>
                   <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">Totales y confirmación.</p>
@@ -1400,7 +1412,7 @@ export default function NewSalePage() {
                             </>
                           ) : (
                             <>
-                              <ShoppingCart className="mr-2 h-5 w-5" strokeWidth={1.5} />
+                              <ShoppingCart className="mr-2 h-5 w-5 text-emerald-600 dark:text-emerald-400" strokeWidth={1.5} />
                               Crear venta
                             </>
                           )}

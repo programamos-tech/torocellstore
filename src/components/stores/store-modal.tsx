@@ -189,13 +189,13 @@ export function StoreModal({ isOpen, onClose, onSave, store }: StoreModalProps) 
 
   const modal = (
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-white/70 p-3 backdrop-blur-sm dark:bg-black/60 sm:p-6 sm:py-10 lg:px-12 xl:left-56"
+      className="fixed inset-0 z-[100] flex items-center justify-center zonat-modal-backdrop p-3 sm:p-6 sm:py-10 lg:px-12 xl:left-56"
       style={{
         paddingTop: 'max(0.75rem, env(safe-area-inset-top, 0px))',
         paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom, 0px))'
       }}
     >
-      <div className="flex max-h-[min(88dvh,880px)] min-h-0 w-full flex-col overflow-hidden rounded-2xl border border-zinc-200/90 bg-white shadow-xl dark:border-zinc-800 dark:bg-zinc-900/95 sm:max-h-[min(94vh,880px)] sm:max-w-2xl lg:max-w-3xl">
+      <div className="flex w-full max-w-[min(72rem,calc(100vw-1.5rem))] max-h-[calc(100dvh-2.5rem)] sm:max-h-[calc(100dvh-4rem)] min-h-0 flex-col overflow-hidden rounded-2xl border border-zinc-200/90 bg-white shadow-xl dark:border-zinc-800 dark:bg-zinc-900/95">
         <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain scrollbar-hide">
           <div className="flex items-center justify-between gap-3 border-b border-zinc-200/90 px-4 py-3.5 sm:px-5 dark:border-zinc-800">
             <div className="flex min-w-0 items-center gap-2.5">

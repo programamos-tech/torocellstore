@@ -5,6 +5,7 @@ import { createPortal } from 'react-dom'
 import { Button } from '@/components/ui/button'
 import { AlertTriangle, Info, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { MODAL_PANEL, MODAL_BACKDROP_PAD } from '@/config/modal-layout'
 
 interface ConfirmModalProps {
   isOpen: boolean
@@ -17,11 +18,15 @@ interface ConfirmModalProps {
   type?: 'danger' | 'warning' | 'info'
 }
 
-const overlayClass =
-  'fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-[max(1rem,env(safe-area-inset-top))] backdrop-blur-sm xl:left-56'
+const overlayClass = cn(
+  'fixed inset-0 z-[100] flex items-center justify-center zonat-modal-backdrop xl:left-56',
+  MODAL_BACKDROP_PAD
+)
 
-const shellClass =
-  'w-full max-w-md overflow-y-auto rounded-2xl border border-zinc-200 bg-white shadow-2xl dark:border-zinc-700 dark:bg-zinc-900'
+const shellClass = cn(
+  MODAL_PANEL,
+  'border border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-900'
+)
 
 export function ConfirmModal({
   isOpen,

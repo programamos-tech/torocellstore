@@ -1063,9 +1063,9 @@ export default function ReportesPage() {
       .filter(day => day.amount > 0) // Solo mostrar días con ventas
 
     const paymentMethodData = [
-      { name: 'Efectivo', value: cashRevenue, color: '#3dab1f' },
-      { name: 'Transferencia', value: transferRevenue, color: '#52525b' },
-      { name: 'Crédito', value: creditRevenue, color: '#71717a' },
+      { name: 'Efectivo', value: cashRevenue, color: '#69B275' },
+      { name: 'Transferencia', value: transferRevenue, color: '#9DC2D1' },
+      { name: 'Crédito', value: creditRevenue, color: '#F7BE4B' },
     ].filter(item => item.value > 0)
 
     const topProductsChart = topProducts.slice(0, 5).map(product => ({
@@ -1348,7 +1348,7 @@ export default function ReportesPage() {
               <div className="min-w-0 flex-1 space-y-1.5">
                 <CardTitle className="flex flex-wrap items-center gap-2 text-lg font-semibold tracking-tight text-zinc-900 dark:text-zinc-50 md:text-xl">
                   <BarChart3
-                    className="h-5 w-5 shrink-0 text-zinc-400 dark:text-zinc-500"
+                    className="h-5 w-5 shrink-0 text-emerald-600 dark:text-emerald-400"
                     strokeWidth={1.5}
                     aria-hidden
                   />
@@ -1801,7 +1801,7 @@ export default function ReportesPage() {
 
                     // Colores adaptativos para modo oscuro
                     const axisColor = isDarkMode ? '#6b7280' : '#666'
-                    const lineColor = isDarkMode ? '#75dc45' : '#52c42a' // Verde de marca (theme)
+                    const lineColor = isDarkMode ? '#85c490' : '#69B275' // Verde de marca (theme)
                     const dotStrokeColor = isDarkMode ? '#111827' : '#fff'
                     const tooltipBg = isDarkMode ? '#1f2937' : 'white'
                     const tooltipBorder = isDarkMode ? '#374151' : '#e5e7eb'
@@ -2027,7 +2027,7 @@ export default function ReportesPage() {
 
                   // Colores adaptativos para modo oscuro
                   const axisColor = isDarkMode ? '#9ca3af' : '#666'
-                  const lineColor = isDarkMode ? '#75dc45' : '#52c42a' // Verde de marca (theme)
+                  const lineColor = isDarkMode ? '#85c490' : '#69B275' // Verde de marca (theme)
                   const dotStrokeColor = isDarkMode ? '#111827' : '#fff'
                   const tooltipBg = isDarkMode ? '#1f2937' : 'white'
                   const tooltipBorder = isDarkMode ? '#374151' : '#e5e7eb'

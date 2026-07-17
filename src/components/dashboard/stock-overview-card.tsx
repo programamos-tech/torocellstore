@@ -33,7 +33,7 @@ export function StockOverviewCard({
     } else if (lowStockProducts > 0) {
       return {
         status: 'warning',
-        color: 'text-yellow-600 dark:text-yellow-400',
+        color: 'text-amber-600 dark:text-yellow-400',
         bgColor: 'bg-yellow-100 dark:bg-yellow-900/20',
         icon: AlertTriangle,
         message: `${lowStockProducts} productos con stock bajo`
@@ -41,7 +41,7 @@ export function StockOverviewCard({
     } else {
       return {
         status: 'good',
-        color: 'text-green-600 dark:text-green-400',
+        color: 'text-emerald-600 dark:text-emerald-400',
         bgColor: 'bg-green-100 dark:bg-green-900/20',
         icon: CheckCircle,
         message: 'Stock en buen estado'
@@ -56,8 +56,8 @@ export function StockOverviewCard({
     <Card className="border-0 bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 shadow-sm">
       <CardHeader className="pb-4">
         <CardTitle className="flex items-center">
-          <div className="p-2 rounded-xl bg-blue-50 dark:bg-blue-900/20 mr-3">
-            <Package className="h-5 w-5 text-blue-600" />
+          <div className="p-2 rounded-xl bg-blue-50 dark:bg-sky-950/20 mr-3">
+            <Package className="h-5 w-5 text-emerald-600" />
           </div>
           <span className="text-lg font-medium text-gray-800 dark:text-gray-200">Resumen de Stock</span>
         </CardTitle>
@@ -91,8 +91,8 @@ export function StockOverviewCard({
             </div>
 
             <div className="text-center p-5 rounded-xl bg-white dark:bg-neutral-800/50 shadow-sm">
-              <div className="p-3 rounded-xl bg-purple-50 dark:bg-purple-900/20 w-12 h-12 mx-auto mb-3 flex items-center justify-center">
-                <Warehouse className="h-6 w-6 text-purple-600" />
+              <div className="p-3 rounded-xl bg-purple-50 dark:bg-amber-950/20 w-12 h-12 mx-auto mb-3 flex items-center justify-center">
+                <Warehouse className="h-6 w-6 text-amber-600" />
               </div>
               <p className="text-xl font-bold text-gray-900 dark:text-white mb-1">
                 {warehouseStock.toLocaleString()}

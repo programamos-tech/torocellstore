@@ -7,7 +7,6 @@
  */
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* Verde de marca: tono cálido y coherente (sidebar, botones y acentos mismo family) */
 /* Pie “powered by programamos” en sidebar (Google Fonts: Stack Sans Notch) */
 .font-programamos-brand {
   font-family: "Stack Sans Notch", ui-sans-serif, system-ui, sans-serif;
@@ -19,6 +18,13 @@
   --zonat-bottom-nav-height: calc(2.75rem + env(safe-area-inset-bottom, 0px));
   /* AppTopBar (min-h 3.25rem + borde); modales en portal no deben taparla. */
   --zonat-topbar-height: 3.25rem;
+
+  /* Paleta Torocell: #000000 · #9DC2D1 · #DB462D · #F7BE4B · #69B275 */
+  --brand-black: #000000;
+  --brand-blue: #9DC2D1;
+  --brand-red: #DB462D;
+  --brand-yellow: #F7BE4B;
+  --brand-green: #69B275;
 }
 
 @media (min-width: 768px) {
@@ -28,17 +34,76 @@
 }
 
 @theme {
-  --color-emerald-50: #f2fce8;
-  --color-emerald-100: #e2f9d4;
-  --color-emerald-200: #c5f2a8;
-  --color-emerald-300: #9de872;
-  --color-emerald-400: #75dc45;
-  --color-emerald-500: #52c42a;
-  --color-emerald-600: #3dab1f;
-  --color-emerald-700: #2e8f1a;
-  --color-emerald-800: #24701a;
-  --color-emerald-900: #1a5516;
-  --color-emerald-950: #0d2f0a;
+  --color-brand-black: #000000;
+  --color-brand-blue: #9DC2D1;
+  --color-brand-red: #DB462D;
+  --color-brand-yellow: #F7BE4B;
+  --color-brand-green: #69B275;
+
+  /* Primario (botones, links, estados OK) → verde marca */
+  --color-emerald-50: #f3faf4;
+  --color-emerald-100: #e3f3e6;
+  --color-emerald-200: #c8e6cd;
+  --color-emerald-300: #a5d5ad;
+  --color-emerald-400: #85c490;
+  --color-emerald-500: #75bc80;
+  --color-emerald-600: #69B275;
+  --color-emerald-700: #548f5e;
+  --color-emerald-800: #44734c;
+  --color-emerald-900: #385f40;
+  --color-emerald-950: #1c3322;
+
+  /* Acento / warning / precios → amarillo marca */
+  --color-amber-50: #fffaeb;
+  --color-amber-100: #fef3c7;
+  --color-amber-200: #fde68a;
+  --color-amber-300: #fcd34d;
+  --color-amber-400: #F7BE4B;
+  --color-amber-500: #f0b033;
+  --color-amber-600: #d9971a;
+  --color-amber-700: #b47812;
+  --color-amber-800: #925e12;
+  --color-amber-900: #784e14;
+  --color-amber-950: #452a08;
+
+  /* Secundario / info → azul marca */
+  --color-sky-50: #f0f7fa;
+  --color-sky-100: #dceef4;
+  --color-sky-200: #b9dde8;
+  --color-sky-300: #9DC2D1;
+  --color-sky-400: #7aadc0;
+  --color-sky-500: #5e93a8;
+  --color-sky-600: #4a778c;
+  --color-sky-700: #3e6173;
+  --color-sky-800: #365160;
+  --color-sky-900: #304451;
+  --color-sky-950: #1e2c35;
+
+  /* Danger / CELL → rojo marca */
+  --color-red-50: #fef3f1;
+  --color-red-100: #fde4df;
+  --color-red-200: #fac8bf;
+  --color-red-300: #f5a193;
+  --color-red-400: #ec7060;
+  --color-red-500: #DB462D;
+  --color-red-600: #c73824;
+  --color-red-700: #a72d1d;
+  --color-red-800: #8a291d;
+  --color-red-900: #73271e;
+  --color-red-950: #3e110c;
+
+  /* Rose (alertas / favoritos) → mismo rojo de marca */
+  --color-rose-50: #fef3f1;
+  --color-rose-100: #fde4df;
+  --color-rose-200: #fac8bf;
+  --color-rose-300: #f5a193;
+  --color-rose-400: #ec7060;
+  --color-rose-500: #DB462D;
+  --color-rose-600: #c73824;
+  --color-rose-700: #a72d1d;
+  --color-rose-800: #8a291d;
+  --color-rose-900: #73271e;
+  --color-rose-950: #3e110c;
 }
 
 /* Force light mode styles */
@@ -54,13 +119,25 @@ html.light body {
 /*
  * Heredar fondo en light mode evita “parches” grises; pero no aplicarlo a controles
  * interactivos: si no, anulan bg-zinc-900 / bg-emerald y el texto claro queda invisible.
+ * Tampoco a backdrops de modales (deben quedar semitransparentes + blur).
  */
 html.light
   body:not(:has(.tienda-storefront)):not(:has([data-auth-page]))
   *:not(button):not(input):not(select):not(textarea):not([role='button']):not(a):not(
     .zonat-card-surface
-  ):not(.zonat-preserve-surface):not(.zonat-preserve-surface *) {
+  ):not(.zonat-preserve-surface):not(.zonat-preserve-surface *):not(.zonat-modal-backdrop) {
   background-color: inherit !important;
+}
+
+/* Backdrop de modales: se ve la vista de detrás con blur (no pantalla blanca) */
+.zonat-modal-backdrop {
+  background-color: rgb(0 0 0 / 0.42) !important;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+html.dark .zonat-modal-backdrop {
+  background-color: rgb(0 0 0 / 0.58) !important;
 }
 
 /*
@@ -76,42 +153,40 @@ html.light .zonat-card-surface {
   max-width: 100%;
 }
 
-/* Force dark mode styles - negro mate con difuminado sutil */
+/* Force dark mode styles — negro puro #000000 */
 html.dark {
-  background-color: #0a0a0a !important;
-  background-image: linear-gradient(165deg, #0a0a0a 0%, #0f0f0f 35%, #141414 50%, #0f0f0f 65%, #0a0a0a 100%) !important;
-  background-attachment: fixed !important;
+  background-color: #000000 !important;
+  background-image: none !important;
 }
 
 html.dark body {
   background-color: transparent !important;
-  color: #ededed !important;
+  color: #e8f2f5 !important;
 }
 
-/* Catálogo público (/tienda): tema premium matte black + dorado */
+/* Catálogo público (/tienda): negro puro */
 html.dark:has(.tienda-storefront),
 html:has(.tienda-storefront) {
-  background-color: #050505 !important;
+  background-color: #000000 !important;
   background-image: none !important;
 }
 
 .tienda-storefront {
-  --tienda-gold: #b8973f;
-  --tienda-gold-bright: #c9a84c;
-  --tienda-gold-muted: rgba(184, 151, 63, 0.45);
-  --tienda-gold-faint: rgba(184, 151, 63, 0.1);
-  --tienda-border: rgba(255, 255, 255, 0.08);
-  --tienda-border-hover: rgba(255, 255, 255, 0.14);
+  --tienda-gold: #F7BE4B;
+  --tienda-gold-bright: #F9CC6E;
+  --tienda-gold-muted: rgba(247, 190, 75, 0.45);
+  --tienda-gold-faint: rgba(247, 190, 75, 0.12);
+  --tienda-border: rgba(157, 194, 209, 0.14);
+  --tienda-border-hover: rgba(157, 194, 209, 0.28);
   --tienda-surface: #141414;
-  --tienda-text: #eceae6;
-  --tienda-text-muted: #9a968f;
+  --tienda-text: #e8f2f5;
+  --tienda-text-muted: #9DC2D1;
 
   font-family: var(--font-tienda-sans), 'Montserrat', system-ui, sans-serif;
-  background-color: #0a0a0a;
+  background-color: #000000;
   background-image:
-    radial-gradient(ellipse 120% 80% at 50% -20%, rgba(184, 151, 63, 0.04), transparent 55%),
-    radial-gradient(ellipse 90% 60% at 100% 100%, rgba(255, 255, 255, 0.02), transparent 50%),
-    linear-gradient(180deg, #0d0d0d 0%, #080808 40%, #050505 100%);
+    radial-gradient(ellipse 120% 80% at 50% -20%, rgba(247, 190, 75, 0.05), transparent 55%),
+    radial-gradient(ellipse 90% 60% at 100% 100%, rgba(157, 194, 209, 0.04), transparent 50%);
 }
 
 .tienda-display {
@@ -119,7 +194,7 @@ html:has(.tienda-storefront) {
 }
 
 .tienda-gold-gradient-text {
-  background: linear-gradient(135deg, #eceae6 0%, #d4d0c8 50%, #b8973f 100%);
+  background: linear-gradient(135deg, #e8f2f5 0%, #9DC2D1 45%, #F7BE4B 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -127,21 +202,21 @@ html:has(.tienda-storefront) {
 
 .tienda-gold-line {
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  background: linear-gradient(90deg, transparent, rgba(157, 194, 209, 0.22), transparent);
 }
 
 .tienda-card-premium {
   border: 1px solid var(--tienda-border);
-  background: linear-gradient(165deg, rgba(24, 24, 24, 0.95) 0%, rgba(12, 12, 12, 0.98) 100%);
+  background: linear-gradient(165deg, rgba(26, 24, 25, 0.96) 0%, rgba(5, 4, 5, 0.98) 100%);
   box-shadow:
-    0 1px 0 rgba(255, 255, 255, 0.03) inset,
-    0 8px 32px rgba(0, 0, 0, 0.4);
+    0 1px 0 rgba(157, 194, 209, 0.04) inset,
+    0 8px 32px rgba(0, 0, 0, 0.45);
 }
 
 .tienda-btn-gold {
-  border: 1px solid rgba(184, 151, 63, 0.28);
-  background: linear-gradient(180deg, #b8973f 0%, #8a6f2a 100%);
-  color: #0a0a0a;
+  border: 1px solid rgba(247, 190, 75, 0.35);
+  background: linear-gradient(180deg, #F7BE4B 0%, #d9971a 100%);
+  color: #000000;
   font-weight: 600;
   transition: filter 0.2s ease;
 }
@@ -152,13 +227,13 @@ html:has(.tienda-storefront) {
 
 .tienda-btn-outline-gold {
   border: 1px solid var(--tienda-border);
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(157, 194, 209, 0.04);
   color: var(--tienda-text);
   transition: background 0.2s ease, border-color 0.2s ease;
 }
 
 .tienda-btn-outline-gold:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(157, 194, 209, 0.1);
   border-color: var(--tienda-border-hover);
 }
 

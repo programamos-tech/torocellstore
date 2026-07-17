@@ -42,16 +42,16 @@ export function ActivitiesSummaryCard({ activities, limit = 10 }: ActivitiesSumm
       case 'success':
         return {
           bg: 'bg-green-100 dark:bg-green-900/20',
-          text: 'text-green-800 dark:text-green-400',
+          text: 'text-green-800 dark:text-emerald-400',
           icon: CheckCircle,
-          iconColor: 'text-green-600'
+          iconColor: 'text-emerald-600'
         }
       case 'warning':
         return {
           bg: 'bg-yellow-100 dark:bg-yellow-900/20',
           text: 'text-yellow-800 dark:text-yellow-400',
           icon: AlertCircle,
-          iconColor: 'text-yellow-600'
+          iconColor: 'text-amber-600'
         }
       case 'error':
         return {
@@ -62,10 +62,10 @@ export function ActivitiesSummaryCard({ activities, limit = 10 }: ActivitiesSumm
         }
       default:
         return {
-          bg: 'bg-blue-100 dark:bg-blue-900/20',
-          text: 'text-blue-800 dark:text-blue-400',
+          bg: 'bg-sky-100 dark:bg-sky-950/20',
+          text: 'text-sky-800 dark:text-sky-400',
           icon: Clock,
-          iconColor: 'text-blue-600'
+          iconColor: 'text-sky-600'
         }
     }
   }
@@ -111,8 +111,8 @@ export function ActivitiesSummaryCard({ activities, limit = 10 }: ActivitiesSumm
     <Card className="border-0 bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 shadow-sm h-96">
       <CardHeader className="pb-4">
         <CardTitle className="flex items-center">
-          <div className="p-2 rounded-xl bg-purple-50 dark:bg-purple-900/20 mr-3">
-            <Activity className="h-5 w-5 text-purple-600" />
+          <div className="p-2 rounded-xl bg-purple-50 dark:bg-amber-950/20 mr-3">
+            <Activity className="h-5 w-5 text-amber-600" />
           </div>
           <span className="text-lg font-medium text-gray-800 dark:text-gray-200">Resumen de Actividades</span>
         </CardTitle>

@@ -16,7 +16,7 @@ type TiendaHeaderProps = {
 }
 
 const iconBtn =
-  'relative flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-[#9a968f] transition-colors hover:bg-white/[0.06] hover:text-[#eceae6] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20 sm:h-10 sm:w-10'
+  'relative flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-[#9DC2D1] transition-colors hover:bg-white/[0.06] hover:text-[#E8F2F5] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20 sm:h-10 sm:w-10'
 
 export function TiendaHeader({
   showSearch,
@@ -28,7 +28,7 @@ export function TiendaHeader({
   const { count: favCount } = useTiendaFavorites()
 
   return (
-    <header className="sticky top-0 z-30 bg-[#0a0a0a]/92 backdrop-blur-xl">
+    <header className="sticky top-0 z-30 bg-[#000000]/92 backdrop-blur-xl">
       <div className="mx-auto flex w-full max-w-7xl items-center gap-2 px-3 py-2.5 sm:gap-3 sm:px-6 sm:py-3 lg:gap-6 lg:px-8">
         <Link
           href="/tienda"
@@ -45,10 +45,10 @@ export function TiendaHeader({
             unoptimized
           />
           <div className="hidden min-w-0 sm:block">
-            <p className="tienda-display text-xl font-semibold leading-none tracking-wide text-[#eceae6]">
+            <p className="tienda-display text-xl font-semibold leading-none tracking-wide text-[#E8F2F5]">
               TOROCELL STORE
             </p>
-            <p className="mt-1 text-[9px] font-semibold uppercase tracking-[0.28em] text-[#9a968f]">
+            <p className="mt-1 text-[9px] font-semibold uppercase tracking-[0.28em] text-[#9DC2D1]">
               {storeName?.trim() || 'Telefonía'}
             </p>
           </div>
@@ -57,7 +57,7 @@ export function TiendaHeader({
         {showSearch && onSearchChange && (
           <div className="relative min-w-0 flex-1">
             <Search
-              className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[#6b6560] sm:left-4 sm:h-4 sm:w-4"
+              className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-[#6B8A96] sm:left-4 sm:h-4 sm:w-4"
               strokeWidth={1.5}
               aria-hidden
             />
@@ -66,7 +66,7 @@ export function TiendaHeader({
               value={searchValue}
               onChange={(e) => onSearchChange(e.target.value)}
               placeholder="Buscar…"
-              className="h-9 w-full min-w-0 rounded-full border border-white/[0.1] bg-[#141414]/90 pl-9 pr-3 text-sm text-[#eceae6] placeholder:text-[#6b6560] focus:border-white/20 focus:outline-none focus:ring-2 focus:ring-white/[0.06] sm:h-10 sm:pl-11 lg:h-11"
+              className="h-9 w-full min-w-0 rounded-full border border-white/[0.1] bg-[#1a1819]/90 pl-9 pr-3 text-sm text-[#E8F2F5] placeholder:text-[#6B8A96] focus:border-white/20 focus:outline-none focus:ring-2 focus:ring-white/[0.06] sm:h-10 sm:pl-11 lg:h-11"
               aria-label="Buscar en catálogo"
             />
           </div>
@@ -80,7 +80,7 @@ export function TiendaHeader({
           <Link href="/tienda/favoritos" className={iconBtn} aria-label="Favoritos">
             <Heart className="h-[18px] w-[18px] sm:h-5 sm:w-5" strokeWidth={1.75} />
             {favCount > 0 && (
-              <span className="absolute -right-0.5 -top-0.5 flex h-3.5 min-w-3.5 items-center justify-center rounded-full bg-[#b8973f] px-0.5 text-[9px] font-bold text-[#0a0a0a] sm:h-4 sm:min-w-4 sm:text-[10px]">
+              <span className="absolute -right-0.5 -top-0.5 flex h-3.5 min-w-3.5 items-center justify-center rounded-full bg-[#F7BE4B] px-0.5 text-[9px] font-bold text-[#000000] sm:h-4 sm:min-w-4 sm:text-[10px]">
                 {favCount > 9 ? '9+' : favCount}
               </span>
             )}
@@ -94,7 +94,7 @@ export function TiendaHeader({
           >
             <ShoppingBag className="h-[18px] w-[18px] sm:h-5 sm:w-5" strokeWidth={1.75} />
             {itemCount > 0 && (
-              <span className="absolute -right-0.5 -top-0.5 flex h-3.5 min-w-3.5 items-center justify-center rounded-full bg-[#b8973f] px-0.5 text-[9px] font-bold text-[#0a0a0a] sm:h-4 sm:min-w-4 sm:text-[10px]">
+              <span className="absolute -right-0.5 -top-0.5 flex h-3.5 min-w-3.5 items-center justify-center rounded-full bg-[#F7BE4B] px-0.5 text-[9px] font-bold text-[#000000] sm:h-4 sm:min-w-4 sm:text-[10px]">
                 {itemCount > 9 ? '9+' : itemCount}
               </span>
             )}

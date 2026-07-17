@@ -9,11 +9,11 @@ export function DebtsConstructionCard() {
     <Card className="border-0 bg-gradient-to-br from-white to-gray-50 dark:from-gray-800 dark:to-gray-900 shadow-sm">
       <CardHeader className="pb-4">
         <CardTitle className="flex items-center">
-          <div className="p-2 rounded-xl bg-orange-50 dark:bg-orange-900/20 mr-3">
-            <Construction className="h-5 w-5 text-orange-600" />
+          <div className="p-2 rounded-xl bg-orange-50 dark:bg-amber-950/20 mr-3">
+            <Construction className="h-5 w-5 text-amber-600" />
           </div>
           <span className="text-lg font-medium text-gray-800 dark:text-gray-200">Gestión de Deudas</span>
-          <Badge className="ml-3 bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-400 text-xs">
+          <Badge className="ml-3 bg-amber-100 text-amber-800 dark:bg-amber-950/20 dark:text-amber-400 text-xs">
             En Construcción
           </Badge>
         </CardTitle>
@@ -21,12 +21,12 @@ export function DebtsConstructionCard() {
       <CardContent>
         <div className="text-center py-8">
           <div className="relative mb-6">
-            <div className="p-4 rounded-full bg-orange-50 dark:bg-orange-900/20 w-20 h-20 mx-auto mb-4 flex items-center justify-center">
-              <Construction className="h-10 w-10 text-orange-500" />
+            <div className="p-4 rounded-full bg-orange-50 dark:bg-amber-950/20 w-20 h-20 mx-auto mb-4 flex items-center justify-center">
+              <Construction className="h-10 w-10 text-amber-500" />
             </div>
             <div className="absolute -top-1 -right-1">
-              <div className="p-2 rounded-full bg-orange-100 dark:bg-orange-900/30">
-                <Clock className="h-4 w-4 text-orange-600 animate-pulse" />
+              <div className="p-2 rounded-full bg-amber-100 dark:bg-amber-950/30">
+                <Clock className="h-4 w-4 text-amber-600 animate-pulse" />
               </div>
             </div>
           </div>
@@ -66,8 +66,8 @@ export function DebtsConstructionCard() {
             </div>
           </div>
           
-          <div className="mt-6 p-4 rounded-xl bg-orange-50 dark:bg-orange-900/20 shadow-sm">
-            <div className="flex items-center justify-center space-x-2 text-orange-700 dark:text-orange-400">
+          <div className="mt-6 p-4 rounded-xl bg-orange-50 dark:bg-amber-950/20 shadow-sm">
+            <div className="flex items-center justify-center space-x-2 text-amber-700 dark:text-amber-400">
               <AlertCircle className="h-4 w-4" />
               <span className="text-sm font-medium">
                 Disponible próximamente

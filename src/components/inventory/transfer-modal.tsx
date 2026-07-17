@@ -43,10 +43,10 @@ const itemCardClass =
   'rounded-xl border border-zinc-200 bg-white p-3 dark:border-0 dark:bg-zinc-800/50'
 
 const overlayClass =
-  'fixed inset-0 z-[100] flex items-center justify-center !bg-black/75 p-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-[max(1rem,env(safe-area-inset-top))] xl:left-56'
+  'fixed inset-0 z-[100] flex items-center justify-center zonat-modal-backdrop p-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-[max(1rem,env(safe-area-inset-top))] xl:left-56'
 
 const shellClass =
-  'flex max-h-[min(92dvh,calc(100dvh-env(safe-area-inset-top)-env(safe-area-inset-bottom)-2rem))] w-full max-w-[min(1200px,calc(100vw-2rem))] flex-col overflow-hidden rounded-2xl border border-zinc-200 !bg-white shadow-2xl dark:border dark:border-white/[0.08] dark:!bg-zinc-950 dark:shadow-[0_25px_50px_-12px_rgba(0,0,0,0.85)]'
+  'flex w-full max-w-[min(72rem,calc(100vw-1.5rem))] max-h-[calc(100dvh-2.5rem)] sm:max-h-[calc(100dvh-4rem)] flex-col overflow-hidden rounded-2xl border border-zinc-200 !bg-white shadow-2xl dark:border dark:border-white/[0.08] dark:!bg-zinc-950 dark:shadow-[0_25px_50px_-12px_rgba(0,0,0,0.85)]'
 
 /** Por encima del overlay del modal (z-[100]); si no, el listado del Select queda invisible detrás. */
 const selectContentModalZ = 'z-[200]'

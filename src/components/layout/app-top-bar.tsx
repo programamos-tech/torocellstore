@@ -95,7 +95,7 @@ export function AppTopBar({ className }: { className?: string }) {
   return (
     <header
       className={cn(
-        'relative z-30 w-full min-w-0 border-b border-zinc-200/80 bg-white dark:border-zinc-800 dark:bg-neutral-950',
+        'relative z-30 w-full min-w-0 border-b border-zinc-200/80 bg-white dark:border-zinc-800 dark:bg-black',
         className
       )}
     >

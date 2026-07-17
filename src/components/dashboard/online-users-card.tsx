@@ -42,13 +42,13 @@ export function OnlineUsersCard({ onlineUsers, totalUsers }: OnlineUsersCardProp
       case 'superadmin':
         return 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400'
       case 'admin':
-        return 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400'
+        return 'bg-sky-100 text-sky-800 dark:bg-sky-950/20 dark:text-sky-400'
       case 'vendedor':
-        return 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400'
+        return 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-emerald-400'
       case 'inventario':
-        return 'bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-400'
+        return 'bg-amber-100 text-amber-800 dark:bg-amber-950/20 dark:text-amber-400'
       case 'contador':
-        return 'bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-400'
+        return 'bg-amber-100 text-amber-800 dark:bg-amber-950/20 dark:text-amber-400'
       default:
         return 'bg-gray-100 text-gray-800 dark:bg-neutral-800 dark:text-gray-400'
     }
@@ -76,10 +76,10 @@ export function OnlineUsersCard({ onlineUsers, totalUsers }: OnlineUsersCardProp
       <CardHeader className="pb-4">
         <CardTitle className="flex items-center">
           <div className="p-2 rounded-xl bg-green-50 dark:bg-green-900/20 mr-3">
-            <Users className="h-5 w-5 text-green-600" />
+            <Users className="h-5 w-5 text-emerald-600" />
           </div>
           <span className="text-lg font-medium text-gray-800 dark:text-gray-200">Usuarios en Línea</span>
-          <Badge className="ml-3 bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400 text-xs">
+          <Badge className="ml-3 bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-emerald-400 text-xs">
             {onlineUsers.length} conectado{onlineUsers.length !== 1 ? 's' : ''}
           </Badge>
         </CardTitle>

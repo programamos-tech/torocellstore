@@ -32,7 +32,7 @@ export function CartDrawer() {
     <>
       <button
         type="button"
-        className="fixed inset-0 z-[80] bg-black/70 backdrop-blur-sm transition-opacity"
+        className="fixed inset-0 z-[80] zonat-modal-backdrop transition-opacity"
         aria-label="Cerrar carrito"
         onClick={closeDrawer}
       />

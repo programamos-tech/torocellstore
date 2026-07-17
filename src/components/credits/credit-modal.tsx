@@ -35,6 +35,7 @@ import { CreditsService } from '@/lib/credits-service'
 import { cn } from '@/lib/utils'
 import { cardShell as cardShellBase } from '@/lib/card-shell'
 import { isStoreClient } from '@/lib/client-helpers'
+import { MODAL_PANEL, MODAL_BACKDROP_PAD } from '@/config/modal-layout'
 
 /** Altura cómoda en modal (tablet / dedo) — evita campos “apretados” verticalmente */
 const inputComfort = 'min-h-11 px-3 py-2.5 text-sm'
@@ -42,13 +43,14 @@ const inputComfort = 'min-h-11 px-3 py-2.5 text-sm'
 const inputBase =
   'rounded-lg border border-zinc-300 bg-white text-zinc-900 transition-colors placeholder:text-zinc-400 focus:border-zinc-500 focus:outline-none focus:ring-2 focus:ring-zinc-400/30 dark:border-zinc-600 dark:bg-zinc-950/50 dark:text-zinc-100 dark:placeholder:text-zinc-500 dark:focus:border-zinc-500 dark:focus:ring-zinc-500/25'
 
-const cardShell = cn(cardShellBase, 'shadow-none')
+/** Sin outline: en modal grande el outline + borde se ve “sierra” en los bordes. */
+const cardShell = cn(cardShellBase, 'shadow-none outline-none hover:shadow-none dark:bg-zinc-900 dark:outline-none')
 
 /** Títulos de sección — alineados a detalle de factura / marca */
 const sectionTitleClass =
   'flex items-center gap-1.5 text-sm font-semibold leading-none text-zinc-900 dark:text-zinc-50'
 
-const iconSection = 'h-4 w-4 shrink-0 text-zinc-500 dark:text-zinc-300'
+const iconSection = 'h-4 w-4 shrink-0'
 
 /** Cabecera: padding solo en bloque interno + regleta full-bleed (cierra con el borde del card) */
 const modalSectionHeaderClass = 'flex flex-col space-y-0 p-0'
@@ -572,21 +574,31 @@ export function CreditModal({ isOpen, onClose, onCreateCredit }: CreditModalProp
 
   if (!isOpen) return null
 
-  /* Portal a body: debajo de la top bar; en xl no cubrir el sidebar (w-60). */
-  const modalOverlayClass =
-    'fixed inset-x-0 bottom-0 top-[var(--zonat-topbar-height,3.25rem)] z-[100] flex items-center justify-center bg-black/50 p-2 backdrop-blur-sm sm:p-3 xl:left-60'
+  /* Portal a body: pantalla completa (incluye navbar); en xl no cubrir el sidebar. */
+  const modalOverlayClass = cn(
+    'fixed inset-0 z-[100] flex items-center justify-center zonat-modal-backdrop xl:left-60',
+    MODAL_BACKDROP_PAD
+  )
 
   const modal = (
     <div className={modalOverlayClass}>
-      <div className="flex h-full max-h-full w-full min-w-0 max-w-[min(1600px,calc(100vw-1rem))] flex-col overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-2xl dark:border-zinc-700 dark:bg-zinc-900 xl:max-w-[min(1600px,calc(100vw-16rem))]">
-        <div className="flex shrink-0 items-center justify-between gap-2 border-b border-zinc-200 bg-zinc-50/90 px-3 py-2.5 dark:border-zinc-700 dark:bg-zinc-950/80 sm:px-4">
-          <div className="flex min-w-0 items-center gap-2">
-            <CreditCard className="h-5 w-5 shrink-0 text-zinc-500 dark:text-zinc-300" strokeWidth={1.5} />
+      <div
+        className={cn(
+          MODAL_PANEL,
+          'zonat-preserve-surface border border-zinc-200 bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-950'
+        )}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="credit-modal-title"
+      >
+        <div className="flex shrink-0 items-center justify-between gap-2 border-b border-zinc-200 bg-white px-4 py-3 dark:border-zinc-800 dark:bg-zinc-950 sm:px-5">
+          <div className="flex min-w-0 items-center gap-2.5">
+            <CreditCard className="h-5 w-5 shrink-0 text-amber-600 dark:text-amber-400" strokeWidth={1.5} />
             <div className="min-w-0">
-              <h2 className="text-base font-semibold leading-tight tracking-tight text-zinc-900 dark:text-zinc-50">
+              <h2 id="credit-modal-title" className="text-base font-semibold leading-tight tracking-tight text-zinc-900 dark:text-zinc-50 sm:text-lg">
                 Crear Venta a Crédito
               </h2>
-              <p className="mt-0.5 line-clamp-2 text-[11px] leading-snug text-zinc-500 dark:text-zinc-400">
+              <p className="mt-0.5 line-clamp-2 text-xs leading-snug text-zinc-500 dark:text-zinc-400 sm:text-sm">
                 Crea una nueva venta a crédito y registra el crédito correspondiente.
               </p>
             </div>
@@ -602,17 +614,16 @@ export function CreditModal({ isOpen, onClose, onCreateCredit }: CreditModalProp
           </Button>
         </div>
 
-        <div className="scrollbar-hide min-h-0 min-w-0 flex-1 overflow-y-auto overscroll-contain">
-          {/* Sin overflow-x-hidden aquí: recorta el borde derecho de cards/select en la columna lateral. */}
-          {/* Misma rejilla que /sales/new: 1 col en móvil; desde tablet productos 2/3 izq., cliente + crédito + resumen 1/3 der. */}
-          <div className="grid min-w-0 grid-cols-1 gap-4 p-2.5 pr-3 sm:p-3 sm:pr-4 md:grid-cols-3 md:gap-4 md:items-start md:pr-4">
+        <div className="scrollbar-hide flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden overscroll-contain bg-zinc-50 dark:bg-zinc-950">
+          {/* 1 col móvil; md+: productos 2/3 izq., cliente + crédito + resumen 1/3 der. Altura = panel (sin 92dvh fijo). */}
+          <div className="grid min-h-0 min-w-0 flex-1 grid-cols-1 gap-4 overflow-y-auto p-3 sm:p-4 md:grid-cols-3 md:gap-4 md:overflow-hidden">
             {/* Columna izquierda — Productos (2/3) */}
-            <div className="min-w-0 space-y-4 md:col-span-2 md:flex md:min-h-0 md:flex-col md:h-[min(calc(92dvh-7.5rem),900px)]">
-              <Card className={cn(cardShell, 'min-w-0 flex min-h-0 flex-1 flex-col overflow-hidden')}>
+            <div className="flex min-h-0 min-w-0 flex-col md:col-span-2 md:overflow-hidden">
+              <Card className={cn(cardShell, 'flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden')}>
               <CardHeader className={modalSectionHeaderClass}>
                 <div className={modalSectionHeaderInnerClass}>
                   <CardTitle className={sectionTitleClass}>
-                    <Package className={iconSection} strokeWidth={1.5} />
+                    <Package className={cn(iconSection, 'text-emerald-600 dark:text-emerald-400')} strokeWidth={1.5} />
                     Productos
                   </CardTitle>
                   <p className="text-xs text-zinc-500 dark:text-zinc-400">
@@ -726,7 +737,7 @@ export function CreditModal({ isOpen, onClose, onCreateCredit }: CreditModalProp
                 </div>
                 
                 {selectedProducts.length > 0 && (
-                  <div className="scrollbar-hide mt-2 min-h-0 min-w-0 flex-1 space-y-1.5 overflow-y-auto overflow-x-hidden max-h-[min(12rem,28vh)] sm:max-h-52 md:mt-3 md:max-h-none md:min-h-[12rem]">
+                  <div className="scrollbar-hide mt-2 min-h-0 min-w-0 flex-1 space-y-1.5 overflow-y-auto overflow-x-hidden md:mt-3">
                     {selectedProducts.map((item) => {
                       const product = products.find(p => p.id === item.productId)
                       const warehouseStock = product?.stock?.warehouse || 0
@@ -844,13 +855,13 @@ export function CreditModal({ isOpen, onClose, onCreateCredit }: CreditModalProp
             </Card>
             </div>
 
-            {/* Columna derecha — scroll vertical sin recortar bordes en X */}
-            <div className="min-w-0 space-y-4 md:col-span-1 md:max-h-[min(calc(92dvh-7.5rem),900px)] md:overflow-y-auto md:scrollbar-hide">
-              <Card className={cn(cardShell, 'min-w-0')}>
+            {/* Columna derecha — llena altura del panel; scroll interno si hace falta */}
+            <div className="flex min-h-0 min-w-0 flex-col gap-4 md:col-span-1 md:overflow-y-auto md:scrollbar-hide">
+              <Card className={cn(cardShell, 'min-w-0 shrink-0')}>
               <CardHeader className={modalSectionHeaderClass}>
                 <div className={modalSectionHeaderInnerClass}>
                   <CardTitle className={sectionTitleClass}>
-                    <User className={iconSection} strokeWidth={1.5} />
+                    <User className={cn(iconSection, 'text-sky-600 dark:text-sky-400')} strokeWidth={1.5} />
                     Cliente
                   </CardTitle>
                   <p className="text-xs text-zinc-500 dark:text-zinc-400">Quién recibe la venta a crédito.</p>
@@ -865,7 +876,7 @@ export function CreditModal({ isOpen, onClose, onCreateCredit }: CreditModalProp
                     className={cn(
                       inputComfort,
                       inputBase,
-                      'box-border w-full min-w-0 max-w-full'
+                      'box-border w-full min-w-0'
                     )}
                     aria-label="Cliente obligatorio"
                   >
@@ -896,7 +907,7 @@ export function CreditModal({ isOpen, onClose, onCreateCredit }: CreditModalProp
                 <CardHeader className={modalSectionHeaderClass}>
                   <div className={modalSectionHeaderInnerClass}>
                     <CardTitle className={sectionTitleClass}>
-                      <Calendar className={iconSection} strokeWidth={1.5} />
+                      <Calendar className={cn(iconSection, 'text-amber-600 dark:text-amber-400')} strokeWidth={1.5} />
                       Configuración del crédito
                     </CardTitle>
                   </div>
@@ -932,7 +943,7 @@ export function CreditModal({ isOpen, onClose, onCreateCredit }: CreditModalProp
                 <CardHeader className={modalSectionHeaderClass}>
                   <div className={modalSectionHeaderInnerClass}>
                     <CardTitle className={sectionTitleClass}>
-                      <DollarSign className={iconSection} strokeWidth={1.5} />
+                      <DollarSign className={cn(iconSection, 'text-emerald-600 dark:text-emerald-400')} strokeWidth={1.5} />
                       Resumen de la Venta
                     </CardTitle>
                   </div>
@@ -1006,7 +1017,7 @@ export function CreditModal({ isOpen, onClose, onCreateCredit }: CreditModalProp
         </div>
 
         <div
-          className="flex shrink-0 items-center justify-end gap-2 border-t border-zinc-200 bg-zinc-50/90 px-3 py-2.5 dark:border-zinc-800 dark:bg-zinc-950/80 sm:px-4"
+          className="flex shrink-0 items-center justify-end gap-2 border-t border-zinc-200 bg-white px-4 py-3 dark:border-zinc-800 dark:bg-zinc-950 sm:px-5"
           style={{
             paddingBottom: `max(0.75rem, calc(env(safe-area-inset-bottom, 0px) + 0.5rem))`
           }}

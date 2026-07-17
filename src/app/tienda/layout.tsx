@@ -32,7 +32,7 @@ export default async function TiendaLayout({ children }: { children: React.React
   return (
     <div
       className={cn(
-        'tienda-storefront min-h-dvh text-[#f5f0e6] [color-scheme:dark]',
+        'tienda-storefront min-h-dvh text-[#E8F2F5] [color-scheme:dark]',
         tiendaDisplay.variable,
         tiendaSans.variable
       )}

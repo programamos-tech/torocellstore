@@ -4,13 +4,13 @@ import { useState, useEffect, useLayoutEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import type { LucideIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
 import { X, Package, DollarSign, BarChart3, AlertTriangle, Store, ImageIcon } from 'lucide-react'
 import { Product, Category } from '@/types'
 import { useProducts } from '@/contexts/products-context'
 import { useAuth } from '@/contexts/auth-context'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
+import { MODAL_PANEL, MODAL_BACKDROP_PAD } from '@/config/modal-layout'
 
 const MAIN_STORE_ID = '00000000-0000-0000-0000-000000000001'
 
@@ -22,16 +22,18 @@ function SectionCard({
   title,
   children,
   description,
+  iconClass = 'text-emerald-600 dark:text-emerald-400',
 }: {
   icon: LucideIcon
   title: string
   children: React.ReactNode
   description?: string
+  iconClass?: string
 }) {
   return (
     <div className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-700/80 dark:bg-zinc-900/50 md:p-5">
       <div className="mb-4 flex items-center gap-2">
-        <Icon className="h-5 w-5 shrink-0 text-zinc-400 dark:text-zinc-500" strokeWidth={1.75} aria-hidden />
+        <Icon className={cn('h-5 w-5 shrink-0', iconClass)} strokeWidth={1.75} aria-hidden />
         <h3 className="text-base font-semibold text-zinc-900 dark:text-zinc-100">{title}</h3>
       </div>
       {description ? <p className="mb-4 text-xs leading-relaxed text-zinc-500 dark:text-zinc-400">{description}</p> : null}
@@ -129,21 +131,6 @@ export function ProductModal({ isOpen, onClose, onSave, product, categories }: P
     return parseFloat(cleanValue) || 0
   }
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'active':
-        return 'border-emerald-200 bg-emerald-50 text-emerald-800 dark:border-zinc-500/45 dark:bg-zinc-700/40 dark:text-zinc-100'
-      case 'inactive':
-        return 'border-zinc-200 bg-zinc-50 text-zinc-700 dark:border-zinc-600 dark:bg-zinc-800/90 dark:text-zinc-300'
-      case 'discontinued':
-        return 'border-zinc-200 bg-zinc-100 text-zinc-700 dark:border-zinc-500/50 dark:bg-zinc-800/90 dark:text-zinc-300'
-      case 'out_of_stock':
-        return 'border-amber-200 bg-amber-50 text-amber-800 dark:border-amber-500/35 dark:bg-amber-500/10 dark:text-amber-200'
-      default:
-        return 'border-zinc-200 bg-zinc-50 text-zinc-700 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-300'
-    }
-  }
-
   const getStatusLabel = (status: string) => {
     switch (status) {
       case 'active':
@@ -178,10 +165,7 @@ export function ProductModal({ isOpen, onClose, onSave, product, categories }: P
       }
     }
     if (formData.price <= 0) {
-      newErrors.price = 'El precio por mayor debe ser mayor a 0'
-    }
-    if (formData.onlinePrice < 0) {
-      newErrors.onlinePrice = 'El precio tienda virtual no puede ser negativo'
+      newErrors.price = 'El precio de venta debe ser mayor a 0'
     }
     if (formData.cost < 0) {
       newErrors.cost = 'El costo no puede ser negativo'
@@ -299,18 +283,19 @@ export function ProductModal({ isOpen, onClose, onSave, product, categories }: P
   const isEdit = !!product
 
   const modal = (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 px-3 py-5 backdrop-blur-md dark:bg-black/75 sm:py-8 xl:left-56">
+    <div className={cn('fixed inset-0 z-[100] flex items-center justify-center zonat-modal-backdrop xl:left-56', MODAL_BACKDROP_PAD)}>
       <div
-        className="zonat-preserve-surface flex max-h-[calc(100dvh-2.5rem)] w-full max-w-[min(72rem,calc(100vw-1.5rem))] flex-col overflow-hidden rounded-2xl border border-zinc-200 bg-zinc-50 shadow-2xl dark:border-zinc-800 dark:bg-zinc-950 sm:max-h-[calc(100dvh-4rem)]"
+        className={cn(
+          'zonat-preserve-surface border border-zinc-200 bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-950',
+          MODAL_PANEL
+        )}
         role="dialog"
         aria-modal="true"
         aria-labelledby="product-modal-title"
       >
         <header className="flex shrink-0 items-start justify-between gap-4 border-b border-zinc-200 bg-white px-4 py-4 md:px-6 md:py-5 dark:border-zinc-800 dark:bg-zinc-950">
           <div className="flex min-w-0 items-start gap-3">
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border border-zinc-200 bg-zinc-50 dark:border-zinc-600/90 dark:bg-zinc-800/80">
-              <Package className="h-5 w-5 text-zinc-500 dark:text-zinc-300" strokeWidth={1.75} aria-hidden />
-            </div>
+            <Package className="mt-0.5 h-6 w-6 shrink-0 text-emerald-600 dark:text-emerald-400" strokeWidth={1.75} aria-hidden />
             <div className="min-w-0">
               <h2 id="product-modal-title" className="text-lg font-bold tracking-tight text-zinc-900 dark:text-white md:text-xl">
                 {isEdit ? 'Editar producto' : 'Nuevo producto'}
@@ -340,7 +325,7 @@ export function ProductModal({ isOpen, onClose, onSave, product, categories }: P
           >
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-5">
               <div className="space-y-4 lg:space-y-5">
-                <SectionCard icon={Package} title="Información básica">
+                <SectionCard icon={Package} title="Información básica" iconClass="text-emerald-600 dark:text-emerald-400">
                   <div className="space-y-4">
                     <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                       <div>
@@ -426,10 +411,13 @@ export function ProductModal({ isOpen, onClose, onSave, product, categories }: P
                   </div>
                 </SectionCard>
 
+                {/* Oculto a propósito — no eliminar: catálogo web / imagen de producto */}
+                <div className="hidden" aria-hidden="true">
                 <SectionCard
                   icon={ImageIcon}
                   title="Imagen del catálogo"
                   description="Foto para ficha y listados (máx. 5MB)."
+                  iconClass="text-sky-600 dark:text-sky-400"
                 >
                   <div className="overflow-hidden rounded-lg border border-zinc-200 bg-white dark:border-zinc-700/80 dark:bg-zinc-900/60">
                     {uploadPreview || catalogImageUrl ? (
@@ -478,12 +466,13 @@ export function ProductModal({ isOpen, onClose, onSave, product, categories }: P
                     )}
                   </div>
                 </SectionCard>
+                </div>
 
-                <SectionCard icon={DollarSign} title="Información financiera">
+                <SectionCard icon={DollarSign} title="Información financiera" iconClass="text-amber-600 dark:text-amber-400">
                   <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                     <div>
                       <label htmlFor="product-price" className="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                        Precio por mayor <span className="text-zinc-400 dark:text-zinc-500">*</span>
+                        Precio de venta <span className="text-zinc-400 dark:text-zinc-500">*</span>
                       </label>
                       <div className="relative">
                         <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-sm text-zinc-400 dark:text-zinc-500">
@@ -501,28 +490,6 @@ export function ProductModal({ isOpen, onClose, onSave, product, categories }: P
                       {errors.price && <p className="mt-1.5 text-sm text-red-400">{errors.price}</p>}
                     </div>
                     <div>
-                      <label htmlFor="product-online-price" className="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                        Precio tienda virtual
-                      </label>
-                      <div className="relative">
-                        <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-sm text-zinc-400 dark:text-zinc-500">
-                          $
-                        </span>
-                        <input
-                          id="product-online-price"
-                          type="text"
-                          value={formatNumber(formData.onlinePrice)}
-                          onChange={e => handleInputChange('onlinePrice', parseFormattedNumber(e.target.value))}
-                          className={cn(inputBase, 'pl-8', errors.onlinePrice && 'border-red-500/70')}
-                          placeholder="0"
-                        />
-                      </div>
-                      <p className="mt-1.5 text-xs text-zinc-500 dark:text-zinc-400">
-                        Precio público en /tienda. Si queda en 0, el producto no aparece en el catálogo web.
-                      </p>
-                      {errors.onlinePrice && <p className="mt-1.5 text-sm text-red-400">{errors.onlinePrice}</p>}
-                    </div>
-                    <div className="md:col-span-2 md:max-w-[calc(50%-0.5rem)]">
                       <label htmlFor="product-cost" className="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
                         Costo de adquisición
                       </label>
@@ -546,10 +513,10 @@ export function ProductModal({ isOpen, onClose, onSave, product, categories }: P
               </div>
 
               <div className="space-y-4 lg:space-y-5">
-                <SectionCard icon={BarChart3} title="Control de stock">
+                <SectionCard icon={BarChart3} title="Control de stock" iconClass="text-sky-600 dark:text-sky-400">
                   {product && (
                     <div className="-mt-2 mb-4 flex items-start gap-3 rounded-lg border border-zinc-200 bg-zinc-50 p-3 dark:border-zinc-700/60 dark:bg-zinc-900/50">
-                      <BarChart3 className="mt-0.5 h-4 w-4 shrink-0 text-zinc-400 dark:text-zinc-500" strokeWidth={1.75} />
+                      <BarChart3 className="mt-0.5 h-4 w-4 shrink-0 text-sky-600 dark:text-sky-400" strokeWidth={1.75} />
                       <p className="text-xs leading-relaxed text-zinc-500 dark:text-zinc-400">
                         El stock se muestra solo como referencia. Para ajustar o transferir, usa la tabla de productos.
                       </p>
@@ -559,31 +526,33 @@ export function ProductModal({ isOpen, onClose, onSave, product, categories }: P
                   {!product && isMainStore && (
                     <div className="mb-4">
                       <span className="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300">Ubicación inicial</span>
-                      <div className="flex rounded-xl bg-zinc-100 p-1 ring-1 ring-zinc-200 dark:bg-zinc-800/90 dark:ring-zinc-700/80">
+                      <div className="flex gap-2 rounded-xl bg-zinc-100/90 p-1.5 ring-1 ring-zinc-200 dark:bg-zinc-900/80 dark:ring-zinc-700">
                         <button
                           type="button"
                           onClick={() => handleInputChange('initialLocation', 'store')}
+                          aria-pressed={formData.initialLocation === 'store'}
                           className={cn(
-                            'flex min-h-[2.75rem] flex-1 items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-all',
+                            'flex min-h-[2.875rem] flex-1 items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold transition-all',
                             formData.initialLocation === 'store'
-                              ? 'bg-white text-zinc-950 shadow-sm'
-                              : 'text-zinc-600 hover:bg-zinc-200/70 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-700/50 dark:hover:text-zinc-200'
+                              ? 'bg-emerald-600 text-white shadow-md ring-2 ring-emerald-600/30 dark:bg-emerald-500 dark:ring-emerald-400/40'
+                              : 'bg-transparent text-zinc-500 hover:bg-white/70 hover:text-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-200'
                           )}
                         >
-                          <Store className="h-4 w-4 shrink-0" strokeWidth={1.75} />
+                          <Store className="h-4 w-4 shrink-0" strokeWidth={2} />
                           Local
                         </button>
                         <button
                           type="button"
                           onClick={() => handleInputChange('initialLocation', 'warehouse')}
+                          aria-pressed={formData.initialLocation === 'warehouse'}
                           className={cn(
-                            'flex min-h-[2.75rem] flex-1 items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-all',
+                            'flex min-h-[2.875rem] flex-1 items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold transition-all',
                             formData.initialLocation === 'warehouse'
-                              ? 'bg-white text-zinc-950 shadow-sm'
-                              : 'text-zinc-600 hover:bg-zinc-200/70 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-700/50 dark:hover:text-zinc-200'
+                              ? 'bg-sky-600 text-white shadow-md ring-2 ring-sky-500/35 dark:bg-sky-500 dark:ring-sky-400/40'
+                              : 'bg-transparent text-zinc-500 hover:bg-white/70 hover:text-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-200'
                           )}
                         >
-                          <Package className="h-4 w-4 shrink-0" strokeWidth={1.75} />
+                          <Package className="h-4 w-4 shrink-0" strokeWidth={2} />
                           Bodega
                         </button>
                       </div>
@@ -591,9 +560,24 @@ export function ProductModal({ isOpen, onClose, onSave, product, categories }: P
                   )}
 
                   <div className={cn('grid grid-cols-1 gap-6', isMainStore && 'md:grid-cols-2')}>
-                    <div className="space-y-3">
+                    <div
+                      className={cn(
+                        'space-y-3 rounded-xl border p-3 transition-colors',
+                        !product && isMainStore && formData.initialLocation === 'store'
+                          ? 'border-emerald-500/40 bg-emerald-500/[0.06] dark:border-emerald-400/35 dark:bg-emerald-500/10'
+                          : 'border-transparent'
+                      )}
+                    >
                       <div className="flex items-center gap-2 text-zinc-700 dark:text-zinc-200">
-                        <Store className="h-4 w-4 text-zinc-400 dark:text-zinc-500" strokeWidth={1.75} />
+                        <Store
+                          className={cn(
+                            'h-4 w-4',
+                            !product && isMainStore && formData.initialLocation === 'store'
+                              ? 'text-emerald-600 dark:text-emerald-400'
+                              : 'text-zinc-400 dark:text-zinc-500'
+                          )}
+                          strokeWidth={1.75}
+                        />
                         <h4 className="text-sm font-semibold">Local</h4>
                       </div>
                       <div>
@@ -616,9 +600,24 @@ export function ProductModal({ isOpen, onClose, onSave, product, categories }: P
                     </div>
 
                     {isMainStore && (
-                      <div className="space-y-3">
+                      <div
+                        className={cn(
+                          'space-y-3 rounded-xl border p-3 transition-colors',
+                          !product && formData.initialLocation === 'warehouse'
+                            ? 'border-sky-500/40 bg-sky-500/[0.06] dark:border-sky-400/35 dark:bg-sky-500/10'
+                            : 'border-transparent'
+                        )}
+                      >
                       <div className="flex items-center gap-2 text-zinc-700 dark:text-zinc-200">
-                        <Package className="h-4 w-4 text-zinc-400 dark:text-zinc-500" strokeWidth={1.75} />
+                        <Package
+                          className={cn(
+                            'h-4 w-4',
+                            !product && formData.initialLocation === 'warehouse'
+                              ? 'text-sky-600 dark:text-sky-400'
+                              : 'text-zinc-400 dark:text-zinc-500'
+                          )}
+                          strokeWidth={1.75}
+                        />
                           <h4 className="text-sm font-semibold">Bodega</h4>
                         </div>
                         <div>
@@ -657,28 +656,35 @@ export function ProductModal({ isOpen, onClose, onSave, product, categories }: P
                   </div>
                 </SectionCard>
 
-                <SectionCard icon={AlertTriangle} title="Estado del producto">
+                <SectionCard icon={AlertTriangle} title="Estado del producto" iconClass="text-amber-500 dark:text-amber-400">
                   <div className="flex flex-wrap gap-2">
-                    {(['active', 'inactive', 'discontinued', 'out_of_stock'] as const).map(status => (
-                      <button
-                        key={status}
-                        type="button"
-                        onClick={() => handleInputChange('status', status)}
-                        className={cn(
-                          'rounded-lg border px-3 py-2 text-sm font-medium transition-all',
-                          formData.status === status
-                            ? 'border-zinc-300 bg-white text-zinc-950 shadow-sm'
-                            : 'border-zinc-200 bg-zinc-50 text-zinc-600 hover:border-zinc-300 hover:bg-zinc-100 dark:border-zinc-600/80 dark:bg-zinc-800/50 dark:text-zinc-300 dark:hover:border-zinc-500 dark:hover:bg-zinc-800'
-                        )}
-                      >
-                        {getStatusLabel(status)}
-                      </button>
-                    ))}
-                  </div>
-                  <div className="mt-3">
-                    <Badge variant="outline" className={cn('border px-2 py-0.5 text-xs font-normal', getStatusColor(formData.status))}>
-                      {getStatusLabel(formData.status)}
-                    </Badge>
+                    {(['active', 'inactive', 'discontinued', 'out_of_stock'] as const).map(status => {
+                      const selected = formData.status === status
+                      const selectedClass =
+                        status === 'active'
+                          ? 'border-emerald-600 bg-emerald-600 text-white shadow-md ring-2 ring-emerald-600/25 dark:border-emerald-500 dark:bg-emerald-500'
+                          : status === 'inactive'
+                            ? 'border-zinc-700 bg-zinc-700 text-white shadow-md ring-2 ring-zinc-500/30 dark:border-zinc-500 dark:bg-zinc-600'
+                            : status === 'discontinued'
+                              ? 'border-sky-600 bg-sky-600 text-white shadow-md ring-2 ring-sky-500/30 dark:border-sky-500 dark:bg-sky-500'
+                              : 'border-red-600 bg-red-600 text-white shadow-md ring-2 ring-red-500/30 dark:border-red-500 dark:bg-red-500'
+                      return (
+                        <button
+                          key={status}
+                          type="button"
+                          onClick={() => handleInputChange('status', status)}
+                          aria-pressed={selected}
+                          className={cn(
+                            'rounded-lg border px-3.5 py-2 text-sm font-semibold transition-all',
+                            selected
+                              ? selectedClass
+                              : 'border-zinc-200 bg-zinc-50 text-zinc-500 hover:border-zinc-300 hover:bg-white hover:text-zinc-800 dark:border-zinc-700 dark:bg-zinc-900/50 dark:text-zinc-400 dark:hover:border-zinc-600 dark:hover:text-zinc-200'
+                          )}
+                        >
+                          {getStatusLabel(status)}
+                        </button>
+                      )
+                    })}
                   </div>
                 </SectionCard>
               </div>

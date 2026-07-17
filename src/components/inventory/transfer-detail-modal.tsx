@@ -82,8 +82,8 @@ export function TransferDetailModal({ isOpen, onClose, transfer }: TransferDetai
     : transfer.quantity || 0
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-      <Card className="w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col dark:bg-neutral-950 dark:border-neutral-700">
+    <div className="fixed inset-0 z-50 flex items-center justify-center zonat-modal-backdrop p-4">
+      <Card className="overflow-hidden flex w-full max-w-[min(72rem,calc(100vw-1.5rem))] max-h-[calc(100dvh-2.5rem)] sm:max-h-[calc(100dvh-4rem)] flex-col dark:bg-neutral-950 dark:border-neutral-700">
         <CardHeader className="flex flex-row items-center justify-between flex-shrink-0">
           <CardTitle className="text-2xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
             <Package className="h-6 w-6 text-orange-500" />

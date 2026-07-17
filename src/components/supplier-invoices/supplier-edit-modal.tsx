@@ -8,6 +8,7 @@ import { Switch } from '@/components/ui/switch'
 import { Building2, X } from 'lucide-react'
 import { SupplierInvoicesService } from '@/lib/supplier-invoices-service'
 import { cn } from '@/lib/utils'
+import { MODAL_PANEL, MODAL_BACKDROP_PAD } from '@/config/modal-layout'
 import { toast } from 'sonner'
 
 const inputClass =
@@ -93,9 +94,14 @@ export function SupplierEditModal({ isOpen, onClose, supplierId, onSaved }: Supp
   }
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50 p-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-[max(1rem,env(safe-area-inset-top))] backdrop-blur-sm xl:left-56">
+    <div
+      className={cn(
+        'fixed inset-0 z-[100] flex items-center justify-center zonat-modal-backdrop xl:left-56',
+        MODAL_BACKDROP_PAD
+      )}
+    >
       <div
-        className="max-h-[min(90dvh,calc(100dvh-env(safe-area-inset-top)-env(safe-area-inset-bottom)-2rem))] w-full max-w-lg overflow-y-auto rounded-2xl border border-zinc-200 bg-white shadow-2xl dark:border-zinc-700 dark:bg-zinc-900"
+        className={cn(MODAL_PANEL, 'border border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-900')}
         role="dialog"
         aria-modal="true"
         aria-labelledby="supplier-edit-title"

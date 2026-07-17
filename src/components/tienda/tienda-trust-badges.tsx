@@ -26,19 +26,19 @@ const BADGES = [
 
 export function TiendaTrustBadges() {
   return (
-    <section className="relative z-[2] -mt-12 bg-[#0a0a0a] pb-10 pt-2 sm:-mt-16 sm:pb-14 sm:pt-4">
+    <section className="relative z-[2] -mt-12 bg-[#000000] pb-10 pt-2 sm:-mt-16 sm:pb-14 sm:pt-4">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-center gap-3 sm:gap-5">
           <div
-            className="hidden h-px w-16 bg-gradient-to-r from-transparent to-[#b8973f]/45 sm:block lg:w-28"
+            className="hidden h-px w-16 bg-gradient-to-r from-transparent to-[#F7BE4B]/45 sm:block lg:w-28"
             aria-hidden
           />
           <h2 className="text-center text-[10px] font-bold uppercase leading-snug tracking-[0.22em] sm:text-xs sm:tracking-[0.28em]">
-            <span className="text-[#eceae6]">Tu tienda de confianza en </span>
-            <span className="text-[#b8973f]">tecnología</span>
+            <span className="text-[#E8F2F5]">Tu tienda de confianza en </span>
+            <span className="text-[#F7BE4B]">tecnología</span>
           </h2>
           <div
-            className="hidden h-px w-16 bg-gradient-to-l from-transparent to-[#b8973f]/45 sm:block lg:w-28"
+            className="hidden h-px w-16 bg-gradient-to-l from-transparent to-[#F7BE4B]/45 sm:block lg:w-28"
             aria-hidden
           />
         </div>
@@ -49,18 +49,18 @@ export function TiendaTrustBadges() {
               key={title}
               className={cn(
                 'flex flex-col items-center px-2 text-center sm:px-5',
-                index > 0 && 'sm:border-l sm:border-[#b8973f]/20'
+                index > 0 && 'sm:border-l sm:border-[#F7BE4B]/20'
               )}
             >
               <Icon
-                className="h-8 w-8 text-[#b8973f] sm:h-9 sm:w-9"
+                className="h-8 w-8 text-[#F7BE4B] sm:h-9 sm:w-9"
                 strokeWidth={1.25}
                 aria-hidden
               />
-              <p className="mt-3 text-[11px] font-bold uppercase tracking-[0.12em] text-[#eceae6] sm:mt-4 sm:text-xs sm:tracking-[0.16em]">
+              <p className="mt-3 text-[11px] font-bold uppercase tracking-[0.12em] text-[#E8F2F5] sm:mt-4 sm:text-xs sm:tracking-[0.16em]">
                 {title}
               </p>
-              <p className="mt-1.5 max-w-[11rem] text-[10px] leading-relaxed text-[#9a968f] sm:text-[11px]">
+              <p className="mt-1.5 max-w-[11rem] text-[10px] leading-relaxed text-[#9DC2D1] sm:text-[11px]">
                 {text}
               </p>
             </div>

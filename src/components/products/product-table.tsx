@@ -37,10 +37,24 @@ import { cardShell } from '@/lib/card-shell'
 const ITEMS_PER_PAGE = 15
 
 const actionIconBtnClass =
-  'h-9 w-9 p-0 text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-100'
+  'h-9 w-9 p-0 hover:bg-zinc-100 dark:hover:bg-zinc-800'
 
-const actionDeleteBtnClass =
-  'h-9 w-9 p-0 text-zinc-500 hover:bg-zinc-100 hover:text-red-600 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-red-400'
+const actionEditBtnClass = cn(
+  actionIconBtnClass,
+  'text-sky-600 hover:text-sky-700 dark:text-sky-400 dark:hover:text-sky-300'
+)
+const actionAdjustBtnClass = cn(
+  actionIconBtnClass,
+  'text-amber-600 hover:text-amber-700 dark:text-amber-400 dark:hover:text-amber-300'
+)
+const actionTransferBtnClass = cn(
+  actionIconBtnClass,
+  'text-emerald-600 hover:text-emerald-700 dark:text-emerald-400 dark:hover:text-emerald-300'
+)
+const actionDeleteBtnClass = cn(
+  actionIconBtnClass,
+  'text-red-600 hover:bg-red-50 hover:text-red-700 dark:text-red-400 dark:hover:bg-red-950/40 dark:hover:text-red-300'
+)
 
 interface ProductTableProps {
   products: Product[]
@@ -143,15 +157,15 @@ export function ProductTable({
   const getStatusBadgeClass = (status: string) => {
     switch (status) {
       case 'active':
-        return 'border-emerald-300/80 bg-emerald-100/75 text-emerald-900 dark:border-emerald-500/35 dark:bg-emerald-950/45 dark:text-emerald-300/95'
+        return 'border-emerald-500/45 bg-emerald-500/15 font-medium text-emerald-700 dark:border-emerald-400/40 dark:bg-emerald-500/20 dark:text-emerald-300'
       case 'inactive':
-        return 'border-zinc-300/90 bg-zinc-100/90 text-zinc-700 dark:border-zinc-700 dark:bg-zinc-900/55 dark:text-zinc-400'
+        return 'border-zinc-400/50 bg-zinc-200/70 font-medium text-zinc-700 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-300'
       case 'discontinued':
-        return 'border-violet-200/90 bg-violet-50/85 text-violet-900 dark:border-violet-900/45 dark:bg-violet-950/35 dark:text-violet-300/90'
+        return 'border-sky-500/45 bg-sky-500/15 font-medium text-sky-800 dark:border-sky-400/40 dark:bg-sky-500/20 dark:text-sky-300'
       case 'out_of_stock':
-        return 'border-rose-200/90 bg-rose-50/85 text-rose-900 dark:border-rose-900/45 dark:bg-rose-950/35 dark:text-rose-300/90'
+        return 'border-red-500/45 bg-red-500/15 font-medium text-red-700 dark:border-red-400/40 dark:bg-red-500/20 dark:text-red-300'
       default:
-        return 'border-zinc-200 bg-zinc-50 text-zinc-700 dark:border-zinc-600 dark:bg-zinc-800/60 dark:text-zinc-300'
+        return 'border-zinc-300 bg-zinc-100 font-medium text-zinc-700 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-300'
     }
   }
 
@@ -204,21 +218,21 @@ export function ProductTable({
   const getStockStatusBadgeClass = (product: Product) => {
     const { warehouse, store, total } = product.stock
     if (total === 0) {
-      return 'border-rose-200/90 bg-rose-50/85 text-rose-900 dark:border-rose-900/45 dark:bg-rose-950/40 dark:text-rose-300/90'
+      return 'border-red-500/45 bg-red-500/15 font-medium text-red-700 dark:border-red-400/40 dark:bg-red-500/20 dark:text-red-300'
     }
     if (store > 0) {
       if (store >= 10) {
-        return 'border-emerald-300/80 bg-emerald-100/75 text-emerald-900 dark:border-emerald-500/30 dark:bg-emerald-950/35 dark:text-emerald-300/90'
+        return 'border-emerald-500/45 bg-emerald-500/15 font-medium text-emerald-700 dark:border-emerald-400/40 dark:bg-emerald-500/20 dark:text-emerald-300'
       }
       if (store >= 5) {
-        return 'border-amber-200/90 bg-amber-50/90 text-amber-950 dark:border-amber-900/40 dark:bg-amber-950/35 dark:text-amber-200/90'
+        return 'border-amber-500/50 bg-amber-500/15 font-medium text-amber-800 dark:border-amber-400/40 dark:bg-amber-500/20 dark:text-amber-300'
       }
-      return 'border-orange-200/90 bg-orange-50/90 text-orange-950 dark:border-orange-900/45 dark:bg-orange-950/35 dark:text-orange-300/90'
+      return 'border-amber-600/55 bg-amber-500/20 font-medium text-amber-900 dark:border-amber-500/45 dark:bg-amber-500/25 dark:text-amber-200'
     }
     if (warehouse > 0) {
-      return 'border-sky-200/90 bg-sky-50/85 text-sky-900 dark:border-sky-900/45 dark:bg-sky-950/35 dark:text-sky-300/90'
+      return 'border-sky-500/45 bg-sky-500/15 font-medium text-sky-800 dark:border-sky-400/40 dark:bg-sky-500/20 dark:text-sky-300'
     }
-    return 'border-rose-200/90 bg-rose-50/85 text-rose-900 dark:border-rose-900/45 dark:bg-rose-950/40 dark:text-rose-300/90'
+    return 'border-red-500/45 bg-red-500/15 font-medium text-red-700 dark:border-red-400/40 dark:bg-red-500/20 dark:text-red-300'
   }
 
   const stockStatusOptions = [
@@ -247,7 +261,7 @@ export function ProductTable({
             <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
               <div className="min-w-0 flex-1 space-y-1.5">
                 <CardTitle className="flex flex-wrap items-center gap-2 text-lg font-semibold tracking-tight text-zinc-900 dark:text-zinc-50 md:text-xl">
-                  <Package className="h-5 w-5 shrink-0 text-emerald-600/85 dark:text-emerald-500/80" strokeWidth={1.5} aria-hidden />
+                  <Package className="h-5 w-5 shrink-0 text-emerald-600 dark:text-emerald-400" strokeWidth={1.5} aria-hidden />
                   <span>Gestión de productos</span>
                   <StoreBadge />
                   {isSearching && (
@@ -364,7 +378,7 @@ export function ProductTable({
             {products.length === 0 ? (
               <div className="py-16 text-center">
                 <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full border border-dashed border-zinc-300 dark:border-zinc-600">
-                  <Package className="h-5 w-5 text-zinc-400" strokeWidth={1.5} />
+                  <Package className="h-5 w-5 text-emerald-500/70" strokeWidth={1.5} />
                 </div>
                 <h3 className="text-base font-medium text-zinc-900 dark:text-zinc-100">No hay productos</h3>
                 <p className="mx-auto mt-1 max-w-sm text-sm text-zinc-500 dark:text-zinc-400">
@@ -435,17 +449,17 @@ export function ProductTable({
                             </Badge>
                             <div className="flex shrink-0 gap-0.5" role="none" onClick={(e) => e.stopPropagation()}>
                               {canEdit && (
-                                <Button type="button" size="sm" variant="ghost" className={actionIconBtnClass} onClick={() => onEdit(product)} title="Editar">
+                                <Button type="button" size="sm" variant="ghost" className={actionEditBtnClass} onClick={() => onEdit(product)} title="Editar">
                                   <Edit className="h-4 w-4" strokeWidth={1.5} />
                                 </Button>
                               )}
                               {canAdjust && onStockAdjustment && (
-                                <Button type="button" size="sm" variant="ghost" className={actionIconBtnClass} onClick={() => onStockAdjustment(product)} title="Ajustar stock">
+                                <Button type="button" size="sm" variant="ghost" className={actionAdjustBtnClass} onClick={() => onStockAdjustment(product)} title="Ajustar stock">
                                   <Package className="h-4 w-4" strokeWidth={1.5} />
                                 </Button>
                               )}
                               {canTransfer && onStockTransfer && (
-                                <Button type="button" size="sm" variant="ghost" className={actionIconBtnClass} onClick={() => onStockTransfer(product)} title="Transferir">
+                                <Button type="button" size="sm" variant="ghost" className={actionTransferBtnClass} onClick={() => onStockTransfer(product)} title="Transferir">
                                   <ArrowRightLeft className="h-4 w-4" strokeWidth={1.5} />
                                 </Button>
                               )}
@@ -523,7 +537,7 @@ export function ProductTable({
                                   {canEdit && (
                                     <Tooltip>
                                       <TooltipTrigger asChild>
-                                        <Button type="button" size="sm" variant="ghost" className={actionIconBtnClass} onClick={() => onEdit(product)}>
+                                        <Button type="button" size="sm" variant="ghost" className={actionEditBtnClass} onClick={() => onEdit(product)}>
                                           <Edit className="h-4 w-4" strokeWidth={1.5} />
                                         </Button>
                                       </TooltipTrigger>
@@ -535,7 +549,7 @@ export function ProductTable({
                                   {canAdjust && onStockAdjustment && (
                                     <Tooltip>
                                       <TooltipTrigger asChild>
-                                        <Button type="button" size="sm" variant="ghost" className={actionIconBtnClass} onClick={() => onStockAdjustment(product)}>
+                                        <Button type="button" size="sm" variant="ghost" className={actionAdjustBtnClass} onClick={() => onStockAdjustment(product)}>
                                           <Package className="h-4 w-4" strokeWidth={1.5} />
                                         </Button>
                                       </TooltipTrigger>
@@ -547,7 +561,7 @@ export function ProductTable({
                                   {canTransfer && onStockTransfer && (
                                     <Tooltip>
                                       <TooltipTrigger asChild>
-                                        <Button type="button" size="sm" variant="ghost" className={actionIconBtnClass} onClick={() => onStockTransfer(product)}>
+                                        <Button type="button" size="sm" variant="ghost" className={actionTransferBtnClass} onClick={() => onStockTransfer(product)}>
                                           <ArrowRightLeft className="h-4 w-4" strokeWidth={1.5} />
                                         </Button>
                                       </TooltipTrigger>

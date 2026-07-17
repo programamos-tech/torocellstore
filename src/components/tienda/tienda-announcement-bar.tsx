@@ -9,14 +9,14 @@ function AnnouncementItem({ text }: { text: string }) {
 
   return (
     <span className="flex shrink-0 items-center gap-3 sm:gap-4">
-      <span className="whitespace-nowrap text-[11px] font-medium tracking-[0.12em] text-[#9a968f] sm:text-xs">
+      <span className="whitespace-nowrap text-[11px] font-medium tracking-[0.12em] text-[#9DC2D1] sm:text-xs">
         {main}
         {accent && (
           <>
             <span className="mx-2 text-white/20" aria-hidden>
               ·
             </span>
-            <span className="font-medium text-[#d4d0c8]">{accent}</span>
+            <span className="font-medium text-[#9DC2D1]">{accent}</span>
           </>
         )}
       </span>

@@ -2,17 +2,19 @@
 
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
-import { Building2, X } from 'lucide-react'
+import { Building2, X, User, Phone, Mail, FileText } from 'lucide-react'
 import { SupplierInvoicesService } from '@/lib/supplier-invoices-service'
 import { cn } from '@/lib/utils'
-import { MODAL_PANEL, MODAL_BACKDROP_PAD } from '@/config/modal-layout'
+import { MODAL_BACKDROP_PAD } from '@/config/modal-layout'
 import { toast } from 'sonner'
 
+/** Formulario corto — no el ancho de “Nuevo producto”. */
+const SUPPLIER_EDIT_PANEL =
+  'flex w-full max-w-lg max-h-[calc(100dvh-2.5rem)] flex-col overflow-hidden rounded-2xl shadow-2xl'
+
 const inputClass =
-  'w-full rounded-lg border border-zinc-300 bg-white px-3 py-2.5 text-sm text-zinc-900 transition-colors placeholder:text-zinc-400 focus:border-zinc-500 focus:outline-none focus:ring-2 focus:ring-zinc-400/30 dark:border-zinc-600 dark:bg-zinc-950/50 dark:text-zinc-100 dark:focus:border-zinc-500 dark:focus:ring-zinc-500/25'
+  'w-full rounded-lg border border-zinc-300 bg-white px-3 py-2.5 text-sm text-zinc-900 placeholder:text-zinc-400 transition-colors focus:border-zinc-500 focus:outline-none focus:ring-2 focus:ring-zinc-500/20 dark:border-zinc-600/80 dark:bg-zinc-800/80 dark:text-zinc-100 dark:placeholder:text-zinc-500 dark:focus:border-zinc-400 dark:focus:ring-zinc-400/20'
 
 interface SupplierEditModalProps {
   isOpen: boolean
@@ -101,33 +103,47 @@ export function SupplierEditModal({ isOpen, onClose, supplierId, onSaved }: Supp
       )}
     >
       <div
-        className={cn(MODAL_PANEL, 'border border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-900')}
+        className={cn(
+          'zonat-preserve-surface border border-zinc-200 bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-950',
+          SUPPLIER_EDIT_PANEL
+        )}
         role="dialog"
         aria-modal="true"
         aria-labelledby="supplier-edit-title"
       >
-        <div className="flex items-center justify-between border-b border-zinc-200 bg-zinc-50/90 px-4 py-3 dark:border-zinc-700 dark:bg-zinc-950/80">
-          <div className="flex min-w-0 items-center gap-2.5">
-            <Building2 className="h-5 w-5 shrink-0 text-zinc-500" strokeWidth={1.5} />
-            <h2 id="supplier-edit-title" className="truncate text-lg font-semibold text-zinc-900 dark:text-zinc-50">
-              Editar proveedor
-            </h2>
+        <header className="flex shrink-0 items-start justify-between gap-3 border-b border-zinc-200 bg-white px-4 py-3.5 dark:border-zinc-800 dark:bg-zinc-950">
+          <div className="flex min-w-0 items-start gap-2.5">
+            <Building2
+              className="mt-0.5 h-5 w-5 shrink-0 text-sky-600 dark:text-sky-400"
+              strokeWidth={1.75}
+              aria-hidden
+            />
+            <div className="min-w-0">
+              <h2
+                id="supplier-edit-title"
+                className="text-base font-semibold tracking-tight text-zinc-900 dark:text-zinc-50"
+              >
+                Editar proveedor
+              </h2>
+              <p className="mt-0.5 text-sm text-zinc-500 dark:text-zinc-400">
+                Actualiza los datos del proveedor
+              </p>
+            </div>
           </div>
-          <Button
+          <button
             type="button"
-            variant="ghost"
-            size="sm"
-            className="h-8 w-8 shrink-0 rounded-lg p-0"
             onClick={onClose}
             disabled={saving}
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-900 disabled:opacity-50 dark:hover:bg-zinc-800 dark:hover:text-white"
+            aria-label="Cerrar"
           >
-            <X className="h-5 w-5" />
-          </Button>
-        </div>
+            <X className="h-4 w-4" strokeWidth={1.75} />
+          </button>
+        </header>
 
         {loading ? (
           <div className="flex flex-col items-center justify-center gap-3 py-16">
-            <div className="h-10 w-10 animate-spin rounded-full border-2 border-zinc-200 border-t-zinc-600 dark:border-zinc-700 dark:border-t-zinc-300" />
+            <div className="h-10 w-10 animate-spin rounded-full border-2 border-zinc-200 border-t-sky-600 dark:border-zinc-700 dark:border-t-sky-400" />
             <p className="text-sm text-zinc-500 dark:text-zinc-400">Cargando…</p>
           </div>
         ) : loadError ? (
@@ -138,76 +154,106 @@ export function SupplierEditModal({ isOpen, onClose, supplierId, onSaved }: Supp
             </Button>
           </div>
         ) : (
-          <form onSubmit={handleSubmit}>
-            <div className="space-y-4 p-4">
-              <div className="space-y-2">
-                <Label htmlFor="supplier-name" className="text-zinc-700 dark:text-zinc-300">
-                  Nombre <span className="text-red-600 dark:text-red-400">*</span>
-                </Label>
-                <Input
+          <form className="flex min-h-0 flex-1 flex-col" onSubmit={handleSubmit}>
+            <div className="min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-contain px-4 py-4 dark:bg-zinc-950">
+              <div>
+                <label
+                  htmlFor="supplier-name"
+                  className="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300"
+                >
+                  Nombre <span className="text-red-500">*</span>
+                </label>
+                <input
                   id="supplier-name"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className={cn(inputClass, 'h-11')}
-                  placeholder="Razón social o nombre comercial"
+                  className={inputClass}
+                  placeholder="Ej: Accesorios Caribe SAS"
                   autoComplete="organization"
                 />
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="supplier-contact" className="text-zinc-700 dark:text-zinc-300">
-                  Contacto
-                </Label>
-                <Input
+
+              <div>
+                <label
+                  htmlFor="supplier-contact"
+                  className="mb-1.5 flex items-center gap-1.5 text-sm font-medium text-zinc-700 dark:text-zinc-300"
+                >
+                  <User className="h-3.5 w-3.5 text-sky-600 dark:text-sky-400" strokeWidth={2} />
+                  Contacto <span className="font-normal text-zinc-500">(opcional)</span>
+                </label>
+                <input
                   id="supplier-contact"
                   value={contact}
                   onChange={(e) => setContact(e.target.value)}
-                  className={cn(inputClass, 'h-11')}
-                  placeholder="Persona de contacto"
+                  className={inputClass}
+                  placeholder="Ej: Luis Peña"
                 />
               </div>
+
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <div className="space-y-2">
-                  <Label htmlFor="supplier-phone" className="text-zinc-700 dark:text-zinc-300">
-                    Teléfono
-                  </Label>
-                  <Input
+                <div>
+                  <label
+                    htmlFor="supplier-phone"
+                    className="mb-1.5 flex items-center gap-1.5 text-sm font-medium text-zinc-700 dark:text-zinc-300"
+                  >
+                    <Phone className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400" strokeWidth={2} />
+                    Teléfono <span className="font-normal text-zinc-500">(opcional)</span>
+                  </label>
+                  <input
                     id="supplier-phone"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
-                    className={cn(inputClass, 'h-11')}
-                    placeholder="Teléfono"
+                    className={inputClass}
+                    placeholder="Ej: 315 700 8009"
                     inputMode="tel"
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="supplier-email" className="text-zinc-700 dark:text-zinc-300">
-                    Correo
-                  </Label>
-                  <Input
+                <div>
+                  <label
+                    htmlFor="supplier-email"
+                    className="mb-1.5 flex items-center gap-1.5 text-sm font-medium text-zinc-700 dark:text-zinc-300"
+                  >
+                    <Mail className="h-3.5 w-3.5 text-amber-500 dark:text-amber-400" strokeWidth={2} />
+                    Correo <span className="font-normal text-zinc-500">(opcional)</span>
+                  </label>
+                  <input
                     id="supplier-email"
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className={cn(inputClass, 'h-11')}
+                    className={inputClass}
                     placeholder="correo@ejemplo.com"
                     autoComplete="email"
                   />
                 </div>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="supplier-document" className="text-zinc-700 dark:text-zinc-300">
-                  NIT / documento
-                </Label>
-                <Input
+
+              <div>
+                <label
+                  htmlFor="supplier-document"
+                  className="mb-1.5 flex items-center gap-1.5 text-sm font-medium text-zinc-700 dark:text-zinc-300"
+                >
+                  <FileText className="h-3.5 w-3.5 text-sky-600 dark:text-sky-400" strokeWidth={2} />
+                  NIT / documento <span className="font-normal text-zinc-500">(opcional)</span>
+                </label>
+                <input
                   id="supplier-document"
                   value={document}
                   onChange={(e) => setDocument(e.target.value)}
-                  className={cn(inputClass, 'h-11')}
-                  placeholder="NIT, cédula u otro documento"
+                  className={inputClass}
+                  placeholder="Ej: 900555666-8"
                 />
               </div>
-              <div className="flex items-center justify-between gap-3 rounded-lg border border-zinc-200 px-3 py-3 dark:border-zinc-700">
-                <div>
+
+              <div
+                className={cn(
+                  'flex items-center justify-between gap-3 rounded-xl border px-3 py-3',
+                  isActive
+                    ? 'border-emerald-500/30 bg-emerald-500/[0.08] dark:border-emerald-400/35 dark:bg-emerald-500/10'
+                    : 'border-zinc-200 bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900/50'
+                )}
+              >
+                <div className="min-w-0">
                   <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">Proveedor activo</p>
                   <p className="text-xs text-zinc-500 dark:text-zinc-400">
                     Si lo desactivas, no aparecerá al crear facturas nuevas.
@@ -216,11 +262,24 @@ export function SupplierEditModal({ isOpen, onClose, supplierId, onSaved }: Supp
                 <Switch checked={isActive} onCheckedChange={setIsActive} />
               </div>
             </div>
-            <div className="flex flex-col-reverse gap-2 border-t border-zinc-200 p-4 dark:border-zinc-700 sm:flex-row sm:justify-end">
-              <Button type="button" variant="outline" onClick={onClose} disabled={saving} className="w-full sm:w-auto">
+
+            <div className="flex shrink-0 flex-col-reverse gap-2 border-t border-zinc-200 bg-white px-4 py-3 dark:border-zinc-800 dark:bg-zinc-950 sm:flex-row sm:justify-end">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={onClose}
+                disabled={saving}
+                className="w-full sm:w-auto"
+              >
                 Cancelar
               </Button>
-              <Button type="submit" disabled={saving} className="w-full sm:w-auto">
+              <Button
+                type="submit"
+                size="sm"
+                disabled={saving}
+                className="w-full bg-emerald-600 text-white hover:bg-emerald-700 sm:w-auto dark:bg-emerald-500 dark:hover:bg-emerald-600"
+              >
                 {saving ? 'Guardando…' : 'Guardar cambios'}
               </Button>
             </div>

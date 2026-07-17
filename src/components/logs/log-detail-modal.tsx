@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { X, ArrowRightLeft, ShoppingCart, Package, Users, Tag, UserCheck, FileText, DollarSign, CreditCard, Receipt, TrendingUp, TrendingDown, User, Shield, CheckCircle, AlertCircle, Plus, Edit, Trash2, RefreshCw, Activity, Warehouse, Store } from 'lucide-react'
+import { X, ArrowRightLeft, ShoppingCart, Package, Users, Tag, UserCheck, DollarSign, CreditCard, Receipt, TrendingUp, TrendingDown, User, Shield, CheckCircle, AlertCircle, Plus, Edit, Trash2, RefreshCw, Activity, Warehouse, Store } from 'lucide-react'
 import { LogEntry } from '@/types/logs'
 import { UserAvatar } from '@/components/ui/user-avatar'
 import { LogsService } from '@/lib/logs-service'
@@ -425,116 +425,89 @@ export function LogDetailModal({ isOpen, onClose, log }: LogDetailModalProps) {
 
   const modal = (
     <div
-      className="scrollbar-hide fixed inset-0 z-[100] flex items-center justify-center overflow-y-auto overscroll-contain zonat-modal-backdrop px-3 sm:px-6"
+      className="fixed inset-0 z-[100] flex items-center justify-center zonat-modal-backdrop px-3 sm:px-6 xl:left-56"
       style={{
         paddingTop: 'max(0.75rem, env(safe-area-inset-top, 0px))',
-        paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom, 0px))'
+        paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom, 0px))',
       }}
       role="dialog"
       aria-modal="true"
       aria-labelledby="log-detail-title"
-      onClick={e => {
+      onClick={(e) => {
         if (e.target === e.currentTarget) onClose()
       }}
     >
       <div
-        className="my-4 flex w-full max-w-[min(72rem,calc(100vw-1.5rem))] max-h-[calc(100dvh-2.5rem)] sm:max-h-[calc(100dvh-4rem)] flex-col overflow-hidden rounded-2xl border border-zinc-200/80 bg-white shadow-xl dark:border-zinc-800 dark:bg-zinc-900/95"
-        onClick={e => e.stopPropagation()}
+        className="zonat-preserve-surface flex w-full max-w-lg max-h-[calc(100dvh-2rem)] flex-col overflow-hidden rounded-2xl border border-zinc-200 bg-zinc-50 shadow-2xl dark:border-zinc-800 dark:bg-zinc-950"
+        onClick={(e) => e.stopPropagation()}
       >
-        {/* Header — misma línea visual que registro de actividades */}
-        <div className="flex shrink-0 items-center justify-between gap-3 border-b border-zinc-200/80 bg-zinc-50/90 px-4 py-3.5 dark:border-zinc-800 dark:bg-zinc-900/60 md:px-6 md:py-4">
-          <div className="flex min-w-0 flex-1 items-center gap-3">
+        <div className="flex shrink-0 items-start justify-between gap-3 border-b border-zinc-200 bg-white px-4 py-3 dark:border-zinc-800 dark:bg-zinc-950">
+          <div className="flex min-w-0 flex-1 items-start gap-2.5">
             <Activity
-              className="h-5 w-5 shrink-0 text-zinc-500 dark:text-zinc-400"
-              strokeWidth={1.5}
+              className="mt-0.5 h-5 w-5 shrink-0 text-sky-600 dark:text-sky-400"
+              strokeWidth={1.75}
               aria-hidden
             />
             <div className="min-w-0 flex-1">
               <h2
                 id="log-detail-title"
-                className="truncate text-lg font-semibold tracking-tight text-zinc-900 dark:text-zinc-50 md:text-xl"
+                className="truncate text-base font-semibold tracking-tight text-zinc-900 dark:text-zinc-50"
               >
                 Detalle del registro
               </h2>
-              <p className="mt-0.5 hidden text-sm text-zinc-500 dark:text-zinc-400 md:block">
-                Información completa de la actividad
+              <p className="mt-0.5 truncate text-xs text-zinc-500 dark:text-zinc-400">
+                {formatDateTime((log as any).created_at)}
               </p>
             </div>
           </div>
-          <Button
+          <button
             type="button"
             onClick={onClose}
-            variant="ghost"
-            size="sm"
-            className="h-9 w-9 shrink-0 rounded-lg border-0 p-0 text-zinc-500 shadow-none hover:bg-zinc-100 hover:text-zinc-900 dark:hover:bg-zinc-800 dark:hover:text-zinc-100"
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-900 dark:hover:bg-zinc-800 dark:hover:text-white"
             aria-label="Cerrar"
           >
-            <X className="h-5 w-5" strokeWidth={1.5} />
-          </Button>
+            <X className="h-4 w-4" strokeWidth={1.75} />
+          </button>
         </div>
 
-        {/* Content: altura según contenido; scroll solo si supera el tope (sin barra visible) */}
-        <div className="max-h-[min(72dvh,560px)] overflow-y-auto overscroll-contain p-4 scrollbar-hide md:p-6">
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-5">
-            {/* Información General */}
-            <div className="rounded-xl border border-solid border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900/40">
-              <div className="flex items-center gap-2 border-b border-zinc-200/80 p-3 dark:border-zinc-800 md:gap-3 md:p-4">
-                <FileText
-                  className="h-4 w-4 shrink-0 text-zinc-500 dark:text-zinc-400 md:h-5 md:w-5"
-                  strokeWidth={1.5}
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain bg-zinc-50 px-4 py-3 dark:bg-zinc-950">
+          {/* Resumen general compacto */}
+          <div className="mb-3 rounded-xl border border-zinc-200 bg-white p-3 dark:border-zinc-700/80 dark:bg-zinc-900/50">
+            <div className="flex flex-wrap items-center gap-2">
+              <Badge className={`${getTypeColor(logType)} text-xs`}>
+                <TypeIcon className="mr-1 h-3 w-3" />
+                <span className="truncate">
+                  {getActionLabel(log.action, (log as any).module, log.details)}
+                </span>
+              </Badge>
+              <span className="text-zinc-300 dark:text-zinc-600">·</span>
+              <div className="flex min-w-0 items-center gap-1.5">
+                <UserAvatar
+                  name={(log as any).user_name || 'Desconocido'}
+                  seed={(log as any).user_id || (log as any).id}
+                  size="sm"
+                  className="h-6 w-6 ring-1 ring-zinc-200/80 dark:ring-zinc-700"
                 />
-                <h3 className="text-base font-semibold text-zinc-900 dark:text-zinc-50 md:text-lg">
-                  Información general
-                </h3>
-              </div>
-              <div className="space-y-3 p-3 md:space-y-4 md:p-4">
-                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                  <span className="text-xs text-zinc-500 dark:text-zinc-400 md:text-sm">Acción</span>
-                  <Badge className={`${getTypeColor(logType)} text-xs md:text-sm`}>
-                    <TypeIcon className="mr-1 h-3 w-3" />
-                    <span className="truncate">
-                      {getActionLabel(log.action, (log as any).module, log.details)}
-                    </span>
-                  </Badge>
-                </div>
-
-                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                  <span className="text-xs text-zinc-500 dark:text-zinc-400 md:text-sm">Realizado por</span>
-                  <div className="flex min-w-0 items-center gap-2 sm:justify-end">
-                    <UserAvatar
-                      name={(log as any).user_name || 'Desconocido'}
-                      seed={(log as any).user_id || (log as any).id}
-                      size="sm"
-                      className="ring-1 ring-zinc-200/80 dark:ring-zinc-700"
-                    />
-                    <span className="truncate text-sm font-medium text-zinc-900 dark:text-zinc-100 md:text-base">
-                      {(log as any).user_name || 'Desconocido'}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                  <span className="text-xs text-zinc-500 dark:text-zinc-400 md:text-sm">Fecha</span>
-                  <span className="text-xs tabular-nums text-zinc-900 dark:text-zinc-100 md:text-sm">
-                    {formatDateTime((log as any).created_at)}
-                  </span>
-                </div>
+                <span className="truncate text-sm font-medium text-zinc-800 dark:text-zinc-200">
+                  {(log as any).user_name || 'Desconocido'}
+                </span>
               </div>
             </div>
+          </div>
 
-            {/* Información específica según el tipo de acción */}
-            {log.details && (
-              <div className="rounded-xl border border-solid border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900/40">
-                <div className="flex items-center gap-2 border-b border-zinc-200/80 p-3 dark:border-zinc-800 md:gap-3 md:p-4">
-                  <TypeIcon
-                    className="h-4 w-4 shrink-0 text-zinc-500 dark:text-zinc-400 md:h-5 md:w-5"
-                    strokeWidth={1.5}
-                  />
-                  <h3 className="text-base font-semibold text-zinc-900 dark:text-zinc-50 md:text-lg">
-                    Detalles de la acción
-                  </h3>
-                </div>
-                <div className="p-3 md:p-4 max-h-[60vh] md:max-h-96 xl:max-h-none xl:overflow-visible overflow-y-auto">
+          {/* Detalles de la acción */}
+          {log.details && (
+            <div className="rounded-xl border border-zinc-200 bg-white p-3 dark:border-zinc-700/80 dark:bg-zinc-900/50">
+              <div className="mb-2.5 flex items-center gap-2">
+                <TypeIcon
+                  className="h-4 w-4 shrink-0 text-amber-500 dark:text-amber-400"
+                  strokeWidth={1.75}
+                />
+                <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-50">
+                  Detalles
+                </h3>
+              </div>
+              <div className="space-y-2.5 text-sm">
                   {/* Información específica para ventas */}
                   {log.action === 'sale_create' && log.details && (
                     <div className="space-y-4">
@@ -1139,114 +1112,116 @@ export function LogDetailModal({ isOpen, onClose, log }: LogDetailModalProps) {
                   )}
 
                   {log.action === 'Permisos Asignados' && (log.details as any).description && (
-                    <div>
-                      <span className="text-sm text-gray-600 dark:text-gray-400 block mb-2">Resumen de permisos:</span>
-                      <div className="text-gray-900 dark:text-white text-sm bg-gray-100 dark:bg-neutral-800 p-4 rounded-lg">
-                        <div className="space-y-2">
-                          {(() => {
-                            const desc = (log.details as any).description
-                            // Extraer el nombre del usuario
-                            const userMatch = desc.match(/^([^-]+) -/)
-                            const userName = userMatch ? userMatch[1].trim() : 'Usuario'
-                            
-                            // Extraer cambios específicos
-                            const changesMatch = desc.match(/Módulos: (.+?)\. Resumen:/)
-                            const changes = changesMatch ? changesMatch[1].trim() : ''
-                            
-                            // Extraer resumen de permisos
-                            const summaryMatch = desc.match(/Resumen: (.+)$/)
-                            const summary = summaryMatch ? summaryMatch[1].trim() : ''
-                            
-                            return (
-                              <>
-                                <div className="flex items-center space-x-2 font-medium text-gray-600 mb-3">
-                                  <UserCheck className="h-4 w-4" />
-                                  <span>{userName}</span>
-                                </div>
-                                
-                                {summary && (
-                                  <div>
-                                    <div className="text-gray-600 dark:text-gray-300 text-sm font-medium mb-2">Permisos asignados:</div>
-                                    <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 space-y-2">
-                                      {summary.split(' | ').map((module: any, index: number) => {
-                                        // Parsear el módulo y acciones
-                                        const moduleMatch = module.match(/^([^:]+):\s*(.+)$/)
-                                        if (!moduleMatch) return null
-                                        
-                                        const moduleName = moduleMatch[1]
-                                          .replace(/Productos/g, 'Productos')
-                                          .replace(/Clientes/g, 'Clientes')
-                                          .replace(/Ventas/g, 'Ventas')
-                                          .replace(/Abonos/g, 'Abonos')
-                                          .replace(/Roles/g, 'Roles')
-                                          .replace(/Dashboard/g, 'Dashboard')
-                                          .replace(/Logs/g, 'Logs')
-                                          .replace(/warranties/g, 'Garantías')
-                                        
-                                        const actions = moduleMatch[2]
-                                          .split(',')
-                                          .map((a: string) => a.trim())
-                                          .map((action: string) => {
-                                            return action === 'Ver' ? 'Ver' :
-                                              action === 'Crear' ? 'Crear' :
-                                              action === 'Editar' ? 'Editar' :
-                                              action === 'Eliminar' ? 'Eliminar' :
-                                              action === 'Cancelar' ? 'Cancelar' :
-                                              action === 'view' ? 'Ver' :
-                                              action === 'create' ? 'Crear' :
-                                              action === 'edit' ? 'Editar' :
-                                              action === 'delete' ? 'Eliminar' :
-                                              action === 'cancel' ? 'Cancelar' :
-                                              action
-                                          })
-                                          .join(', ')
-                                        
-                                        return (
-                                          <div key={index} className="flex items-start space-x-2">
-                                            <div className="w-2 h-2 bg-blue-600 rounded-full flex-shrink-0 mt-1.5"></div>
-                                            <div className="flex-1">
-                                              <span className="text-sm font-medium text-blue-900 dark:text-blue-300">{moduleName}:</span>
-                                              <span className="text-sm text-blue-700 dark:text-blue-400 ml-1">{actions}</span>
-                                            </div>
-                                          </div>
-                                        )
-                                      })}
+                    <div className="space-y-2">
+                      {(() => {
+                        const desc = (log.details as any).description as string
+                        const userMatch = desc.match(/^([^-]+) -/)
+                        const userName = userMatch ? userMatch[1].trim() : 'Usuario'
+                        const changesMatch = desc.match(/Módulos: (.+?)\. Resumen:/)
+                        const changes = changesMatch ? changesMatch[1].trim() : ''
+                        const summaryMatch = desc.match(/Resumen: (.+)$/)
+                        const summary = summaryMatch ? summaryMatch[1].trim() : ''
+
+                        const shortenAction = (action: string) => {
+                          const a = action.trim()
+                          if (a === 'Ver' || a === 'view') return 'Ver'
+                          if (a === 'Crear' || a === 'create') return 'Crear'
+                          if (a === 'Editar' || a === 'edit') return 'Editar'
+                          if (a === 'Eliminar' || a === 'delete') return 'Eliminar'
+                          if (a === 'Cancelar' || a === 'cancel') return 'Cancelar'
+                          return a
+                        }
+
+                        const labelModule = (name: string) =>
+                          name
+                            .replace(/virtual_store/gi, 'Tienda virtual')
+                            .replace(/supplier_invoices/gi, 'Proveedores')
+                            .replace(/receptions/gi, 'Recepciones')
+                            .replace(/dashboard/gi, 'Reportes')
+                            .replace(/warranties/gi, 'Garantías')
+                            .replace(/products/gi, 'Productos')
+                            .replace(/clients/gi, 'Clientes')
+                            .replace(/sales/gi, 'Ventas')
+                            .replace(/payments/gi, 'Abonos')
+                            .replace(/roles/gi, 'Roles')
+                            .replace(/logs/gi, 'Logs')
+
+                        const modules = summary
+                          ? summary
+                              .split(' | ')
+                              .map((module: string) => {
+                                const moduleMatch = module.match(/^([^:]+):\s*(.+)$/)
+                                if (!moduleMatch) return null
+                                return {
+                                  name: labelModule(moduleMatch[1].trim()),
+                                  actions: moduleMatch[2]
+                                    .split(',')
+                                    .map(shortenAction)
+                                    .filter(Boolean),
+                                }
+                              })
+                              .filter(Boolean) as { name: string; actions: string[] }[]
+                          : []
+
+                        return (
+                          <>
+                            <div className="flex items-center gap-1.5 text-sm font-medium text-zinc-800 dark:text-zinc-200">
+                              <UserCheck className="h-3.5 w-3.5 text-sky-600 dark:text-sky-400" strokeWidth={2} />
+                              {userName}
+                            </div>
+
+                            {modules.length > 0 && (
+                              <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-2">
+                                {modules.map((mod, index) => (
+                                  <div
+                                    key={index}
+                                    className="rounded-lg border border-sky-500/25 bg-sky-500/[0.06] px-2.5 py-2 dark:border-sky-400/30 dark:bg-sky-500/10"
+                                  >
+                                    <div className="text-xs font-semibold text-sky-800 dark:text-sky-300">
+                                      {mod.name}
+                                    </div>
+                                    <div className="mt-1 flex flex-wrap gap-1">
+                                      {mod.actions.map((action) => (
+                                        <span
+                                          key={action}
+                                          className="rounded bg-white/80 px-1.5 py-0.5 text-[10px] font-medium text-zinc-700 dark:bg-zinc-900/60 dark:text-zinc-300"
+                                        >
+                                          {action}
+                                        </span>
+                                      ))}
                                     </div>
                                   </div>
-                                )}
-                                
-                                {changes && changes.trim() && (
-                                  <div className="mt-3">
-                                    <div className="text-gray-600 dark:text-gray-300 text-xs mb-2">Cambios realizados:</div>
-                                    <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-3">
-                                      <div className="text-xs text-yellow-800 dark:text-yellow-300">
-                                      {changes
-                                          .replace(/Agregados:/g, '✅ Agregados: ')
-                                          .replace(/Removidos:/g, '❌ Removidos: ')
-                                        .replace(/products:/g, 'Productos:')
-                                        .replace(/clients:/g, 'Clientes:')
-                                        .replace(/sales:/g, 'Ventas:')
-                                        .replace(/payments:/g, 'Abonos:')
-                                        .replace(/roles:/g, 'Roles:')
-                                        .replace(/dashboard:/g, 'Reportes:')
-                                        .replace(/logs:/g, 'Logs:')
-                                          .replace(/warranties:/g, 'Garantías:')
-                                        .replace(/view/g, 'Ver')
-                                        .replace(/create/g, 'Crear')
-                                        .replace(/edit/g, 'Editar')
-                                        .replace(/delete/g, 'Eliminar')
-                                        .replace(/cancel/g, 'Cancelar')
-                                          .replace(/;/g, '; ')
-                                      }
-                                    </div>
-                                    </div>
-                                  </div>
-                                )}
-                              </>
-                            )
-                          })()}
-                        </div>
-                      </div>
+                                ))}
+                              </div>
+                            )}
+
+                            {changes && changes.trim() && (
+                              <p className="text-[11px] leading-relaxed text-zinc-500 dark:text-zinc-400">
+                                {changes
+                                  .replace(/Agregados:/g, 'Agregados: ')
+                                  .replace(/Removidos:/g, 'Removidos: ')
+                                  .replace(/products:/g, 'Productos:')
+                                  .replace(/clients:/g, 'Clientes:')
+                                  .replace(/sales:/g, 'Ventas:')
+                                  .replace(/payments:/g, 'Abonos:')
+                                  .replace(/roles:/g, 'Roles:')
+                                  .replace(/dashboard:/g, 'Reportes:')
+                                  .replace(/logs:/g, 'Logs:')
+                                  .replace(/warranties:/g, 'Garantías:')
+                                  .replace(/virtual_store:/g, 'Tienda virtual:')
+                                  .replace(/supplier_invoices:/g, 'Proveedores:')
+                                  .replace(/receptions:/g, 'Recepciones:')
+                                  .replace(/view/g, 'Ver')
+                                  .replace(/create/g, 'Crear')
+                                  .replace(/edit/g, 'Editar')
+                                  .replace(/delete/g, 'Eliminar')
+                                  .replace(/cancel/g, 'Cancelar')
+                                  .replace(/;/g, ' · ')}
+                              </p>
+                            )}
+                          </>
+                        )
+                      })()}
                     </div>
                   )}
                   
@@ -1260,9 +1235,7 @@ export function LogDetailModal({ isOpen, onClose, log }: LogDetailModalProps) {
                       </div>
                       
                       {(log.details as any).newUser.permissions && Array.isArray((log.details as any).newUser.permissions) && (log.details as any).newUser.permissions.length > 0 && (
-                        <div>
-                          <span className="text-sm text-gray-600 dark:text-gray-400 block mb-2">Permisos asignados:</span>
-                          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 space-y-2">
+                        <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-2">
                             {(log.details as any).newUser.permissions.map((perm: any, idx: number) => {
                               const moduleLabel = perm.module === 'dashboard' ? 'Reportes' :
                                 perm.module === 'products' ? 'Productos' :
@@ -1272,6 +1245,8 @@ export function LogDetailModal({ isOpen, onClose, log }: LogDetailModalProps) {
                                 perm.module === 'roles' ? 'Roles' :
                                 perm.module === 'logs' ? 'Logs' :
                                 perm.module === 'warranties' ? 'Garantías' :
+                                perm.module === 'virtual_store' ? 'Tienda virtual' :
+                                perm.module === 'supplier_invoices' ? 'Proveedores' :
                                 perm.module
                               
                               const actionsLabels = (perm.actions || []).map((action: string) => {
@@ -1281,19 +1256,27 @@ export function LogDetailModal({ isOpen, onClose, log }: LogDetailModalProps) {
                                   action === 'delete' ? 'Eliminar' :
                                   action === 'cancel' ? 'Cancelar' :
                                   action
-                              }).join(', ')
+                              })
                               
                               return (
-                                <div key={idx} className="flex items-start space-x-2">
-                                  <div className="w-2 h-2 bg-blue-600 rounded-full flex-shrink-0 mt-1.5"></div>
-                                  <div className="flex-1">
-                                    <span className="text-sm font-medium text-blue-900 dark:text-blue-300">{moduleLabel}:</span>
-                                    <span className="text-sm text-blue-700 dark:text-blue-400 ml-1">{actionsLabels}</span>
+                                <div
+                                  key={idx}
+                                  className="rounded-lg border border-sky-500/25 bg-sky-500/[0.06] px-2.5 py-2 dark:border-sky-400/30 dark:bg-sky-500/10"
+                                >
+                                  <div className="text-xs font-semibold text-sky-800 dark:text-sky-300">{moduleLabel}</div>
+                                  <div className="mt-1 flex flex-wrap gap-1">
+                                    {actionsLabels.map((a: string) => (
+                                      <span
+                                        key={a}
+                                        className="rounded bg-white/80 px-1.5 py-0.5 text-[10px] font-medium text-zinc-700 dark:bg-zinc-900/60 dark:text-zinc-300"
+                                      >
+                                        {a}
+                                      </span>
+                                    ))}
                                   </div>
                                 </div>
                               )
                             })}
-                      </div>
                         </div>
                       )}
                     </div>
@@ -2670,18 +2653,19 @@ export function LogDetailModal({ isOpen, onClose, log }: LogDetailModalProps) {
                       )}
                     </div>
                   )}
-                </div>
               </div>
-            )}
-          </div>
+            </div>
+          )}
         </div>
 
         {/* Footer */}
-        <div className="flex shrink-0 items-center justify-end border-t border-zinc-200/80 bg-zinc-50/90 px-4 py-4 dark:border-zinc-800 dark:bg-zinc-900/60 md:px-6">
+        <div className="flex shrink-0 items-center justify-end border-t border-zinc-200 bg-white px-4 py-3 dark:border-zinc-800 dark:bg-zinc-950">
           <Button
             type="button"
             onClick={onClose}
-            className="h-9 rounded-lg border border-zinc-200/90 bg-white px-4 text-sm font-medium text-zinc-700 shadow-none hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900/60 dark:text-zinc-200 dark:hover:bg-zinc-800"
+            variant="outline"
+            size="sm"
+            className="h-9 rounded-lg px-4 text-sm font-medium"
           >
             Cerrar
           </Button>

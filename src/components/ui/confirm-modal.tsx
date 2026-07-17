@@ -5,7 +5,7 @@ import { createPortal } from 'react-dom'
 import { Button } from '@/components/ui/button'
 import { AlertTriangle, Info, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { MODAL_PANEL, MODAL_BACKDROP_PAD } from '@/config/modal-layout'
+import { MODAL_BACKDROP_PAD } from '@/config/modal-layout'
 
 interface ConfirmModalProps {
   isOpen: boolean
@@ -18,15 +18,9 @@ interface ConfirmModalProps {
   type?: 'danger' | 'warning' | 'info'
 }
 
-const overlayClass = cn(
-  'fixed inset-0 z-[100] flex items-center justify-center zonat-modal-backdrop xl:left-56',
-  MODAL_BACKDROP_PAD
-)
-
-const shellClass = cn(
-  MODAL_PANEL,
-  'border border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-900'
-)
+/** Diálogo corto de confirmación — no usar el panel ancho de formularios. */
+const CONFIRM_PANEL =
+  'flex w-full max-w-md flex-col overflow-hidden rounded-2xl shadow-2xl'
 
 export function ConfirmModal({
   isOpen,
@@ -44,6 +38,15 @@ export function ConfirmModal({
     setMounted(true)
   }, [])
 
+  useEffect(() => {
+    if (!isOpen) return
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose()
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [isOpen, onClose])
+
   if (!isOpen || !mounted) return null
 
   const Icon = type === 'info' ? Info : AlertTriangle
@@ -51,43 +54,59 @@ export function ConfirmModal({
     type === 'danger'
       ? 'text-red-600 dark:text-red-400'
       : type === 'warning'
-        ? 'text-amber-600 dark:text-amber-400'
-        : 'text-zinc-500 dark:text-zinc-400'
+        ? 'text-amber-500 dark:text-amber-400'
+        : 'text-sky-600 dark:text-sky-400'
 
   const modal = (
-    <div className={overlayClass} role="presentation">
+    <div
+      className={cn(
+        'fixed inset-0 z-[100] flex items-center justify-center zonat-modal-backdrop xl:left-56',
+        MODAL_BACKDROP_PAD
+      )}
+      role="presentation"
+      onClick={onClose}
+    >
       <div
-        className={shellClass}
+        className={cn(
+          'zonat-preserve-surface border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950',
+          CONFIRM_PANEL
+        )}
         role="dialog"
         aria-modal="true"
         aria-labelledby="confirm-modal-title"
         aria-describedby="confirm-modal-desc"
+        onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between border-b border-zinc-200 bg-zinc-50/90 px-4 py-3 dark:border-zinc-700 dark:bg-zinc-950/80">
-          <div className="flex min-w-0 items-center gap-2.5">
-            <Icon className={cn('h-5 w-5 shrink-0', iconClass)} strokeWidth={1.5} />
-            <h2 id="confirm-modal-title" className="truncate text-lg font-semibold text-zinc-900 dark:text-zinc-50">
+        <div className="flex items-start justify-between gap-3 border-b border-zinc-200 px-4 py-3.5 dark:border-zinc-800">
+          <div className="flex min-w-0 items-start gap-2.5">
+            <Icon className={cn('mt-0.5 h-5 w-5 shrink-0', iconClass)} strokeWidth={1.75} aria-hidden />
+            <h2
+              id="confirm-modal-title"
+              className="text-base font-semibold tracking-tight text-zinc-900 dark:text-zinc-50"
+            >
               {title}
             </h2>
           </div>
-          <Button
+          <button
             type="button"
-            variant="ghost"
-            size="sm"
-            className="h-8 min-h-0 w-8 shrink-0 rounded-lg p-0"
             onClick={onClose}
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-zinc-400 transition-colors hover:bg-zinc-100 hover:text-zinc-900 dark:hover:bg-zinc-800 dark:hover:text-white"
+            aria-label="Cerrar"
           >
-            <X className="h-5 w-5" />
-          </Button>
+            <X className="h-4 w-4" strokeWidth={1.75} />
+          </button>
         </div>
 
-        <div className="p-4">
-          <p id="confirm-modal-desc" className="text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">
+        <div className="px-4 py-4">
+          <p
+            id="confirm-modal-desc"
+            className="text-sm leading-relaxed text-zinc-600 dark:text-zinc-400"
+          >
             {message}
           </p>
         </div>
 
-        <div className="flex flex-wrap justify-end gap-2 border-t border-zinc-200 bg-zinc-50/80 p-4 dark:border-zinc-700 dark:bg-zinc-950/50">
+        <div className="flex flex-wrap justify-end gap-2 border-t border-zinc-200 bg-zinc-50/80 px-4 py-3 dark:border-zinc-800 dark:bg-zinc-950">
           <Button type="button" variant="outline" size="sm" onClick={onClose}>
             {cancelText}
           </Button>
@@ -96,7 +115,10 @@ export function ConfirmModal({
             size="sm"
             variant={type === 'danger' ? 'destructive' : 'default'}
             onClick={onConfirm}
-            className={cn(type === 'warning' && 'border-amber-600/90 bg-amber-600 text-white hover:bg-amber-700 dark:bg-amber-600 dark:hover:bg-amber-700')}
+            className={cn(
+              type === 'warning' &&
+                'border-amber-600/90 bg-amber-600 text-white hover:bg-amber-700 dark:bg-amber-600 dark:hover:bg-amber-700'
+            )}
           >
             {confirmText}
           </Button>

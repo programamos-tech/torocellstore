@@ -67,7 +67,7 @@ async function searchProductsLite(
       kind: 'product' as const,
       label: p.name,
       sublabel: p.reference ? `Ref. ${p.reference}` : undefined,
-      href: `/inventory/products/${p.id}`,
+      href: `/inventory/products`,
     }))
   } catch {
     return []

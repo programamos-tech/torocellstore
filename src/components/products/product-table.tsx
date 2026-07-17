@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -99,7 +98,6 @@ export function ProductTable({
   onSearch,
   onView,
 }: ProductTableProps) {
-  const router = useRouter()
   const { hasPermission } = usePermissions()
   const { user } = useAuth()
 
@@ -145,8 +143,12 @@ export function ProductTable({
   }, [searchTerm])
 
   const goProduct = (p: Product) => {
-    if (onView) onView(p)
-    else router.push(`/inventory/products/${p.id}`)
+    // Ya no hay ficha de detalle: el clic abre edición (si hay permiso).
+    if (onView) {
+      onView(p)
+      return
+    }
+    if (canEdit) onEdit(p)
   }
 
   const getCategoryName = (categoryId: string) => {

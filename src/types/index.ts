@@ -32,9 +32,13 @@ export interface Product {
   name: string
   reference: string
   description: string
+  /** Precio de venta sugerido al cliente final. */
   price: number
+  /** Precio mínimo permitido al facturar. */
+  minimumSalePrice: number
   /** Precio de venta en tienda virtual (/tienda). */
   onlinePrice?: number
+  /** Precio de adquisición/compra. */
   cost: number
   stock: {
     warehouse: number

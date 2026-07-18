@@ -19,17 +19,20 @@ export type StockFilter =
 type StoreStockPricing = {
   cost: number | null
   price: number | null
+  minimumSalePrice: number | null
   onlinePrice: number | null
 }
 
 function toStoreStockPricing(item: {
   cost: number | null
   price: number | null
+  minimum_sale_price?: number | null
   online_price?: number | null
 }): StoreStockPricing {
   return {
     cost: item.cost,
     price: item.price,
+    minimumSalePrice: item.minimum_sale_price ?? null,
     onlinePrice: item.online_price ?? null,
   }
 }
@@ -38,26 +41,38 @@ function resolveProductFinancials(
   product: {
     cost?: number | null
     price?: number | null
+    minimum_sale_price?: number | null
     online_price?: number | null
   },
   isMainStore: boolean,
   storeStock?: StoreStockPricing | null
-): { cost: number; price: number; onlinePrice: number } {
+): { cost: number; price: number; minimumSalePrice: number; onlinePrice: number } {
   const baseCost = Number(product.cost ?? 0)
   const basePrice = Number(product.price ?? 0)
+  const baseMinimumSalePrice = Number(product.minimum_sale_price ?? baseCost)
   const baseOnlinePrice = Number(product.online_price ?? 0)
 
   if (isMainStore) {
-    return { cost: baseCost, price: basePrice, onlinePrice: baseOnlinePrice }
+    return {
+      cost: baseCost,
+      price: basePrice,
+      minimumSalePrice: baseMinimumSalePrice,
+      onlinePrice: baseOnlinePrice,
+    }
   }
 
   if (storeStock) {
+    const storeCost =
+      storeStock.cost !== null && storeStock.cost !== 0
+        ? Number(storeStock.cost)
+        : basePrice
     return {
-      cost:
-        storeStock.cost !== null && storeStock.cost !== 0
-          ? Number(storeStock.cost)
-          : basePrice,
+      cost: storeCost,
       price: storeStock.price !== null ? Number(storeStock.price) : 0,
+      minimumSalePrice:
+        storeStock.minimumSalePrice !== null && storeStock.minimumSalePrice !== 0
+          ? Number(storeStock.minimumSalePrice)
+          : storeCost,
       onlinePrice:
         storeStock.onlinePrice !== null && storeStock.onlinePrice !== 0
           ? Number(storeStock.onlinePrice)
@@ -68,6 +83,7 @@ function resolveProductFinancials(
   return {
     cost: basePrice,
     price: 0,
+    minimumSalePrice: basePrice,
     onlinePrice: baseOnlinePrice,
   }
 }
@@ -405,7 +421,7 @@ export class ProductsService {
       if (!isMainStore && currentStoreId) {
         const { data: storeStockData } = await supabaseAdmin
           .from('store_stock')
-          .select('product_id, cost, price, online_price')
+          .select('product_id, cost, price, minimum_sale_price, online_price')
           .eq('store_id', currentStoreId)
           .in('product_id', productIds)
 
@@ -432,6 +448,7 @@ export class ProductsService {
           brand: product.brand,
           reference: product.reference,
           price: financials.price,
+          minimumSalePrice: financials.minimumSalePrice,
           onlinePrice: financials.onlinePrice,
           cost: financials.cost,
           stock: stock,
@@ -584,7 +601,7 @@ export class ProductsService {
 
             const { data: storeStockData, error: storeStockError } = await supabaseAdmin
               .from('store_stock')
-              .select('product_id, cost, price, online_price')
+              .select('product_id, cost, price, minimum_sale_price, online_price')
               .eq('store_id', currentStoreId)
               .range(from, to)
 
@@ -662,6 +679,7 @@ export class ProductsService {
             brand: product.brand,
             reference: product.reference,
             price: financials.price,
+            minimumSalePrice: financials.minimumSalePrice,
             onlinePrice: financials.onlinePrice,
             cost: financials.cost,
             stock: stock,
@@ -824,7 +842,7 @@ export class ProductsService {
       if (!isMainStore && currentStoreId) {
         const { data: storeStock } = await supabaseAdmin
           .from('store_stock')
-          .select('cost, price, online_price')
+          .select('cost, price, minimum_sale_price, online_price')
           .eq('store_id', currentStoreId)
           .eq('product_id', id)
           .maybeSingle()
@@ -844,6 +862,7 @@ export class ProductsService {
         brand: data.brand,
         reference: data.reference,
         price: financials.price,
+        minimumSalePrice: financials.minimumSalePrice,
         onlinePrice: financials.onlinePrice,
         cost: financials.cost,
         stock: stock,
@@ -898,7 +917,7 @@ export class ProductsService {
       const productIds = rawResults.map(p => p.id)
       const { data: storeStockData } = await supabaseAdmin
         .from('store_stock')
-        .select('product_id, cost, price, online_price')
+        .select('product_id, cost, price, minimum_sale_price, online_price')
         .eq('store_id', currentStoreId)
         .in('product_id', productIds)
       if (storeStockData) {
@@ -959,7 +978,7 @@ export class ProductsService {
     if (!isMainStore && currentStoreId) {
       const { data: storeStockData } = await supabaseAdmin
         .from('store_stock')
-        .select('product_id, cost, price, online_price')
+        .select('product_id, cost, price, minimum_sale_price, online_price')
         .eq('store_id', currentStoreId)
         .in('product_id', data.map((row: { id: string }) => row.id))
 
@@ -987,6 +1006,7 @@ export class ProductsService {
         brand: row.brand,
         reference: row.reference,
         price: financials.price,
+        minimumSalePrice: financials.minimumSalePrice,
         onlinePrice: financials.onlinePrice,
         cost: financials.cost,
         stock,
@@ -1011,6 +1031,7 @@ export class ProductsService {
         brand: productData.brand || null, // Convertir string vacío a null
         reference: productData.reference,
         price: productData.price,
+        minimum_sale_price: productData.minimumSalePrice,
         online_price: productData.onlinePrice ?? 0,
         cost: productData.cost,
         stock_warehouse: productData.stock.warehouse,
@@ -1081,6 +1102,7 @@ export class ProductsService {
         brand: data.brand,
         reference: data.reference,
         price: data.price,
+        minimumSalePrice: data.minimum_sale_price ?? data.cost ?? 0,
         onlinePrice: data.online_price ?? 0,
         cost: data.cost,
         stock: {
@@ -1188,6 +1210,7 @@ export class ProductsService {
       if (isMainStore) {
         // Tienda principal: actualizar en products
         if (updates.price !== undefined) updateData.price = updates.price
+        if (updates.minimumSalePrice !== undefined) updateData.minimum_sale_price = updates.minimumSalePrice
         if (updates.onlinePrice !== undefined) updateData.online_price = updates.onlinePrice
         if (updates.cost !== undefined) updateData.cost = updates.cost
         if (updates.stock) {
@@ -1196,10 +1219,11 @@ export class ProductsService {
         }
       } else {
         // Microtienda: actualizar cost/price/online_price en store_stock, stock también en store_stock
-        if (updates.price !== undefined || updates.onlinePrice !== undefined || updates.cost !== undefined || updates.stock) {
+        if (updates.price !== undefined || updates.minimumSalePrice !== undefined || updates.onlinePrice !== undefined || updates.cost !== undefined || updates.stock) {
           const storeStockUpdate: any = {}
 
           if (updates.price !== undefined) storeStockUpdate.price = updates.price
+          if (updates.minimumSalePrice !== undefined) storeStockUpdate.minimum_sale_price = updates.minimumSalePrice
           if (updates.onlinePrice !== undefined) storeStockUpdate.online_price = updates.onlinePrice
           if (updates.cost !== undefined) storeStockUpdate.cost = updates.cost
 
@@ -1361,7 +1385,7 @@ export class ProductsService {
       // Búsqueda simplificada sin timeout - buscar en referencia y nombre
       const { data, error } = await supabase
         .from('products')
-        .select('id, name, description, category_id, brand, reference, price, online_price, cost, stock_warehouse, stock_store, status, image_url, created_at, updated_at')
+        .select('id, name, description, category_id, brand, reference, price, minimum_sale_price, online_price, cost, stock_warehouse, stock_store, status, image_url, created_at, updated_at')
         .or(`reference.ilike.%${cleanQuery}%,name.ilike.%${cleanQuery}%`)
         .order('created_at', { ascending: false })
         .limit(100)
@@ -1387,7 +1411,7 @@ export class ProductsService {
       if (!isMainStore && currentStoreId) {
         const { data: storeStockData } = await supabaseAdmin
           .from('store_stock')
-          .select('product_id, cost, price, online_price')
+          .select('product_id, cost, price, minimum_sale_price, online_price')
           .eq('store_id', currentStoreId)
           .in('product_id', productIds)
 
@@ -1414,6 +1438,7 @@ export class ProductsService {
           brand: product.brand,
           reference: product.reference,
           price: financials.price,
+          minimumSalePrice: financials.minimumSalePrice,
           onlinePrice: financials.onlinePrice,
           cost: financials.cost,
           stock: stock,
@@ -2093,6 +2118,7 @@ export class ProductsService {
         reference: product.reference,
         description: product.name, // Usar el nombre como descripción
         price: product.price,
+        minimum_sale_price: product.cost,
         cost: product.cost,
         stock_warehouse: product.stock,
         stock_store: 0, // Todo el stock va a bodega

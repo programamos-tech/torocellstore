@@ -65,6 +65,7 @@ export function ProductModal({ isOpen, onClose, onSave, product, categories }: P
     reference: product?.reference || '',
     description: product?.description || '',
     price: product?.price || 0,
+    minimumSalePrice: product?.minimumSalePrice ?? product?.cost ?? 0,
     onlinePrice: product?.onlinePrice || 0,
     cost: product?.cost || 0,
     stock: {
@@ -91,6 +92,7 @@ export function ProductModal({ isOpen, onClose, onSave, product, categories }: P
         reference: product.reference || '',
         description: product.description || '',
         price: product.price || 0,
+        minimumSalePrice: product.minimumSalePrice ?? product.cost ?? 0,
         onlinePrice: product.onlinePrice || 0,
         cost: product.cost || 0,
         stock: {
@@ -164,11 +166,16 @@ export function ProductModal({ isOpen, onClose, onSave, product, categories }: P
         newErrors.reference = 'Esta referencia ya existe en otro producto'
       }
     }
-    if (formData.price <= 0) {
-      newErrors.price = 'El precio de venta debe ser mayor a 0'
-    }
     if (formData.cost < 0) {
       newErrors.cost = 'El costo no puede ser negativo'
+    }
+    if (formData.minimumSalePrice < formData.cost) {
+      newErrors.minimumSalePrice = 'El precio mínimo no puede ser menor al precio de adquisición'
+    }
+    if (formData.price <= 0) {
+      newErrors.price = 'El precio al cliente debe ser mayor a 0'
+    } else if (formData.price < formData.minimumSalePrice) {
+      newErrors.price = 'El precio al cliente no puede ser menor al precio mínimo'
     }
     if (formData.stock.warehouse < 0) {
       newErrors.stockWarehouse = 'El stock de bodega no puede ser negativo'
@@ -233,6 +240,7 @@ export function ProductModal({ isOpen, onClose, onSave, product, categories }: P
         reference: formData.reference.trim(),
         description: formData.description.trim(),
         price: formData.price,
+        minimumSalePrice: formData.minimumSalePrice,
         onlinePrice: formData.onlinePrice,
         cost: formData.cost,
         stock: {
@@ -259,6 +267,7 @@ export function ProductModal({ isOpen, onClose, onSave, product, categories }: P
       reference: '',
       description: '',
       price: 0,
+      minimumSalePrice: 0,
       onlinePrice: 0,
       cost: 0,
       stock: {
@@ -469,29 +478,10 @@ export function ProductModal({ isOpen, onClose, onSave, product, categories }: P
                 </div>
 
                 <SectionCard icon={DollarSign} title="Información financiera" iconClass="text-amber-600 dark:text-amber-400">
-                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                    <div>
-                      <label htmlFor="product-price" className="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                        Precio de venta <span className="text-zinc-400 dark:text-zinc-500">*</span>
-                      </label>
-                      <div className="relative">
-                        <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-sm text-zinc-400 dark:text-zinc-500">
-                          $
-                        </span>
-                        <input
-                          id="product-price"
-                          type="text"
-                          value={formatNumber(formData.price)}
-                          onChange={e => handleInputChange('price', parseFormattedNumber(e.target.value))}
-                          className={cn(inputBase, 'pl-8', errors.price && 'border-red-500/70')}
-                          placeholder="0"
-                        />
-                      </div>
-                      {errors.price && <p className="mt-1.5 text-sm text-red-400">{errors.price}</p>}
-                    </div>
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                     <div>
                       <label htmlFor="product-cost" className="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                        Costo de adquisición
+                        Precio de adquisición
                       </label>
                       <div className="relative">
                         <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-sm text-zinc-400 dark:text-zinc-500">
@@ -507,6 +497,46 @@ export function ProductModal({ isOpen, onClose, onSave, product, categories }: P
                         />
                       </div>
                       {errors.cost && <p className="mt-1.5 text-sm text-red-400">{errors.cost}</p>}
+                    </div>
+                    <div>
+                      <label htmlFor="product-minimum-price" className="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                        Precio mínimo de venta
+                      </label>
+                      <div className="relative">
+                        <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-sm text-zinc-400 dark:text-zinc-500">
+                          $
+                        </span>
+                        <input
+                          id="product-minimum-price"
+                          type="text"
+                          value={formatNumber(formData.minimumSalePrice)}
+                          onChange={e => handleInputChange('minimumSalePrice', parseFormattedNumber(e.target.value))}
+                          className={cn(inputBase, 'pl-8', errors.minimumSalePrice && 'border-red-500/70')}
+                          placeholder="0"
+                        />
+                      </div>
+                      {errors.minimumSalePrice && (
+                        <p className="mt-1.5 text-sm text-red-400">{errors.minimumSalePrice}</p>
+                      )}
+                    </div>
+                    <div>
+                      <label htmlFor="product-price" className="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                        Precio al cliente final <span className="text-zinc-400 dark:text-zinc-500">*</span>
+                      </label>
+                      <div className="relative">
+                        <span className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-sm text-zinc-400 dark:text-zinc-500">
+                          $
+                        </span>
+                        <input
+                          id="product-price"
+                          type="text"
+                          value={formatNumber(formData.price)}
+                          onChange={e => handleInputChange('price', parseFormattedNumber(e.target.value))}
+                          className={cn(inputBase, 'pl-8', errors.price && 'border-red-500/70')}
+                          placeholder="0"
+                        />
+                      </div>
+                      {errors.price && <p className="mt-1.5 text-sm text-red-400">{errors.price}</p>}
                     </div>
                   </div>
                 </SectionCard>

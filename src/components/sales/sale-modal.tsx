@@ -600,8 +600,8 @@ export function SaleModal({ isOpen, onClose, onSave, sale, onUpdate }: SaleModal
       })
       
       // Precio mínimo: siempre el costo de adquisición (en Sincelejo y microtiendas)
-      const minPrice = product.cost || 0
-      const priceType = 'costo de adquisición'
+      const minPrice = product.minimumSalePrice ?? product.cost ?? 0
+      const priceType = 'precio mínimo de venta'
       
       console.log('[SALE MODAL] handlePriceBlur - validation:', {
         itemUnitPrice: item.unitPrice,
@@ -716,8 +716,8 @@ export function SaleModal({ isOpen, onClose, onSave, sale, onUpdate }: SaleModal
       const product = findProductById(item.productId)
       if (!product) return
       
-      const minPrice = product.cost || 0
-      const priceType = 'costo de adquisición'
+      const minPrice = product.minimumSalePrice ?? product.cost ?? 0
+      const priceType = 'precio mínimo de venta'
       
       if (item.unitPrice < minPrice) {
         invalidProducts.push(`${item.productName} no puede ser vendido por menos de ${formatCurrency(minPrice)} (${priceType})`)
@@ -1177,7 +1177,7 @@ export function SaleModal({ isOpen, onClose, onSave, sale, onUpdate }: SaleModal
                                       (() => {
                                         const product = findProductById(item.productId)
                                         if (!product) return false
-                                        const minPrice = product.cost || 0
+                                        const minPrice = product.minimumSalePrice ?? product.cost ?? 0
                                         return item.unitPrice && item.unitPrice < minPrice
                                       })()
                                         ? 'border-red-500 dark:border-red-500'

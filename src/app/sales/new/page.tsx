@@ -487,8 +487,8 @@ export default function NewSalePage() {
     if (!product) return
     
     // Precio mínimo: siempre el costo de adquisición (en Sincelejo y microtiendas)
-    const minPrice = product.cost || 0
-    const priceType = 'costo de adquisición'
+    const minPrice = product.minimumSalePrice ?? product.cost ?? 0
+    const priceType = 'precio mínimo de venta'
     
     // Si el precio es menor al mínimo, mostrar alerta
     if (item.unitPrice < minPrice) {
@@ -679,8 +679,8 @@ export default function NewSalePage() {
       const product = findProductById(item.productId)
       if (!product) return
       
-      const minPrice = product.cost || 0
-      const priceType = 'costo de adquisición'
+      const minPrice = product.minimumSalePrice ?? product.cost ?? 0
+      const priceType = 'precio mínimo de venta'
       
       if (item.unitPrice < minPrice) {
         invalidProducts.push(`${item.productName} no puede ser vendido por menos de ${formatCurrency(minPrice)} (${priceType})`)

@@ -153,7 +153,7 @@ export default function VirtualStorePage() {
                         </span>
                       </div>
                       <div className="flex items-center justify-between gap-2 text-xs">
-                        <span className="text-zinc-400">Por mayor</span>
+                        <span className="text-zinc-400">Cliente final</span>
                         <span className="tabular-nums text-zinc-500">{formatCOP(product.price)}</span>
                       </div>
                       <div className="flex items-center justify-between gap-2 text-xs">

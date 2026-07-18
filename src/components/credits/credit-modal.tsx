@@ -408,8 +408,8 @@ export function CreditModal({ isOpen, onClose, onCreateCredit }: CreditModalProp
       if (!product) return
       
       // Precio mínimo: siempre el costo de adquisición (en Sincelejo y microtiendas)
-      const minPrice = product.cost || 0
-      const priceType = 'costo de adquisición'
+      const minPrice = product.minimumSalePrice ?? product.cost ?? 0
+      const priceType = 'precio mínimo de venta'
       
       // Si el precio es menor al mínimo, mostrar alerta
       if (item.unitPrice < minPrice) {
@@ -463,8 +463,8 @@ export function CreditModal({ isOpen, onClose, onCreateCredit }: CreditModalProp
       if (!product) return
       
       // Precio mínimo: siempre el costo de adquisición (en Sincelejo y microtiendas)
-      const minPrice = product.cost || 0
-      const priceType = 'costo de adquisición'
+      const minPrice = product.minimumSalePrice ?? product.cost ?? 0
+      const priceType = 'precio mínimo de venta'
       
       if (item.unitPrice < minPrice) {
         invalidProducts.push(`${item.productName} no puede ser vendido por menos de $${minPrice.toLocaleString('es-CO')} (${priceType})`)

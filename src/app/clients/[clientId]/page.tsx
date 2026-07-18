@@ -24,6 +24,7 @@ function draftFromClient(c: Client): ClientDetailEditDraft {
     state: c.state || '',
     type: c.type,
     status: c.status,
+    birthDate: c.birthDate || '',
   }
 }
 
@@ -134,6 +135,7 @@ export default function ClientDetailPage() {
         state: draft.state.trim(),
         type: draft.type,
         status: draft.status,
+        birthDate: draft.birthDate || null,
       })
       if (success) {
         toast.success('Cliente actualizado')

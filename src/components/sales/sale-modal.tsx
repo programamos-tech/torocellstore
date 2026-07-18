@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useMemo, useCallback } from 'react'
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -20,7 +20,8 @@ import {
   RefreshCw,
   AlertTriangle,
   CheckCircle,
-  Wrench
+  Wrench,
+  Gift
 } from 'lucide-react'
 import { Sale, SaleItem, Product, Client, SalePayment } from '@/types'
 import { useClients } from '@/contexts/clients-context'
@@ -31,6 +32,8 @@ import { ClientModal } from '@/components/clients/client-modal'
 import { isStoreClient } from '@/lib/client-helpers'
 import { AddServiceDialog } from '@/components/sales/add-service-dialog'
 import { isServiceSaleItem } from '@/lib/sale-item-helpers'
+import { BIRTHDAY_DISCOUNT_OPTIONS, isBirthdayToday } from '@/lib/birthday'
+import { cn } from '@/lib/utils'
 
 // Constante para identificar la tienda principal
 const MAIN_STORE_ID = '00000000-0000-0000-0000-000000000001'
@@ -74,6 +77,21 @@ export function SaleModal({ isOpen, onClose, onSave, sale, onUpdate }: SaleModal
   // Estado para cálculo de vuelto (solo efectivo)
   const [receivedAmount, setReceivedAmount] = useState<string>('')
   const [showServiceDialog, setShowServiceDialog] = useState(false)
+  const [birthdayDiscountPercent, setBirthdayDiscountPercent] = useState(0)
+  const skipBirthdayDiscountResetRef = useRef(false)
+
+  const birthdayDiscountAvailable = useMemo(
+    () => isBirthdayToday(selectedClient?.birthDate),
+    [selectedClient?.birthDate]
+  )
+
+  useEffect(() => {
+    if (skipBirthdayDiscountResetRef.current) {
+      skipBirthdayDiscountResetRef.current = false
+      return
+    }
+    setBirthdayDiscountPercent(0)
+  }, [selectedClient?.id])
 
   // Cargar clientes y productos cuando se abre el modal
   useEffect(() => {
@@ -84,6 +102,7 @@ export function SaleModal({ isOpen, onClose, onSave, sale, onUpdate }: SaleModal
       // Si hay una venta para editar (modo edición)
       if (sale && sale.status === 'draft') {
         // Cargar cliente
+        skipBirthdayDiscountResetRef.current = true
         const client = clients.find(c => c.id === sale.clientId)
         if (client) {
           setSelectedClient(client)
@@ -118,6 +137,9 @@ export function SaleModal({ isOpen, onClose, onSave, sale, onUpdate }: SaleModal
         if (sale.tax && sale.tax > 0) {
           setIncludeTax(true)
         }
+        setBirthdayDiscountPercent(
+          sale.discountType === 'percentage' ? sale.discount || 0 : 0
+        )
       } else {
         // Resetear formulario si no hay venta para editar
         setSelectedClient(null)
@@ -129,6 +151,7 @@ export function SaleModal({ isOpen, onClose, onSave, sale, onUpdate }: SaleModal
         setMixedPayments([])
         setShowMixedPayments(false)
         setIncludeTax(false)
+        setBirthdayDiscountPercent(0)
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -432,8 +455,8 @@ export function SaleModal({ isOpen, onClose, onSave, sale, onUpdate }: SaleModal
   const orderedSelectedProducts = useMemo(() => {
     if (selectedProducts.length === 0) return []
     return [...selectedProducts].sort((a, b) => {
-      const aTime = a.addedAt ?? Number(a.id) || 0
-      const bTime = b.addedAt ?? Number(b.id) || 0
+      const aTime = a.addedAt ?? (Number(a.id) || 0)
+      const bTime = b.addedAt ?? (Number(b.id) || 0)
       return bTime - aTime
     })
   }, [selectedProducts])
@@ -450,7 +473,8 @@ export function SaleModal({ isOpen, onClose, onSave, sale, onUpdate }: SaleModal
   
   // IVA automático sobre el total (19% en Colombia)
   const tax = includeTax ? subtotal * 0.19 : 0
-  const total = subtotal + tax
+  const birthdayDiscountAmount = (subtotal * birthdayDiscountPercent) / 100
+  const total = Math.max(0, subtotal + tax - birthdayDiscountAmount)
 
   const getRemainingAmount = () => {
     // Si no hay productos seleccionados, no hay pago que completar
@@ -748,10 +772,10 @@ export function SaleModal({ isOpen, onClose, onSave, sale, onUpdate }: SaleModal
       clientId: selectedClient.id,
       clientName: selectedClient.name,
       total: total,
-      subtotal: subtotal,
+      subtotal: Math.max(0, subtotal - birthdayDiscountAmount),
       tax: tax,
-      discount: 0,
-      discountType: 'amount',
+      discount: birthdayDiscountPercent,
+      discountType: birthdayDiscountPercent > 0 ? 'percentage' : 'amount',
       status: isDraft ? 'draft' : 'completed',
       paymentMethod,
       payments: paymentMethod === 'mixed' ? mixedPayments : undefined,
@@ -802,9 +826,10 @@ export function SaleModal({ isOpen, onClose, onSave, sale, onUpdate }: SaleModal
 
   const handleCreateClient = async (clientData: Omit<Client, 'id' | 'createdAt' | 'updatedAt'>) => {
     try {
-      const newClient = await createClient(clientData)
-      setSelectedClient(newClient)
-      setClientSearch(newClient.name)
+      const result = await createClient(clientData)
+      if (!result.client) return
+      setSelectedClient(result.client)
+      setClientSearch(result.client.name)
       setIsClientModalOpen(false)
     } catch (error) {
       // Error silencioso en producción
@@ -958,6 +983,35 @@ export function SaleModal({ isOpen, onClose, onSave, sale, onUpdate }: SaleModal
                           </Button>
                         </div>
                       </div>
+                      {birthdayDiscountAvailable && (
+                        <div className="mt-3 border-t border-pink-200 pt-3 dark:border-pink-500/30">
+                          <div className="flex items-center gap-2 text-sm font-semibold text-pink-800 dark:text-pink-200">
+                            <Gift className="h-4 w-4" />
+                            ¡Hoy es su cumpleaños!
+                          </div>
+                          <div className="mt-2 grid grid-cols-5 gap-1.5">
+                            {BIRTHDAY_DISCOUNT_OPTIONS.map((percent) => (
+                              <button
+                                key={percent}
+                                type="button"
+                                onClick={() =>
+                                  setBirthdayDiscountPercent(
+                                    birthdayDiscountPercent === percent ? 0 : percent
+                                  )
+                                }
+                                className={cn(
+                                  'rounded-md border py-1.5 text-xs font-bold',
+                                  birthdayDiscountPercent === percent
+                                    ? 'border-pink-600 bg-pink-600 text-white'
+                                    : 'border-pink-300 bg-white text-pink-700 dark:border-pink-500/50 dark:bg-neutral-900 dark:text-pink-300'
+                                )}
+                              >
+                                {percent}%
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   )}
                 </CardContent>
@@ -1459,6 +1513,13 @@ export function SaleModal({ isOpen, onClose, onSave, sale, onUpdate }: SaleModal
                               </div>
                             )}
                           </div>
+
+                          {birthdayDiscountPercent > 0 && (
+                            <div className="flex justify-between font-semibold text-pink-700 dark:text-pink-300">
+                              <span>Descuento cumpleaños ({birthdayDiscountPercent}%):</span>
+                              <span>-${birthdayDiscountAmount.toLocaleString('es-CO')}</span>
+                            </div>
+                          )}
 
                           <div className="border-t border-gray-200 dark:border-neutral-600 pt-2">
                             <div className="flex justify-between text-base font-semibold">

@@ -143,6 +143,8 @@ export interface Client {
   city: string
   state: string
   type: 'minorista' | 'mayorista' | 'consumidor_final'
+  /** Fecha de nacimiento en formato YYYY-MM-DD. */
+  birthDate?: string | null
   creditLimit: number
   currentDebt: number
   status: 'active' | 'inactive'

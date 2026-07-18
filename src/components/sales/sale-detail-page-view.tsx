@@ -339,6 +339,18 @@ export function SaleDetailPageView({ sale, onBack, onPrint, onCancel }: SaleDeta
                 </div>
               </div>
               <dl className="divide-y divide-zinc-100 dark:divide-zinc-800">
+                {sale.discount != null && sale.discount > 0.001 && (
+                  <div className="px-4 py-3">
+                    <dt className="text-[11px] font-medium uppercase tracking-wide text-zinc-500">
+                      Descuento
+                    </dt>
+                    <dd className="mt-1 text-base font-semibold tabular-nums text-pink-600 dark:text-pink-400">
+                      {sale.discountType === 'percentage'
+                        ? `-${sale.discount}%`
+                        : `-${formatCurrency(sale.discount)}`}
+                    </dd>
+                  </div>
+                )}
                 <div className="px-4 py-3">
                   <dt className="text-[11px] font-medium uppercase tracking-wide text-zinc-500">Total</dt>
                   <dd className="mt-1 text-base font-semibold tabular-nums text-zinc-900 dark:text-zinc-100">

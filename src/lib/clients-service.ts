@@ -47,6 +47,7 @@ export class ClientsService {
         city: client.city,
         state: client.state,
         type: client.type,
+        birthDate: client.birth_date || null,
         creditLimit: client.credit_limit || 0,
         currentDebt: client.current_debt || 0,
         status: client.status,
@@ -90,6 +91,7 @@ export class ClientsService {
         city: data.city,
         state: data.state,
         type: data.type,
+        birthDate: data.birth_date || null,
         creditLimit: data.credit_limit || 0,
         currentDebt: data.current_debt || 0,
         status: data.status,
@@ -124,6 +126,7 @@ export class ClientsService {
           city: clientData.city,
           state: clientData.state,
           type: clientData.type,
+          birth_date: clientData.birthDate || null,
           credit_limit: clientData.creditLimit,
           current_debt: clientData.currentDebt,
           status: clientData.status,
@@ -156,6 +159,7 @@ export class ClientsService {
         city: data.city,
         state: data.state,
         type: data.type,
+        birthDate: data.birth_date || null,
         creditLimit: data.credit_limit || 0,
         currentDebt: data.current_debt || 0,
         status: data.status,
@@ -224,6 +228,7 @@ export class ClientsService {
       if (updates.city) updateData.city = updates.city
       if (updates.state) updateData.state = updates.state
       if (updates.type) updateData.type = updates.type
+      if (updates.birthDate !== undefined) updateData.birth_date = updates.birthDate || null
       if (updates.creditLimit !== undefined) updateData.credit_limit = updates.creditLimit
       if (updates.currentDebt !== undefined) updateData.current_debt = updates.currentDebt
       if (updates.status) updateData.status = updates.status
@@ -385,6 +390,7 @@ export class ClientsService {
         city: client.city,
         state: client.state,
         type: client.type,
+        birthDate: client.birth_date || null,
         creditLimit: client.credit_limit || 0,
         currentDebt: client.current_debt || 0,
         status: client.status,

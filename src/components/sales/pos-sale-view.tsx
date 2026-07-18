@@ -18,6 +18,7 @@ import {
   Wallet,
   X,
   Wrench,
+  Gift,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -25,6 +26,7 @@ import { cn } from '@/lib/utils'
 import type { Client, Product, SaleItem, SalePayment } from '@/types'
 import { StoreBadge } from '@/components/ui/store-badge'
 import { isServiceSaleItem } from '@/lib/sale-item-helpers'
+import { BIRTHDAY_DISCOUNT_OPTIONS } from '@/lib/birthday'
 
 const inputClass =
   'w-full rounded-xl border border-zinc-200 bg-white px-3 py-2.5 text-sm text-zinc-900 placeholder:text-zinc-400 focus:border-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-400/25 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100 dark:placeholder:text-zinc-500 dark:focus:border-zinc-500 dark:focus:ring-zinc-500/20'
@@ -55,6 +57,11 @@ export interface PosSaleViewProps {
   setSelectedClient: (client: Client | null) => void
   handleRemoveClient: () => void
   getClientTypeColor: (type: string) => string
+  birthdayDiscountAvailable: boolean
+  birthdayDiscountPercent: number
+  setBirthdayDiscountPercent: (value: number) => void
+  subtotal: number
+  birthdayDiscountAmount: number
   productSearch: string
   setProductSearch: (value: string) => void
   isSearchingProducts: boolean
@@ -156,6 +163,11 @@ export function PosSaleView({
   setSelectedClient,
   handleRemoveClient,
   getClientTypeColor,
+  birthdayDiscountAvailable,
+  birthdayDiscountPercent,
+  setBirthdayDiscountPercent,
+  subtotal,
+  birthdayDiscountAmount,
   productSearch,
   setProductSearch,
   isSearchingProducts,
@@ -293,6 +305,35 @@ export function PosSaleView({
                     ))}
                   </div>
                 )}
+              </div>
+            )}
+            {selectedClient && birthdayDiscountAvailable && (
+              <div className="rounded-xl border border-pink-300 bg-pink-50 p-2.5 dark:border-pink-500/40 dark:bg-pink-950/25">
+                <div className="flex items-center gap-1.5 text-xs font-bold text-pink-800 dark:text-pink-200">
+                  <Gift className="h-3.5 w-3.5" />
+                  Cumpleaños · descuento
+                </div>
+                <div className="mt-2 grid grid-cols-5 gap-1">
+                  {BIRTHDAY_DISCOUNT_OPTIONS.map((percent) => (
+                    <button
+                      key={percent}
+                      type="button"
+                      onClick={() =>
+                        setBirthdayDiscountPercent(
+                          birthdayDiscountPercent === percent ? 0 : percent
+                        )
+                      }
+                      className={cn(
+                        'rounded-md border py-1.5 text-[10px] font-bold',
+                        birthdayDiscountPercent === percent
+                          ? 'border-pink-600 bg-pink-600 text-white'
+                          : 'border-pink-300 bg-white text-pink-700 dark:border-pink-500/50 dark:bg-zinc-900 dark:text-pink-300'
+                      )}
+                    >
+                      {percent}%
+                    </button>
+                  ))}
+                </div>
               </div>
             )}
           </div>
@@ -534,6 +575,18 @@ export function PosSaleView({
             )}
 
             <div className="rounded-2xl border-2 border-zinc-200 bg-white px-4 py-3 dark:border-zinc-700 dark:bg-zinc-950">
+              {birthdayDiscountPercent > 0 && (
+                <div className="mb-2 space-y-1 border-b border-zinc-200 pb-2 text-xs dark:border-zinc-800">
+                  <div className="flex justify-between text-zinc-500">
+                    <span>Subtotal</span>
+                    <span>{formatCurrency(subtotal)}</span>
+                  </div>
+                  <div className="flex justify-between font-bold text-pink-700 dark:text-pink-300">
+                    <span>Cumpleaños ({birthdayDiscountPercent}%)</span>
+                    <span>-{formatCurrency(birthdayDiscountAmount)}</span>
+                  </div>
+                </div>
+              )}
               <p className="text-[10px] font-semibold uppercase tracking-wide text-zinc-500">Total a cobrar</p>
               <p className="text-3xl font-bold tabular-nums text-zinc-900 dark:text-zinc-50">
                 {formatCurrency(total)}

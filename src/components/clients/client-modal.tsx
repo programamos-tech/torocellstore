@@ -11,8 +11,10 @@ import {
   MapPin,
   UserPen,
   ToggleLeft,
+  Cake,
 } from 'lucide-react'
 import { Client } from '@/types'
+import { localTodayIsoDate } from '@/lib/birthday'
 import { cn } from '@/lib/utils'
 import { MODAL_PANEL, MODAL_BACKDROP_PAD } from '@/config/modal-layout'
 
@@ -58,6 +60,7 @@ export function ClientModal({ isOpen, onClose, onSave, client }: ClientModalProp
     city: client?.city || '',
     state: client?.state || '',
     type: client?.type || 'consumidor_final',
+    birthDate: client?.birthDate || '',
     status: client?.status || 'active',
   })
 
@@ -79,6 +82,7 @@ export function ClientModal({ isOpen, onClose, onSave, client }: ClientModalProp
         city: client.city || '',
         state: client.state || '',
         type: client.type || 'consumidor_final',
+        birthDate: client.birthDate || '',
         status: client.status || 'active',
       })
     } else {
@@ -91,6 +95,7 @@ export function ClientModal({ isOpen, onClose, onSave, client }: ClientModalProp
         city: '',
         state: '',
         type: 'consumidor_final',
+        birthDate: '',
         status: 'active',
       })
     }
@@ -141,6 +146,7 @@ export function ClientModal({ isOpen, onClose, onSave, client }: ClientModalProp
         city: formData.city.trim(),
         state: formData.state.trim(),
         type: formData.type as Client['type'],
+        birthDate: formData.birthDate || null,
         status: formData.status as Client['status'],
         creditLimit: 0,
         currentDebt: 0,
@@ -162,6 +168,7 @@ export function ClientModal({ isOpen, onClose, onSave, client }: ClientModalProp
       city: '',
       state: '',
       type: 'consumidor_final',
+      birthDate: '',
       status: 'active',
     })
     setErrors({})
@@ -270,6 +277,26 @@ export function ClientModal({ isOpen, onClose, onSave, client }: ClientModalProp
                       )
                     })}
                   </div>
+                </div>
+
+                <div>
+                  <label htmlFor="client-birth-date" className="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                    Fecha de cumpleaños <span className="font-normal text-zinc-500">(opcional)</span>
+                  </label>
+                  <div className="relative">
+                    <Cake className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-pink-500" />
+                    <input
+                      id="client-birth-date"
+                      type="date"
+                      value={formData.birthDate}
+                      max={localTodayIsoDate()}
+                      onChange={(e) => handleInputChange('birthDate', e.target.value)}
+                      className={cn(inputBase, 'pl-10')}
+                    />
+                  </div>
+                  <p className="mt-1.5 text-xs text-zinc-500 dark:text-zinc-400">
+                    El día de su cumpleaños se habilitarán descuentos especiales al facturar.
+                  </p>
                 </div>
               </div>
             </SectionCard>

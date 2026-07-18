@@ -24,7 +24,8 @@ import {
   Search,
   ShoppingCart,
   ChevronDown,
-  AlertTriangle
+  AlertTriangle,
+  Gift
 } from 'lucide-react'
 import { Credit, Client, SaleItem, Product } from '@/types'
 import { useProducts } from '@/contexts/products-context'
@@ -36,6 +37,7 @@ import { cn } from '@/lib/utils'
 import { cardShell as cardShellBase } from '@/lib/card-shell'
 import { isStoreClient } from '@/lib/client-helpers'
 import { MODAL_PANEL, MODAL_BACKDROP_PAD } from '@/config/modal-layout'
+import { BIRTHDAY_DISCOUNT_OPTIONS, isBirthdayToday } from '@/lib/birthday'
 
 /** Altura cómoda en modal (tablet / dedo) — evita campos “apretados” verticalmente */
 const inputComfort = 'min-h-11 px-3 py-2.5 text-sm'
@@ -94,6 +96,16 @@ export function CreditModal({ isOpen, onClose, onCreateCredit }: CreditModalProp
   /** Solo al navegar con teclado: evita que scrollIntoView luche con el scroll del mouse en el listado */
   const scrollHighlightFromKeyboardRef = useRef(false)
   const [mounted, setMounted] = useState(false)
+  const [birthdayDiscountPercent, setBirthdayDiscountPercent] = useState(0)
+
+  const birthdayDiscountAvailable = useMemo(
+    () => isBirthdayToday(selectedClient?.birthDate),
+    [selectedClient?.birthDate]
+  )
+
+  useEffect(() => {
+    setBirthdayDiscountPercent(0)
+  }, [selectedClient?.id])
 
   useLayoutEffect(() => {
     setMounted(true)
@@ -424,13 +436,18 @@ export function CreditModal({ isOpen, onClose, onCreateCredit }: CreditModalProp
   }
 
   const calculateTotal = () => {
-    const subtotal = selectedProducts.reduce((total, item) => total + (item as SaleItem & { totalPrice?: number }).totalPrice, 0)
+    const subtotal = calculateSubtotal()
     const tax = includeTax ? subtotal * 0.19 : 0
-    return subtotal + tax
+    const discount = (subtotal * birthdayDiscountPercent) / 100
+    return Math.max(0, subtotal + tax - discount)
   }
 
   const calculateSubtotal = () => {
-    return selectedProducts.reduce((total, item) => total + (item as SaleItem & { totalPrice?: number }).totalPrice, 0)
+    return selectedProducts.reduce(
+      (total, item) =>
+        total + (item.total ?? (item as SaleItem & { totalPrice?: number }).totalPrice ?? 0),
+      0
+    )
   }
 
   const calculateTax = () => {
@@ -501,15 +518,19 @@ export function CreditModal({ isOpen, onClose, onCreateCredit }: CreditModalProp
         tax: 0
       }))
       
+      const grossSubtotal = calculateSubtotal()
+      const birthdayDiscountAmount = (grossSubtotal * birthdayDiscountPercent) / 100
+
       // Crear la venta
       const saleData = {
         clientId: formData.clientId,
         clientName: client.name,
         items: saleItems,
         total: calculateTotal(),
-        subtotal: calculateSubtotal(),
+        subtotal: Math.max(0, grossSubtotal - birthdayDiscountAmount),
         tax: calculateTax(),
-        discount: 0,
+        discount: birthdayDiscountPercent,
+        discountType: birthdayDiscountPercent > 0 ? 'percentage' as const : 'amount' as const,
         status: isDraft ? 'draft' : 'completed',
         paymentMethod: 'credit',
         notes: formData.notes,
@@ -558,6 +579,7 @@ export function CreditModal({ isOpen, onClose, onCreateCredit }: CreditModalProp
     setShowProductDropdown(false)
     setSelectedDate(null)
     setIncludeTax(false)
+    setBirthdayDiscountPercent(0)
     setStockAlert({show: false, message: ''})
   }
 
@@ -902,6 +924,35 @@ export function CreditModal({ isOpen, onClose, onCreateCredit }: CreditModalProp
                       <div>{selectedClient.email}</div>
                       <div>{selectedClient.phone}</div>
                     </div>
+                    {birthdayDiscountAvailable && (
+                      <div className="mt-3 border-t border-pink-200 pt-3 dark:border-pink-500/30">
+                        <div className="flex items-center gap-1.5 font-bold text-pink-800 dark:text-pink-200">
+                          <Gift className="h-4 w-4" />
+                          ¡Hoy es su cumpleaños!
+                        </div>
+                        <div className="mt-2 grid grid-cols-5 gap-1">
+                          {BIRTHDAY_DISCOUNT_OPTIONS.map((percent) => (
+                            <button
+                              key={percent}
+                              type="button"
+                              onClick={() =>
+                                setBirthdayDiscountPercent(
+                                  birthdayDiscountPercent === percent ? 0 : percent
+                                )
+                              }
+                              className={cn(
+                                'rounded-md border py-1.5 font-bold',
+                                birthdayDiscountPercent === percent
+                                  ? 'border-pink-600 bg-pink-600 text-white'
+                                  : 'border-pink-300 bg-white text-pink-700 dark:border-pink-500/50 dark:bg-zinc-900 dark:text-pink-300'
+                              )}
+                            >
+                              {percent}%
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
               </CardContent>
@@ -977,6 +1028,15 @@ export function CreditModal({ isOpen, onClose, onCreateCredit }: CreditModalProp
                           </div>
                         ))}
                       </div>
+
+                      {birthdayDiscountPercent > 0 && (
+                        <div className="flex min-w-0 items-center justify-between gap-2 text-sm font-semibold text-pink-700 dark:text-pink-300">
+                          <span>Descuento cumpleaños ({birthdayDiscountPercent}%)</span>
+                          <span>
+                            -${((calculateSubtotal() * birthdayDiscountPercent) / 100).toLocaleString('es-CO')}
+                          </span>
+                        </div>
+                      )}
 
                       <div className="border-t border-zinc-200 pt-2 dark:border-zinc-700">
                         <div className="flex min-w-0 items-center justify-between gap-2 text-sm">

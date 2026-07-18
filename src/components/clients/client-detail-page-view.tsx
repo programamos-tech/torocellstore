@@ -17,6 +17,7 @@ import {
   User,
   FileText,
   Calendar,
+  Cake,
   Hash,
   Store,
   Copy,
@@ -29,6 +30,7 @@ import {
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 import { UserAvatar } from '@/components/ui/user-avatar'
+import { formatBirthDateDisplay, localTodayIsoDate } from '@/lib/birthday'
 import { Client, Credit } from '@/types'
 import {
   creditStatusBadgeClass,
@@ -51,7 +53,9 @@ const inputClass =
 export type ClientDetailEditDraft = Pick<
   Client,
   'name' | 'email' | 'phone' | 'document' | 'address' | 'city' | 'state' | 'type' | 'status'
->
+> & {
+  birthDate: string
+}
 
 function Field({ label, children, className }: { label: string; children: ReactNode; className?: string }) {
   return (
@@ -407,6 +411,24 @@ export function ClientDetailPageView({
               </span>
               {storeSublabel(client.storeId) && (
                 <p className="mt-1 break-all font-mono text-xs text-zinc-500 dark:text-zinc-400">{storeSublabel(client.storeId)}</p>
+              )}
+            </Field>
+            <Field label="Cumpleaños">
+              {editing && draft ? (
+                <input
+                  type="date"
+                  value={draft.birthDate}
+                  max={localTodayIsoDate()}
+                  onChange={(e) => onDraftChange({ birthDate: e.target.value })}
+                  className={inputClass}
+                />
+              ) : client.birthDate ? (
+                <span className="inline-flex items-center gap-1.5 tabular-nums">
+                  <Cake className="h-3.5 w-3.5 shrink-0 text-pink-500" strokeWidth={1.5} />
+                  {formatBirthDateDisplay(client.birthDate)}
+                </span>
+              ) : (
+                <span className="text-zinc-500">Sin fecha</span>
               )}
             </Field>
             <Field label="Alta en el sistema">

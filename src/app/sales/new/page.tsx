@@ -20,7 +20,8 @@ import {
   ArrowLeft,
   ShoppingCart,
   LayoutGrid,
-  Wrench
+  Wrench,
+  Gift
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { RoleProtectedRoute } from '@/components/auth/role-protected-route'
@@ -37,6 +38,7 @@ import { useTopSoldProducts } from '@/hooks/use-top-sold-products'
 import { PosSaleView } from '@/components/sales/pos-sale-view'
 import { AddServiceDialog } from '@/components/sales/add-service-dialog'
 import { isServiceSaleItem } from '@/lib/sale-item-helpers'
+import { BIRTHDAY_DISCOUNT_OPTIONS, isBirthdayToday } from '@/lib/birthday'
 
 // Constante para identificar la tienda principal
 const MAIN_STORE_ID = '00000000-0000-0000-0000-000000000001'
@@ -82,6 +84,16 @@ export default function NewSalePage() {
   const [paymentError, setPaymentError] = useState('')
   const [receivedAmount, setReceivedAmount] = useState<string>('')
   const [showServiceDialog, setShowServiceDialog] = useState(false)
+  const [birthdayDiscountPercent, setBirthdayDiscountPercent] = useState(0)
+
+  const birthdayDiscountAvailable = useMemo(
+    () => isBirthdayToday(selectedClient?.birthDate),
+    [selectedClient?.birthDate]
+  )
+
+  useEffect(() => {
+    setBirthdayDiscountPercent(0)
+  }, [selectedClient?.id])
 
   useEffect(() => {
     getAllClients()
@@ -572,7 +584,12 @@ export default function NewSalePage() {
     return calculated
   }, [validProductsForTotal])
 
-  const total = subtotal
+  const birthdayDiscountAmount = useMemo(
+    () => (subtotal * birthdayDiscountPercent) / 100,
+    [subtotal, birthdayDiscountPercent]
+  )
+
+  const total = Math.max(0, subtotal - birthdayDiscountAmount)
 
   const getTotalMixedPayments = () => {
     return mixedPayments.reduce((sum, payment) => sum + (payment.amount || 0), 0)
@@ -715,10 +732,10 @@ export default function NewSalePage() {
       clientId: selectedClient.id,
       clientName: selectedClient.name,
       total: total,
-      subtotal: subtotal,
+      subtotal: total,
       tax: 0,
-      discount: 0,
-      discountType: 'amount',
+      discount: birthdayDiscountPercent,
+      discountType: birthdayDiscountPercent > 0 ? 'percentage' : 'amount',
       status: 'completed',
       paymentMethod,
       payments: paymentMethod === 'mixed' ? mixedPayments : undefined,
@@ -787,6 +804,11 @@ export default function NewSalePage() {
             setSelectedClient={setSelectedClient}
             handleRemoveClient={handleRemoveClient}
             getClientTypeColor={getClientTypeColor}
+            birthdayDiscountAvailable={birthdayDiscountAvailable}
+            birthdayDiscountPercent={birthdayDiscountPercent}
+            setBirthdayDiscountPercent={setBirthdayDiscountPercent}
+            subtotal={subtotal}
+            birthdayDiscountAmount={birthdayDiscountAmount}
             productSearch={productSearch}
             setProductSearch={setProductSearch}
             isSearchingProducts={isSearchingProducts}
@@ -1297,6 +1319,39 @@ export default function NewSalePage() {
                           <X className="h-4 w-4" />
                         </Button>
                       </div>
+
+                      {birthdayDiscountAvailable && (
+                        <div className="mt-3 rounded-lg border border-pink-300 bg-pink-50 p-3 dark:border-pink-500/40 dark:bg-pink-950/25">
+                          <div className="flex items-center gap-2 text-sm font-semibold text-pink-800 dark:text-pink-200">
+                            <Gift className="h-4 w-4 shrink-0" strokeWidth={1.75} />
+                            ¡Hoy es su cumpleaños!
+                          </div>
+                          <p className="mt-1 text-xs text-pink-700/80 dark:text-pink-300/80">
+                            Selecciona el descuento que deseas ofrecer.
+                          </p>
+                          <div className="mt-2 grid grid-cols-5 gap-1.5">
+                            {BIRTHDAY_DISCOUNT_OPTIONS.map((percent) => (
+                              <button
+                                key={percent}
+                                type="button"
+                                onClick={() =>
+                                  setBirthdayDiscountPercent(
+                                    birthdayDiscountPercent === percent ? 0 : percent
+                                  )
+                                }
+                                className={cn(
+                                  'rounded-md border px-1 py-1.5 text-xs font-bold transition-colors',
+                                  birthdayDiscountPercent === percent
+                                    ? 'border-pink-600 bg-pink-600 text-white'
+                                    : 'border-pink-300 bg-white text-pink-700 hover:bg-pink-100 dark:border-pink-500/50 dark:bg-zinc-900 dark:text-pink-300 dark:hover:bg-pink-950/40'
+                                )}
+                              >
+                                {percent}%
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   )}
 
@@ -1483,6 +1538,18 @@ export default function NewSalePage() {
                       </div>
 
                       <div className="border-t border-zinc-200 pt-3 dark:border-zinc-800">
+                        {birthdayDiscountPercent > 0 && (
+                          <div className="mb-2 space-y-1.5 text-sm">
+                            <div className="flex justify-between text-zinc-600 dark:text-zinc-400">
+                              <span>Subtotal</span>
+                              <span className="tabular-nums">{formatCurrency(subtotal)}</span>
+                            </div>
+                            <div className="flex justify-between font-semibold text-pink-700 dark:text-pink-300">
+                              <span>Descuento cumpleaños ({birthdayDiscountPercent}%)</span>
+                              <span className="tabular-nums">-{formatCurrency(birthdayDiscountAmount)}</span>
+                            </div>
+                          </div>
+                        )}
                         <div className="flex justify-between text-base font-bold">
                           <span className="text-zinc-900 dark:text-zinc-50">Total</span>
                           <span className="tabular-nums text-emerald-700 dark:text-emerald-400">{formatCurrency(total)}</span>

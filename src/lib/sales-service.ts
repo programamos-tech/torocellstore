@@ -639,6 +639,7 @@ export class SalesService {
           subtotal: saleData.subtotal,
           tax: saleData.tax,
           discount: saleData.discount,
+          discount_type: saleData.discountType || 'amount',
           status: saleData.status,
           payment_method: saleData.paymentMethod,
           invoice_number: invoiceNumber,
@@ -890,6 +891,7 @@ export class SalesService {
           subtotal: saleData.subtotal,
           tax: saleData.tax,
           discount: saleData.discount,
+          discount_type: saleData.discountType || 'amount',
           status: saleData.status,
           payment_method: saleData.paymentMethod,
           updated_at: new Date().toISOString()

@@ -20,6 +20,7 @@ import { useAuth } from '@/contexts/auth-context'
 import { cn } from '@/lib/utils'
 import { MODAL_PANEL, MODAL_BACKDROP_PAD } from '@/config/modal-layout'
 import { toast } from 'sonner'
+import { formatSupplierNumber } from '@/lib/supplier-number'
 
 /** Valor guardado en BD: URL absoluta o ruta `invoices/...` dentro del bucket. */
 function supplierInvoiceStoredToPublicUrl(stored: string): string {
@@ -408,7 +409,7 @@ export function SupplierInvoiceModal({
                   <option value="">Seleccionar…</option>
                   {suppliers.map((s) => (
                     <option key={s.id} value={s.id}>
-                      {s.name}
+                      {formatSupplierNumber(s.supplierNumber)} · {s.name}
                     </option>
                   ))}
                 </select>

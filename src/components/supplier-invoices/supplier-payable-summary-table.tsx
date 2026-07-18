@@ -22,10 +22,12 @@ import { SupplierInvoice } from '@/types'
 import { StoreBadge } from '@/components/ui/store-badge'
 import { UserAvatar } from '@/components/ui/user-avatar'
 import { cn } from '@/lib/utils'
+import { formatSupplierNumber } from '@/lib/supplier-number'
 
 export type SupplierPayableGroup = {
   supplierId: string
   supplierName: string
+  supplierNumber?: number
   invoiceCount: number
   totalAmount: number
   paidAmount: number
@@ -94,6 +96,7 @@ export function groupInvoicesBySupplier(invoices: SupplierInvoice[]): SupplierPa
     const supplierName =
       list.find((i) => (i.supplierName || '').trim())?.supplierName?.trim() ||
       (supplierId === '__sin_proveedor__' ? 'Sin proveedor' : 'Proveedor')
+    const supplierNumber = list.find((invoice) => invoice.supplierNumber)?.supplierNumber
 
     const totalAmount = active.reduce((s, i) => s + i.totalAmount, 0)
     const paidAmount = active.reduce((s, i) => s + i.paidAmount, 0)
@@ -113,6 +116,7 @@ export function groupInvoicesBySupplier(invoices: SupplierInvoice[]): SupplierPa
     groups.push({
       supplierId: supplierId === '__sin_proveedor__' ? '' : supplierId,
       supplierName,
+      supplierNumber,
       invoiceCount: list.length,
       totalAmount,
       paidAmount,
@@ -161,7 +165,10 @@ export function SupplierPayableSummaryTable({
   const filtered = groups.filter((g) => {
     const name = (g.supplierName || '').toLowerCase()
     const q = searchTerm.toLowerCase()
-    const matchesSearch = !q || name.includes(q)
+    const supplierCode = g.supplierNumber
+      ? formatSupplierNumber(g.supplierNumber).toLowerCase()
+      : ''
+    const matchesSearch = !q || name.includes(q) || supplierCode.includes(q)
     const matchesStatus = filterStatus === 'all' || g.status === filterStatus
     return matchesSearch && matchesStatus
   })
@@ -317,6 +324,11 @@ export function SupplierPayableSummaryTable({
                           <span className="block truncate font-medium text-zinc-900 dark:text-zinc-100">
                             {g.supplierName}
                           </span>
+                          {g.supplierNumber && (
+                            <p className="font-mono text-[11px] text-sky-700 dark:text-sky-400">
+                              {formatSupplierNumber(g.supplierNumber)}
+                            </p>
+                          )}
                           <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
                             {g.invoiceCount} factura{g.invoiceCount !== 1 ? 's' : ''}
                           </p>
@@ -399,9 +411,16 @@ export function SupplierPayableSummaryTable({
                                 size="xs"
                                 className="shrink-0"
                               />
-                              <span className="line-clamp-2 min-w-0" title={g.supplierName}>
-                                {g.supplierName}
-                              </span>
+                              <div className="min-w-0">
+                                <span className="line-clamp-2 min-w-0" title={g.supplierName}>
+                                  {g.supplierName}
+                                </span>
+                                {g.supplierNumber && (
+                                  <span className="block font-mono text-[11px] font-normal text-sky-700 dark:text-sky-400">
+                                    {formatSupplierNumber(g.supplierNumber)}
+                                  </span>
+                                )}
+                              </div>
                             </div>
                           </td>
                           <td className="whitespace-nowrap px-4 py-3 text-right tabular-nums text-zinc-700 dark:text-zinc-300">

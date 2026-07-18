@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { AuthService } from './auth-service'
 import { StoresService } from './stores-service'
 import { getCurrentUserStoreId, isMainStoreUser } from './store-helper'
+import { ProductSupplierService } from './product-supplier-service'
 
 // Tipo para filtros de stock (funciona tanto para tienda principal como microtiendas)
 export type StockFilter =
@@ -1051,6 +1052,13 @@ export class ProductsService {
         return null
       }
 
+      try {
+        await ProductSupplierService.setAssignment(data.id, productData.supplierId)
+      } catch {
+        await supabase.from('products').delete().eq('id', data.id)
+        return null
+      }
+
       // Crear stock inicial en todas las micro tiendas activas (con cantidad 0)
       const MAIN_STORE_ID = '00000000-0000-0000-0000-000000000001'
       const allStores = await StoresService.getAllStores(false) // Solo tiendas activas
@@ -1100,6 +1108,7 @@ export class ProductsService {
         description: data.description,
         categoryId: data.category_id,
         brand: data.brand,
+        supplierId: productData.supplierId || null,
         reference: data.reference,
         price: data.price,
         minimumSalePrice: data.minimum_sale_price ?? data.cost ?? 0,
@@ -1261,6 +1270,14 @@ export class ProductsService {
 
         if (error) {
           // console.error('[PRODUCTS SERVICE] Error updating product:', error)
+          return false
+        }
+      }
+
+      if ('supplierId' in updates) {
+        try {
+          await ProductSupplierService.setAssignment(id, updates.supplierId)
+        } catch {
           return false
         }
       }

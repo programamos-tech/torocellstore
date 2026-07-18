@@ -47,6 +47,10 @@ export interface Product {
   }
   categoryId: string
   brand: string
+  /** Proveedor asignado al producto en la tienda activa. */
+  supplierId?: string | null
+  supplierName?: string
+  supplierNumber?: number
   status: 'active' | 'inactive' | 'discontinued' | 'out_of_stock'
   /** URL pública (Storage) para catálogo / ficha del producto */
   imageUrl?: string | null
@@ -316,6 +320,7 @@ export interface Credit {
 
 export interface Supplier {
   id: string
+  supplierNumber: number
   name: string
   contact?: string
   phone?: string
@@ -333,6 +338,7 @@ export interface SupplierInvoice {
   id: string
   supplierId: string
   supplierName?: string
+  supplierNumber?: number
   storeId: string
   invoiceNumber: string
   issueDate: string

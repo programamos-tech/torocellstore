@@ -4,13 +4,14 @@ import { useState, useEffect, useLayoutEffect, useRef } from 'react'
 import { createPortal } from 'react-dom'
 import type { LucideIcon } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { X, Package, DollarSign, BarChart3, AlertTriangle, Store, ImageIcon } from 'lucide-react'
-import { Product, Category } from '@/types'
+import { X, Package, DollarSign, BarChart3, AlertTriangle, Store, ImageIcon, Building2 } from 'lucide-react'
+import { Product, Category, Supplier } from '@/types'
 import { useProducts } from '@/contexts/products-context'
 import { useAuth } from '@/contexts/auth-context'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 import { MODAL_PANEL, MODAL_BACKDROP_PAD } from '@/config/modal-layout'
+import { formatSupplierNumber } from '@/lib/supplier-number'
 
 const MAIN_STORE_ID = '00000000-0000-0000-0000-000000000001'
 
@@ -48,9 +49,10 @@ interface ProductModalProps {
   onSave: (product: Omit<Product, 'id'>) => void
   product?: Product | null
   categories: Category[]
+  suppliers: Supplier[]
 }
 
-export function ProductModal({ isOpen, onClose, onSave, product, categories }: ProductModalProps) {
+export function ProductModal({ isOpen, onClose, onSave, product, categories, suppliers }: ProductModalProps) {
   const { products } = useProducts()
   const { user } = useAuth()
   const [mounted, setMounted] = useState(false)
@@ -75,6 +77,7 @@ export function ProductModal({ isOpen, onClose, onSave, product, categories }: P
     },
     categoryId: product?.categoryId || '',
     brand: product?.brand || '',
+    supplierId: product?.supplierId || '',
     status: product?.status || 'active',
     initialLocation: 'store' as 'warehouse' | 'store',
   })
@@ -102,6 +105,7 @@ export function ProductModal({ isOpen, onClose, onSave, product, categories }: P
         },
         categoryId: product.categoryId || '',
         brand: product.brand || '',
+        supplierId: product.supplierId || '',
         status: product.status || 'active',
         initialLocation: 'store' as 'warehouse' | 'store',
       })
@@ -250,6 +254,7 @@ export function ProductModal({ isOpen, onClose, onSave, product, categories }: P
         },
         categoryId: formData.categoryId,
         brand: formData.brand.trim(),
+        supplierId: formData.supplierId || null,
         status: formData.status,
         imageUrl: catalogImageUrl?.trim() || null,
         createdAt: product?.createdAt || new Date().toISOString(),
@@ -277,6 +282,7 @@ export function ProductModal({ isOpen, onClose, onSave, product, categories }: P
       },
       categoryId: '',
       brand: '',
+      supplierId: '',
       status: 'active',
       initialLocation: 'store',
     })
@@ -416,6 +422,29 @@ export function ProductModal({ isOpen, onClose, onSave, product, categories }: P
                         </select>
                         {errors.categoryId && <p className="mt-1.5 text-sm text-red-400">{errors.categoryId}</p>}
                       </div>
+                    </div>
+
+                    <div>
+                      <label htmlFor="product-supplier" className="mb-1.5 flex items-center gap-1.5 text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                        <Building2 className="h-4 w-4 text-sky-600 dark:text-sky-400" strokeWidth={1.75} />
+                        Proveedor <span className="font-normal text-zinc-500">(opcional)</span>
+                      </label>
+                      <select
+                        id="product-supplier"
+                        value={formData.supplierId}
+                        onChange={e => handleInputChange('supplierId', e.target.value)}
+                        className={inputBase}
+                      >
+                        <option value="">Sin proveedor asignado</option>
+                        {suppliers.map(supplier => (
+                          <option key={supplier.id} value={supplier.id}>
+                            {formatSupplierNumber(supplier.supplierNumber)} · {supplier.name}
+                          </option>
+                        ))}
+                      </select>
+                      <p className="mt-1.5 text-xs text-zinc-500 dark:text-zinc-400">
+                        Identifica quién suministra este producto en la tienda activa.
+                      </p>
                     </div>
                   </div>
                 </SectionCard>

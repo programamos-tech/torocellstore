@@ -3,18 +3,20 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { ArrowLeft, Pencil } from 'lucide-react'
+import { ArrowLeft, Pencil, Package } from 'lucide-react'
 import { RoleProtectedRoute } from '@/components/auth/role-protected-route'
 import { SupplierInvoiceTable } from '@/components/supplier-invoices/supplier-invoice-table'
 import { SupplierInvoiceModal } from '@/components/supplier-invoices/supplier-invoice-modal'
 import { SupplierEditModal } from '@/components/supplier-invoices/supplier-edit-modal'
 import { groupInvoicesBySupplier } from '@/components/supplier-invoices/supplier-payable-summary-table'
-import { SupplierInvoice } from '@/types'
+import { Product, Supplier, SupplierInvoice } from '@/types'
 import { SupplierInvoicesService } from '@/lib/supplier-invoices-service'
 import { useAuth } from '@/contexts/auth-context'
 import { usePermissions } from '@/hooks/usePermissions'
 import { cn } from '@/lib/utils'
 import { UserAvatar } from '@/components/ui/user-avatar'
+import { ProductSupplierService } from '@/lib/product-supplier-service'
+import { formatSupplierNumber } from '@/lib/supplier-number'
 
 const SIN_PROVEEDOR_SEGMENT = '__sin_proveedor__'
 
@@ -32,6 +34,8 @@ export default function SupplierPayablesDetailPage() {
   const { user } = useAuth()
   const { canCreate, canEdit } = usePermissions()
   const [invoices, setInvoices] = useState<SupplierInvoice[]>([])
+  const [supplier, setSupplier] = useState<Supplier | null>(null)
+  const [associatedProducts, setAssociatedProducts] = useState<Product[]>([])
   const [loading, setLoading] = useState(true)
   const [invoiceModalOpen, setInvoiceModalOpen] = useState(false)
   const [supplierEditOpen, setSupplierEditOpen] = useState(false)
@@ -39,14 +43,22 @@ export default function SupplierPayablesDetailPage() {
   const loadAll = useCallback(async () => {
     try {
       setLoading(true)
-      const inv = await SupplierInvoicesService.getInvoices()
+      const [inv, supplierData, products] = await Promise.all([
+        SupplierInvoicesService.getInvoices(),
+        supplierKey ? SupplierInvoicesService.getSupplierById(supplierKey) : Promise.resolve(null),
+        supplierKey
+          ? ProductSupplierService.getProductsBySupplier(supplierKey)
+          : Promise.resolve([]),
+      ])
       setInvoices(inv)
+      setSupplier(supplierData)
+      setAssociatedProducts(products)
     } catch {
       setInvoices([])
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [supplierKey])
 
   useEffect(() => {
     loadAll()
@@ -62,13 +74,14 @@ export default function SupplierPayablesDetailPage() {
   )
 
   const supplierName = useMemo(() => {
+    if (supplier?.name) return supplier.name
     const fromInv = supplierInvoices.find((i) => (i.supplierName || '').trim())?.supplierName?.trim()
     if (fromInv) return fromInv
     if (supplierKey === '') return 'Sin proveedor'
     const groups = groupInvoicesBySupplier(invoices)
     const g = groups.find((x) => (x.supplierId || '') === supplierKey)
     return g?.supplierName || 'Proveedor'
-  }, [supplierInvoices, supplierKey, invoices])
+  }, [supplier, supplierInvoices, supplierKey, invoices])
 
   const formatCurrency = (amount: number) =>
     new Intl.NumberFormat('es-CO', {
@@ -92,7 +105,7 @@ export default function SupplierPayablesDetailPage() {
   const defaultSupplierIdForModal = supplierKey
   const canEditThisSupplier = Boolean(supplierKey) && canEdit('supplier_invoices')
 
-  const notFound = !loading && supplierKey !== '' && supplierInvoices.length === 0 && invoices.length > 0
+  const notFound = !loading && supplierKey !== '' && !supplier
 
   return (
     <RoleProtectedRoute module="supplier_invoices" requiredAction="view">
@@ -111,6 +124,7 @@ export default function SupplierPayablesDetailPage() {
                   {supplierName}
                 </h1>
                 <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                  {supplier ? `${formatSupplierNumber(supplier.supplierNumber)} · ` : ''}
                   {supplierInvoices.length} factura{supplierInvoices.length !== 1 ? 's' : ''} · Por pagar{' '}
                   <span className="font-medium tabular-nums text-zinc-700 dark:text-zinc-300">
                     {formatCurrency(pendingTotal)}
@@ -170,6 +184,43 @@ export default function SupplierPayablesDetailPage() {
               isLoading={loading}
               onRefresh={loadAll}
             />
+          )}
+
+          {!notFound && supplierKey && (
+            <section className="mx-4 mt-5 overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900/50 md:mx-6">
+              <div className="flex items-center justify-between border-b border-zinc-200 px-4 py-3 dark:border-zinc-800">
+                <h2 className="flex items-center gap-2 text-sm font-semibold text-zinc-900 dark:text-zinc-100">
+                  <Package className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                  Productos asociados
+                </h2>
+                <span className="text-xs text-zinc-500 dark:text-zinc-400">
+                  {associatedProducts.length}
+                </span>
+              </div>
+              {associatedProducts.length === 0 ? (
+                <p className="px-4 py-8 text-center text-sm text-zinc-500 dark:text-zinc-400">
+                  Este proveedor todavía no tiene productos asignados.
+                </p>
+              ) : (
+                <div className="divide-y divide-zinc-100 dark:divide-zinc-800">
+                  {associatedProducts.map((product) => (
+                    <div key={product.id} className="flex items-center justify-between gap-4 px-4 py-3">
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-medium text-zinc-900 dark:text-zinc-100">
+                          {product.name}
+                        </p>
+                        <p className="font-mono text-xs text-zinc-500 dark:text-zinc-400">
+                          {product.reference}
+                        </p>
+                      </div>
+                      <span className="shrink-0 text-xs text-zinc-500 dark:text-zinc-400">
+                        Stock: {product.stock.total}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </section>
           )}
         </div>
 

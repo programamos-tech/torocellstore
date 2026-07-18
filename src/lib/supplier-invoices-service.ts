@@ -68,6 +68,7 @@ function filterQueryByStoreForId(query: any) {
 function mapSupplier(row: Record<string, unknown>): Supplier {
   return {
     id: row.id as string,
+    supplierNumber: Number(row.supplier_number || 0),
     name: row.name as string,
     contact: (row.contact as string) || undefined,
     phone: (row.phone as string) || undefined,
@@ -100,7 +101,10 @@ function mapInvoice(
   row: Record<string, unknown>,
   supplierName?: string
 ): SupplierInvoice {
-  const suppliers = row.suppliers as { id?: string; name?: string } | null | undefined
+  const suppliers = row.suppliers as
+    | { id?: string; name?: string; supplier_number?: number }
+    | null
+    | undefined
   const name =
     supplierName ||
     (suppliers && typeof suppliers === 'object' ? suppliers.name : undefined)
@@ -112,6 +116,9 @@ function mapInvoice(
     id: row.id as string,
     supplierId: row.supplier_id as string,
     supplierName: name,
+    supplierNumber: suppliers?.supplier_number
+      ? Number(suppliers.supplier_number)
+      : undefined,
     storeId: (row.store_id as string) || MAIN_STORE_ID,
     invoiceNumber: String(row.invoice_number ?? ''),
     issueDate: (row.issue_date as string)?.slice?.(0, 10) || String(row.issue_date),
@@ -169,7 +176,7 @@ export class SupplierInvoicesService {
   }
 
   static async createSupplier(
-    input: Omit<Supplier, 'id' | 'createdAt' | 'updatedAt'>
+    input: Omit<Supplier, 'id' | 'supplierNumber' | 'createdAt' | 'updatedAt'>
   ): Promise<Supplier> {
     const storeId = input.storeId || getCurrentUserStoreId() || MAIN_STORE_ID
     const { data, error } = await supabase
@@ -232,7 +239,7 @@ export class SupplierInvoicesService {
   static async getInvoices(): Promise<SupplierInvoice[]> {
     let query = supabase
       .from('supplier_invoices')
-      .select('*, suppliers(id, name)')
+      .select('*, suppliers(id, name, supplier_number)')
       .order('issue_date', { ascending: false })
       .order('created_at', { ascending: false })
     query = applyStoreFilter(query)
@@ -246,7 +253,7 @@ export class SupplierInvoicesService {
   static async getInvoiceById(id: string): Promise<SupplierInvoice | null> {
     let query = supabase
       .from('supplier_invoices')
-      .select('*, suppliers(id, name)')
+      .select('*, suppliers(id, name, supplier_number)')
       .eq('id', id)
     query = filterQueryByStoreForId(query)
     const { data, error } = await query.maybeSingle()
@@ -289,7 +296,7 @@ export class SupplierInvoicesService {
           created_by: input.createdBy || null
         }
       ])
-      .select('*, suppliers(id, name)')
+      .select('*, suppliers(id, name, supplier_number)')
       .single()
     if (error) throw error
     return mapInvoice(data as Record<string, unknown>)
@@ -333,7 +340,7 @@ export class SupplierInvoicesService {
       .from('supplier_invoices')
       .update(row)
       .eq('id', id)
-      .select('*, suppliers(id, name)')
+      .select('*, suppliers(id, name, supplier_number)')
       .single()
     if (error) throw error
     return mapInvoice(data as Record<string, unknown>)
@@ -357,7 +364,7 @@ export class SupplierInvoicesService {
         updated_at: new Date().toISOString()
       })
       .eq('id', id)
-      .select('*, suppliers(id, name)')
+      .select('*, suppliers(id, name, supplier_number)')
       .single()
     if (error) throw error
     return mapInvoice(data as Record<string, unknown>)

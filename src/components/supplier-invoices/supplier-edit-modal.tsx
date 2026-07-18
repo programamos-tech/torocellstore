@@ -3,11 +3,12 @@
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
-import { Building2, X, User, Phone, Mail, FileText } from 'lucide-react'
+import { Building2, X, User, Phone, Mail, FileText, Hash } from 'lucide-react'
 import { SupplierInvoicesService } from '@/lib/supplier-invoices-service'
 import { cn } from '@/lib/utils'
 import { MODAL_BACKDROP_PAD } from '@/config/modal-layout'
 import { toast } from 'sonner'
+import { formatSupplierNumber } from '@/lib/supplier-number'
 
 /** Formulario corto — no el ancho de “Nuevo producto”. */
 const SUPPLIER_EDIT_PANEL =
@@ -28,6 +29,7 @@ export function SupplierEditModal({ isOpen, onClose, supplierId, onSaved }: Supp
   const [loadError, setLoadError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
   const [name, setName] = useState('')
+  const [supplierNumber, setSupplierNumber] = useState<number | null>(null)
   const [contact, setContact] = useState('')
   const [phone, setPhone] = useState('')
   const [email, setEmail] = useState('')
@@ -48,6 +50,7 @@ export function SupplierEditModal({ isOpen, onClose, supplierId, onSaved }: Supp
           return
         }
         setName(s.name || '')
+        setSupplierNumber(s.supplierNumber)
         setContact(s.contact || '')
         setPhone(s.phone || '')
         setEmail(s.email || '')
@@ -156,6 +159,19 @@ export function SupplierEditModal({ isOpen, onClose, supplierId, onSaved }: Supp
         ) : (
           <form className="flex min-h-0 flex-1 flex-col" onSubmit={handleSubmit}>
             <div className="min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-contain px-4 py-4 dark:bg-zinc-950">
+              <div>
+                <label className="mb-1.5 flex items-center gap-1.5 text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                  <Hash className="h-3.5 w-3.5 text-sky-600 dark:text-sky-400" strokeWidth={2} />
+                  Número de proveedor
+                </label>
+                <div className="rounded-lg border border-zinc-200 bg-zinc-100 px-3 py-2.5 font-mono text-sm font-semibold text-zinc-700 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-200">
+                  {formatSupplierNumber(supplierNumber)}
+                </div>
+                <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+                  Se asigna automáticamente y no se puede modificar.
+                </p>
+              </div>
+
               <div>
                 <label
                   htmlFor="supplier-name"

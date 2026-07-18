@@ -32,6 +32,7 @@ import { getCurrentUserStoreId, isStoreSincelejo } from '@/lib/store-helper'
 import { StoresService } from '@/lib/stores-service'
 import { cn } from '@/lib/utils'
 import { cardShell } from '@/lib/card-shell'
+import { formatSupplierNumber } from '@/lib/supplier-number'
 
 const ITEMS_PER_PAGE = 15
 
@@ -417,6 +418,11 @@ export function ProductTable({
                               <span className="font-mono text-xs font-semibold text-zinc-600 dark:text-zinc-400">{product.reference}</span>
                               <p className="mt-0.5 text-base font-semibold leading-snug text-zinc-900 dark:text-zinc-50">{product.name}</p>
                               <p className="truncate text-xs text-zinc-500 dark:text-zinc-400">{getCategoryName(product.categoryId)}</p>
+                              <p className="mt-1 truncate text-xs text-sky-700 dark:text-sky-400">
+                                {product.supplierName
+                                  ? `${formatSupplierNumber(product.supplierNumber)} · ${product.supplierName}`
+                                  : 'Sin proveedor asignado'}
+                              </p>
                             </div>
                             <Badge variant="outline" className={cn('shrink-0 border px-2 py-0.5 text-[11px] font-normal', getStatusBadgeClass(product.status))}>
                               <span className="flex items-center gap-1">
@@ -480,10 +486,11 @@ export function ProductTable({
 
                 <div className="hidden lg:block">
                   <div className="overflow-x-auto">
-                    <table className="w-full min-w-[760px] border-collapse text-sm">
+                    <table className="w-full min-w-[900px] border-collapse text-sm">
                       <thead>
                         <tr className="border-b border-zinc-200 dark:border-zinc-800">
                           <th className={cn(thClass, 'pl-4')}>Producto</th>
+                          <th className={thClass}>Proveedor</th>
                           {isMainStore ? (
                             <>
                               <th className={thClass}>Bodega</th>
@@ -513,6 +520,22 @@ export function ProductTable({
                                   <p className="mt-0.5 truncate font-semibold text-zinc-900 dark:text-zinc-100">{product.name}</p>
                                   <p className="truncate text-xs text-zinc-500 dark:text-zinc-400">{getCategoryName(product.categoryId)}</p>
                                 </div>
+                              </td>
+                              <td className="max-w-56 px-3 py-3">
+                                {product.supplierName ? (
+                                  <div className="min-w-0">
+                                    <p className="truncate font-medium text-zinc-800 dark:text-zinc-200">
+                                      {product.supplierName}
+                                    </p>
+                                    <p className="font-mono text-[11px] text-zinc-500 dark:text-zinc-400">
+                                      {formatSupplierNumber(product.supplierNumber)}
+                                    </p>
+                                  </div>
+                                ) : (
+                                  <span className="text-xs text-zinc-400 dark:text-zinc-500">
+                                    Sin asignar
+                                  </span>
+                                )}
                               </td>
                               {isMainStore ? (
                                 <>

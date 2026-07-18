@@ -3,6 +3,7 @@
 import React, { createContext, useState, useContext, useEffect, useCallback, ReactNode } from 'react'
 import { Product } from '@/types'
 import { ProductsService, StockFilter } from '@/lib/products-service'
+import { ProductSupplierService } from '@/lib/product-supplier-service'
 import { useAuth } from './auth-context'
 
 interface ProductsContextType {
@@ -51,7 +52,7 @@ export const ProductsProvider = ({ children }: { children: ReactNode }) => {
     if (!silent) setLoading(true)
     try {
       const result = await ProductsService.getAllProducts(1, ITEMS_PER_PAGE, activeFilter)
-      setProducts(result.products)
+      setProducts(await ProductSupplierService.enrichProducts(result.products))
       setCurrentPage(1)
       setTotalProducts(result.total)
       setHasMore(result.hasMore)
@@ -74,7 +75,8 @@ export const ProductsProvider = ({ children }: { children: ReactNode }) => {
   const createProduct = async (productData: Omit<Product, 'id' | 'createdAt' | 'updatedAt'>): Promise<boolean> => {
     const newProduct = await ProductsService.createProduct(productData, currentUser?.id)
     if (newProduct) {
-      setProducts(prev => [newProduct, ...prev])
+      const [enrichedProduct] = await ProductSupplierService.enrichProducts([newProduct])
+      setProducts(prev => [enrichedProduct || newProduct, ...prev])
       // Actualizar el total de productos para que el dashboard se actualice
       setTotalProducts(prev => prev + 1)
       // Notificar cambio para que el dashboard se actualice
@@ -87,8 +89,14 @@ export const ProductsProvider = ({ children }: { children: ReactNode }) => {
   const updateProduct = async (id: string, updates: Partial<Product>): Promise<boolean> => {
     const success = await ProductsService.updateProduct(id, updates, currentUser?.id)
     if (success) {
-      setProducts(prev => prev.map(product => 
-        product.id === id ? { ...product, ...updates } as Product : product
+      const fresh = await ProductsService.getProductById(id)
+      const [enrichedProduct] = fresh
+        ? await ProductSupplierService.enrichProducts([fresh])
+        : []
+      setProducts(prev => prev.map(product =>
+        product.id === id
+          ? enrichedProduct || ({ ...product, ...updates } as Product)
+          : product
       ))
       // Si se actualizó stock, costo o precio, notificar cambio para el dashboard
       if (updates.stock || updates.cost || updates.price || 'imageUrl' in updates) {
@@ -121,10 +129,11 @@ export const ProductsProvider = ({ children }: { children: ReactNode }) => {
     try {
       // Pasar el storeId del usuario para obtener precios correctos de store_stock
       const results = await ProductsService.searchProducts(searchTerm, stockFilter, currentUser?.storeId)
-      setProducts(results)
+      const enrichedResults = await ProductSupplierService.enrichProducts(results)
+      setProducts(enrichedResults)
       setCurrentPage(1) // Resetear a página 1 en búsquedas
       setLoading(false)
-      return results
+      return enrichedResults
     } catch (error) {
       // Error silencioso en producción
       setLoading(false)
@@ -137,7 +146,7 @@ export const ProductsProvider = ({ children }: { children: ReactNode }) => {
     try {
       setLoading(true)
       const result = await ProductsService.getAllProducts(1, ITEMS_PER_PAGE, stockFilter)
-      setProducts(result.products)
+      setProducts(await ProductSupplierService.enrichProducts(result.products))
       setCurrentPage(1)
       setTotalProducts(result.total)
       setHasMore(result.hasMore)
@@ -153,7 +162,7 @@ export const ProductsProvider = ({ children }: { children: ReactNode }) => {
       try {
         setLoading(true)
         const result = await ProductsService.getAllProducts(page, ITEMS_PER_PAGE, stockFilter)
-        setProducts(result.products)
+        setProducts(await ProductSupplierService.enrichProducts(result.products))
         setCurrentPage(page)
         setTotalProducts(result.total)
         setHasMore(result.hasMore)
@@ -168,9 +177,10 @@ export const ProductsProvider = ({ children }: { children: ReactNode }) => {
   const mergeProductFromServer = async (productId: string) => {
     const fresh = await ProductsService.getProductById(productId)
     if (fresh) {
+      const [enrichedProduct] = await ProductSupplierService.enrichProducts([fresh])
       setProducts(prev => {
         if (!prev.some(p => p.id === productId)) return prev
-        return prev.map(p => (p.id === productId ? fresh : p))
+        return prev.map(p => (p.id === productId ? enrichedProduct || fresh : p))
       })
     } else {
       await refreshProducts(undefined, { silent: true })

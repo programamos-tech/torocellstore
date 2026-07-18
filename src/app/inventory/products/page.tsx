@@ -11,9 +11,11 @@ import { ConfirmModal } from '@/components/ui/confirm-modal'
 import { RoleProtectedRoute } from '@/components/auth/role-protected-route'
 import { useProducts } from '@/contexts/products-context'
 import { useCategories } from '@/contexts/categories-context'
-import { Product, Category, StockTransfer } from '@/types'
+import { Product, Category, StockTransfer, Supplier } from '@/types'
 import { toast } from 'sonner'
 import type { StockFilter } from '@/lib/products-service'
+import { SupplierInvoicesService } from '@/lib/supplier-invoices-service'
+import { useAuth } from '@/contexts/auth-context'
 
 const STOCK_FILTERS: StockFilter[] = [
   'all',
@@ -30,6 +32,8 @@ export default function ProductsPage() {
   const searchParams = useSearchParams()
   const { products, loading, currentPage, totalProducts, hasMore, isSearching, stockFilter, setStockFilter, createProduct, updateProduct, deleteProduct, transferStock, adjustStock, refreshProducts, goToPage, searchProducts, productsLastUpdated } = useProducts()
   const { categories, createCategory, toggleCategoryStatus, deleteCategory } = useCategories()
+  const { user } = useAuth()
+  const [suppliers, setSuppliers] = useState<Supplier[]>([])
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null)
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
@@ -47,6 +51,20 @@ export default function ProductsPage() {
       setStockFilter(stock as StockFilter)
     }
   }, [searchParams, setStockFilter])
+
+  useEffect(() => {
+    let cancelled = false
+    SupplierInvoicesService.getSuppliers(true)
+      .then((list) => {
+        if (!cancelled) setSuppliers(list)
+      })
+      .catch(() => {
+        if (!cancelled) setSuppliers([])
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [user?.storeId])
 
   const handleEdit = (product: Product) => {
     setSelectedProduct(product)
@@ -218,6 +236,7 @@ export default function ProductsPage() {
         onSave={handleSaveProduct}
         product={selectedProduct}
         categories={categories}
+        suppliers={suppliers}
       />
 
       <CategoryModal

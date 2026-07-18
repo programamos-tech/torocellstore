@@ -25,7 +25,7 @@ import {
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { RoleProtectedRoute } from '@/components/auth/role-protected-route'
-import { Sale, SaleItem, Product, Client, SalePayment } from '@/types'
+import { Sale, SaleItem, Product, Client, SalePayment, TransferProvider } from '@/types'
 import { useClients } from '@/contexts/clients-context'
 import { useProducts } from '@/contexts/products-context'
 import { useSales } from '@/contexts/sales-context'
@@ -39,6 +39,7 @@ import { PosSaleView } from '@/components/sales/pos-sale-view'
 import { AddServiceDialog } from '@/components/sales/add-service-dialog'
 import { isServiceSaleItem } from '@/lib/sale-item-helpers'
 import { BIRTHDAY_DISCOUNT_OPTIONS, isBirthdayToday } from '@/lib/birthday'
+import { TRANSFER_PROVIDER_OPTIONS } from '@/lib/payment-methods'
 
 // Constante para identificar la tienda principal
 const MAIN_STORE_ID = '00000000-0000-0000-0000-000000000001'
@@ -62,7 +63,8 @@ export default function NewSalePage() {
   
   const [selectedClient, setSelectedClient] = useState<Client | null>(null)
   const [selectedProducts, setSelectedProducts] = useState<SaleItem[]>([])
-  const [paymentMethod, setPaymentMethod] = useState<'cash' | 'transfer' | 'warranty' | 'mixed' | ''>('')
+  const [paymentMethod, setPaymentMethod] = useState<'cash' | 'transfer' | 'card' | 'warranty' | 'mixed' | ''>('')
+  const [transferProvider, setTransferProvider] = useState<TransferProvider | ''>('')
   const [clientSearch, setClientSearch] = useState('')
   const [productSearch, setProductSearch] = useState('')
   const [debouncedProductSearch, setDebouncedProductSearch] = useState('')
@@ -101,6 +103,7 @@ export default function NewSalePage() {
   }, [getAllClients, refreshProducts])
 
   useEffect(() => {
+    if (paymentMethod !== 'transfer') setTransferProvider('')
     if (paymentMethod === 'mixed') {
       setShowMixedPayments(true)
       setMixedPayments([
@@ -606,6 +609,7 @@ export default function NewSalePage() {
     const labels: Record<string, string> = {
       cash: 'Efectivo',
       transfer: 'Transferencia',
+      card: 'Tarjeta / datáfono',
       credit: 'Crédito',
       warranty: 'Garantía'
     }
@@ -713,7 +717,17 @@ export default function NewSalePage() {
       return
     }
 
+    if (paymentMethod === 'transfer' && !transferProvider) {
+      setPaymentError('Selecciona Nequi, Daviplata o Bancolombia.')
+      return
+    }
+
     if (paymentMethod === 'mixed') {
+      const transferPart = mixedPayments.find((payment) => payment.paymentType === 'transfer')
+      if ((transferPart?.amount || 0) > 0 && !transferPart?.transferProvider) {
+        setPaymentError('Selecciona el canal de la transferencia del pago mixto.')
+        return
+      }
       const totalMixedPayments = getTotalMixedPayments()
       const roundedTotal = Math.round(total)
       const roundedPayments = Math.round(totalMixedPayments)
@@ -738,6 +752,8 @@ export default function NewSalePage() {
       discountType: birthdayDiscountPercent > 0 ? 'percentage' : 'amount',
       status: 'completed',
       paymentMethod,
+      transferProvider:
+        paymentMethod === 'transfer' ? transferProvider || undefined : undefined,
       payments: paymentMethod === 'mixed' ? mixedPayments : undefined,
       items: saleItems,
       invoiceNumber: undefined
@@ -783,6 +799,14 @@ export default function NewSalePage() {
     selectedProducts.length > 0 &&
     validProducts.length > 0 &&
     !!paymentMethod &&
+    (paymentMethod !== 'transfer' || !!transferProvider) &&
+    (paymentMethod !== 'mixed' ||
+      !mixedPayments.some(
+        (payment) =>
+          payment.paymentType === 'transfer' &&
+          payment.amount > 0 &&
+          !payment.transferProvider
+      )) &&
     !validProducts.some((item) => !item.unitPrice || item.unitPrice <= 0)
 
   if (posPrefReady && posMode) {
@@ -825,6 +849,8 @@ export default function NewSalePage() {
             findProductById={findProductById}
             paymentMethod={paymentMethod}
             setPaymentMethod={setPaymentMethod}
+            transferProvider={transferProvider}
+            setTransferProvider={setTransferProvider}
             showMixedPayments={showMixedPayments}
             mixedPayments={mixedPayments}
             updateMixedPayment={updateMixedPayment}
@@ -1371,7 +1397,7 @@ export default function NewSalePage() {
                     <select
                       value={paymentMethod}
                       onChange={(e) => {
-                        setPaymentMethod(e.target.value as 'cash' | 'transfer' | 'warranty' | 'mixed' | '')
+                        setPaymentMethod(e.target.value as 'cash' | 'transfer' | 'card' | 'warranty' | 'mixed' | '')
                         if (e.target.value !== 'cash') {
                           setReceivedAmount('')
                         }
@@ -1381,8 +1407,32 @@ export default function NewSalePage() {
                       <option value="">Seleccionar método...</option>
                       <option value="cash">Efectivo</option>
                       <option value="transfer">Transferencia</option>
+                      <option value="card">Tarjeta / datáfono</option>
                       <option value="mixed">Mixto</option>
                     </select>
+
+                  {paymentMethod === 'transfer' && (
+                    <div>
+                      <label className="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                        Cuenta de transferencia
+                      </label>
+                      <select
+                        value={transferProvider}
+                        onChange={(event) => {
+                          setTransferProvider(event.target.value as TransferProvider)
+                          setPaymentError('')
+                        }}
+                        className={inputClass}
+                      >
+                        <option value="">Seleccionar cuenta...</option>
+                        {TRANSFER_PROVIDER_OPTIONS.map((option) => (
+                          <option key={option.value} value={option.value}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
 
                   {showMixedPayments && (
                     <div className="space-y-3 rounded-lg border border-zinc-200/90 bg-zinc-50/90 p-3 dark:border-zinc-700 dark:bg-zinc-900/50">
@@ -1401,6 +1451,26 @@ export default function NewSalePage() {
                             placeholder="0"
                             className={cn(inputClass, 'py-2 text-sm')}
                           />
+                          {payment.paymentType === 'transfer' && (
+                            <select
+                              value={payment.transferProvider || ''}
+                              onChange={(event) =>
+                                updateMixedPayment(
+                                  index,
+                                  'transferProvider',
+                                  event.target.value as TransferProvider
+                                )
+                              }
+                              className={cn(inputClass, 'mt-2 py-2 text-sm')}
+                            >
+                              <option value="">Seleccionar cuenta...</option>
+                              {TRANSFER_PROVIDER_OPTIONS.map((option) => (
+                                <option key={option.value} value={option.value}>
+                                  {option.label}
+                                </option>
+                              ))}
+                            </select>
+                          )}
                         </div>
                       ))}
                       <div className="border-t border-zinc-200 pt-3 dark:border-zinc-800">

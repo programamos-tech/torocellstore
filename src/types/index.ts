@@ -167,10 +167,21 @@ export interface CompanyConfig {
   updatedAt: string
 }
 
+export type TransferProvider = 'nequi' | 'daviplata' | 'bancolombia'
+
+export type SalePaymentMethod =
+  | 'cash'
+  | 'credit'
+  | 'transfer'
+  | 'card'
+  | 'warranty'
+  | 'mixed'
+
 export interface SalePayment {
   id: string
   saleId: string
-  paymentType: 'cash' | 'transfer' | 'credit' | 'warranty'
+  paymentType: 'cash' | 'transfer' | 'card' | 'credit' | 'warranty'
+  transferProvider?: TransferProvider
   amount: number
   reference?: string
   notes?: string
@@ -242,7 +253,8 @@ export interface Sale {
   discount: number
   discountType?: 'percentage' | 'amount'
   status: 'pending' | 'completed' | 'cancelled' | 'draft'
-  paymentMethod: 'cash' | 'credit' | 'transfer' | 'warranty' | 'mixed'
+  paymentMethod: SalePaymentMethod
+  transferProvider?: TransferProvider
   payments?: SalePayment[] // Para pagos mixtos
   invoiceNumber?: string
   sellerId?: string
@@ -372,7 +384,8 @@ export interface PaymentRecord {
   creditId: string | null
   amount: number
   paymentDate: string
-  paymentMethod: 'cash' | 'transfer' | 'mixed'
+  paymentMethod: 'cash' | 'transfer' | 'card' | 'mixed'
+  transferProvider?: TransferProvider
   cashAmount?: number
   transferAmount?: number
   description?: string

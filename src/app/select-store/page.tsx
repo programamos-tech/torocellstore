@@ -106,13 +106,16 @@ export default function SelectStorePage() {
         {/* Header */}
         <div className="text-center mb-6 md:mb-8">
           <div className="flex justify-center mb-3 md:mb-4">
-            <Image
-              src="/logo.jpeg"
-              alt="TOROCELL STORE Logo"
-              width={80}
-              height={80}
-              className="h-20 w-20 rounded-full object-contain bg-black"
-            />
+            <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-full bg-black">
+              <Image
+                src="/logo.jpeg"
+                alt="TOROCELL STORE Logo"
+                fill
+                sizes="80px"
+                className="rounded-full object-cover"
+                priority
+              />
+            </div>
           </div>
           <h1 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white">
             Selecciona la tienda a la que deseas acceder

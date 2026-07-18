@@ -30,6 +30,7 @@ import {
   isCreditCancelled,
 } from '@/lib/credit-status-ui'
 import { displayInvoiceNumber } from '@/lib/invoice-number'
+import { getTransferProviderLabel } from '@/lib/payment-methods'
 
 const panel =
   'rounded-xl border border-zinc-200/90 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900/50'
@@ -190,6 +191,8 @@ export function SaleDetailPageView({ sale, onBack, onPrint, onCancel }: SaleDeta
         return 'Crédito'
       case 'transfer':
         return transfer ? 'Traslado' : 'Transferencia'
+      case 'card':
+        return 'Tarjeta / datáfono'
       case 'warranty':
         return 'Garantía'
       case 'mixed':
@@ -490,6 +493,9 @@ export function SaleDetailPageView({ sale, onBack, onPrint, onCancel }: SaleDeta
                         )}
                       >
                         {getPaymentMethodLabel(sale.paymentMethod)}
+                        {sale.paymentMethod === 'transfer' && sale.transferProvider
+                          ? ` · ${getTransferProviderLabel(sale.transferProvider)}`
+                          : ''}
                       </Badge>
                     </Field>
                     {credit && (
@@ -516,6 +522,9 @@ export function SaleDetailPageView({ sale, onBack, onPrint, onCancel }: SaleDeta
                         >
                           <Badge variant="outline" className="text-xs">
                             {getPaymentMethodLabel(payment.paymentType)}
+                            {payment.paymentType === 'transfer' && payment.transferProvider
+                              ? ` · ${getTransferProviderLabel(payment.transferProvider)}`
+                              : ''}
                           </Badge>
                           <span className="font-medium tabular-nums text-zinc-900 dark:text-zinc-100">
                             {formatCurrency(payment.amount)}

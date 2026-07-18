@@ -225,6 +225,13 @@ export default function ClientCreditsPage() {
         )
       } else if (payload.paymentMethod === 'cash') {
         allocations = allocationsSingleMethod(selectedCredits, 'cash')
+      } else if (payload.paymentMethod === 'card') {
+        allocations = selectedCredits.map((credit) => ({
+          creditId: credit.id,
+          amount: credit.pendingAmount,
+          cashAmount: 0,
+          transferAmount: 0,
+        }))
       } else {
         allocations = allocationsSingleMethod(selectedCredits, 'transfer')
       }
@@ -233,17 +240,23 @@ export default function ClientCreditsPage() {
 
       for (const alloc of allocations) {
         const method =
-          alloc.cashAmount > 0 && alloc.transferAmount > 0
-            ? 'mixed'
-            : alloc.cashAmount > 0
-              ? 'cash'
-              : 'transfer'
+          payload.paymentMethod === 'card'
+            ? 'card'
+            : alloc.cashAmount > 0 && alloc.transferAmount > 0
+              ? 'mixed'
+              : alloc.cashAmount > 0
+                ? 'cash'
+                : 'transfer'
 
         await CreditsService.createPaymentRecord({
           creditId: alloc.creditId,
           amount: alloc.amount,
           paymentDate: payload.paymentDate,
           paymentMethod: method,
+          transferProvider:
+            method === 'transfer' || method === 'mixed'
+              ? payload.transferProvider
+              : undefined,
           cashAmount: method === 'mixed' ? alloc.cashAmount : undefined,
           transferAmount: method === 'mixed' ? alloc.transferAmount : undefined,
           description: desc,

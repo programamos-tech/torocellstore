@@ -303,6 +303,8 @@ export function SalesTable({
         return 'bg-amber-100 text-amber-800 hover:bg-amber-200 hover:text-amber-900 dark:bg-amber-900/25 dark:text-amber-300 dark:hover:bg-amber-900/40'
       case 'transfer':
         return 'bg-sky-100 text-sky-800 hover:bg-sky-200 hover:text-sky-900 dark:bg-sky-900/25 dark:text-sky-300 dark:hover:bg-sky-900/40'
+      case 'card':
+        return 'bg-violet-100 text-violet-800 hover:bg-violet-200 hover:text-violet-900 dark:bg-violet-900/25 dark:text-violet-300 dark:hover:bg-violet-900/40'
       case 'store_transfer':
         return 'bg-orange-100 text-orange-800 hover:bg-orange-200 hover:text-orange-900 dark:bg-orange-900/25 dark:text-orange-300 dark:hover:bg-orange-900/40'
       case 'warranty':
@@ -322,6 +324,8 @@ export function SalesTable({
         return 'Crédito'
       case 'transfer':
         return 'Transferencia'
+      case 'card':
+        return 'Tarjeta / datáfono'
       case 'store_transfer':
         return 'Traslado'
       case 'warranty':
@@ -341,6 +345,8 @@ export function SalesTable({
         return <CreditCard className={className} strokeWidth={1.75} aria-hidden />
       case 'transfer':
         return <ArrowLeftRight className={className} strokeWidth={1.75} aria-hidden />
+      case 'card':
+        return <CreditCard className={className} strokeWidth={1.75} aria-hidden />
       case 'store_transfer':
         return <Truck className={className} strokeWidth={1.75} aria-hidden />
       case 'warranty':

@@ -1,6 +1,7 @@
 import { PaymentRecord, Sale } from '@/types'
 import { StoresService } from '@/lib/stores-service'
 import { getCurrentUserStoreId } from '@/lib/store-helper'
+import { getPaymentMethodLabel, getTransferProviderLabel } from '@/lib/payment-methods'
 
 /**
  * Abre el diálogo de impresión con el ticket HTML de la factura (misma lógica que la lista de ventas).
@@ -94,6 +95,8 @@ export async function printSaleTicket(sale: Sale): Promise<void> {
         return 'Efectivo'
       case 'transfer':
         return 'Transferencia'
+      case 'card':
+        return 'Tarjeta / datáfono'
       case 'mixed':
         return 'Mixto'
       default:
@@ -566,7 +569,7 @@ export async function printSaleTicket(sale: Sale): Promise<void> {
             <div class="payment-info">
               <div class="detail-row">
                 <span>Método de Pago:</span>
-                <span>${sale.paymentMethod === 'cash' ? 'Efectivo' : sale.paymentMethod === 'credit' ? 'Crédito' : sale.paymentMethod === 'transfer' ? 'Transferencia' : sale.paymentMethod === 'warranty' ? 'Garantía' : 'Mixto'}</span>
+                <span>${getPaymentMethodLabel(sale.paymentMethod)}${sale.paymentMethod === 'transfer' && sale.transferProvider ? ` · ${getTransferProviderLabel(sale.transferProvider)}` : ''}</span>
               </div>
               ${
                 sale.paymentMethod === 'mixed' && sale.payments && sale.payments.length > 0
@@ -577,7 +580,7 @@ export async function printSaleTicket(sale: Sale): Promise<void> {
                     .map(
                       payment => `
                     <div style="display: flex; justify-content: space-between; margin-bottom: 2px; font-size: 11px;">
-                      <span>${payment.paymentType === 'cash' ? 'Efectivo' : payment.paymentType === 'transfer' ? 'Transferencia' : payment.paymentType === 'credit' ? 'Crédito' : 'Garantía'}${payment.notes ? ` (${payment.notes})` : ''}:</span>
+                      <span>${getPaymentMethodLabel(payment.paymentType)}${payment.paymentType === 'transfer' && payment.transferProvider ? ` · ${getTransferProviderLabel(payment.transferProvider)}` : ''}${payment.notes ? ` (${payment.notes})` : ''}:</span>
                       <span>${formatCurrency(payment.amount)}</span>
                     </div>
                   `

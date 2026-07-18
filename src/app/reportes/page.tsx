@@ -42,8 +42,9 @@ import { getCurrentUserStoreId, isMainStoreUser } from '@/lib/store-helper'
 import { StoresService } from '@/lib/stores-service'
 import { RoleProtectedRoute } from '@/components/auth/role-protected-route'
 import { StoreBadge } from '@/components/ui/store-badge'
-import { Sale } from '@/types'
+import { Sale, TransferProvider } from '@/types'
 import { CancelledInvoicesModal } from '@/components/dashboard/cancelled-invoices-modal'
+import { TransferBreakdownModal } from '@/components/dashboard/transfer-breakdown-modal'
 import { cn } from '@/lib/utils'
 import { cardShell } from '@/lib/card-shell'
 
@@ -129,6 +130,7 @@ export default function ReportesPage() {
   const [isInitialLoading, setIsInitialLoading] = useState(true)
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null)
   const [showCancelledModal, setShowCancelledModal] = useState(false)
+  const [showTransferBreakdown, setShowTransferBreakdown] = useState(false)
   const [isDarkMode, setIsDarkMode] = useState(false)
   const [hideNumbers, setHideNumbers] = useState(false)
   const [currentStoreName, setCurrentStoreName] = useState<string | null>(null)
@@ -314,22 +316,26 @@ export default function ReportesPage() {
       // Resumen de ventas calculado desde la lista (evita getDashboardSummary y sus N requests)
       let cashRevenue = 0
       let transferRevenue = 0
+      let cardRevenue = 0
       const activeSales = sales.filter((s: Sale) => s.status !== 'cancelled' && s.status !== 'draft')
       activeSales.forEach((sale: Sale) => {
         if (sale.payments?.length) {
           sale.payments.forEach((p: { paymentType: string; amount: number }) => {
             if (p.paymentType === 'cash') cashRevenue += p.amount || 0
             if (p.paymentType === 'transfer') transferRevenue += p.amount || 0
+            if (p.paymentType === 'card') cardRevenue += p.amount || 0
           })
         } else {
           if (sale.paymentMethod === 'cash') cashRevenue += sale.total || 0
           if (sale.paymentMethod === 'transfer') transferRevenue += sale.total || 0
+          if (sale.paymentMethod === 'card') cardRevenue += sale.total || 0
         }
       })
       const salesSummary = {
-        totalRevenue: cashRevenue + transferRevenue,
+        totalRevenue: cashRevenue + transferRevenue + cardRevenue,
         cashRevenue,
         transferRevenue,
+        cardRevenue,
         salesCount: activeSales.length
       }
 
@@ -673,6 +679,18 @@ export default function ReportesPage() {
 
     let cashRevenue = 0
     let transferRevenue = 0
+    let cardRevenue = 0
+    const transferBreakdown: Record<TransferProvider | 'unknown', number> = {
+      nequi: 0,
+      daviplata: 0,
+      bancolombia: 0,
+      unknown: 0,
+    }
+
+    const addTransfer = (amount: number, provider?: TransferProvider) => {
+      transferRevenue += amount
+      transferBreakdown[provider || 'unknown'] += amount
+    }
 
     // Procesar solo ventas activas (no canceladas)
     activeSales.forEach(sale => {
@@ -683,7 +701,9 @@ export default function ReportesPage() {
           if (payment.paymentType === 'cash') {
             cashRevenue += payment.amount || 0
           } else if (payment.paymentType === 'transfer') {
-            transferRevenue += payment.amount || 0
+            addTransfer(payment.amount || 0, payment.transferProvider)
+          } else if (payment.paymentType === 'card') {
+            cardRevenue += payment.amount || 0
           }
         })
       } else {
@@ -691,7 +711,9 @@ export default function ReportesPage() {
         if (sale.paymentMethod === 'cash') {
           cashRevenue += sale.total
         } else if (sale.paymentMethod === 'transfer') {
-          transferRevenue += sale.total
+          addTransfer(sale.total, sale.transferProvider)
+        } else if (sale.paymentMethod === 'card') {
+          cardRevenue += sale.total
         } else if (sale.paymentMethod === 'mixed') {
           // Si es mixed pero no tiene payments, loguear para debugging
           console.warn('[DASHBOARD] Sale with mixed payment method but no payments:', {
@@ -707,11 +729,15 @@ export default function ReportesPage() {
     // Agregar abonos de créditos (efectivo y transferencia) al total de ingresos
     const isCash = (p: { paymentMethod?: string }) => p.paymentMethod === 'cash' || p.paymentMethod === 'efectivo'
     const isTransfer = (p: { paymentMethod?: string }) => p.paymentMethod === 'transfer'
+    const isCard = (p: { paymentMethod?: string }) => p.paymentMethod === 'card'
     cashRevenue += validPaymentRecords.filter(isCash).reduce((sum, payment) => sum + payment.amount, 0)
-    transferRevenue += validPaymentRecords.filter(isTransfer).reduce((sum, payment) => sum + payment.amount, 0)
+    validPaymentRecords.filter(isTransfer).forEach((payment) => {
+      addTransfer(payment.amount, payment.transferProvider)
+    })
+    cardRevenue += validPaymentRecords.filter(isCard).reduce((sum, payment) => sum + payment.amount, 0)
 
-    // Ingresos totales (solo efectivo + transferencia - dinero que realmente ha ingresado)
-    const totalRevenue = cashRevenue + transferRevenue
+    // Ingresos totales cobrados
+    const totalRevenue = cashRevenue + transferRevenue + cardRevenue
 
     // Calcular el saldo pendiente de créditos (no el total de ventas a crédito)
     // Solo contar créditos que están pendientes o parciales (no completados)
@@ -720,7 +746,7 @@ export default function ReportesPage() {
       .reduce((sum, credit) => sum + (credit.pendingAmount || 0), 0)
 
     // Calcular el total real de métodos de pago conocidos
-    const knownPaymentMethodsTotal = cashRevenue + transferRevenue + creditRevenue
+    const knownPaymentMethodsTotal = cashRevenue + transferRevenue + cardRevenue + creditRevenue
 
     // Productos más vendidos - Excluir ventas canceladas
     const productSales: { [key: string]: { name: string; quantity: number; revenue: number } } = {}
@@ -952,7 +978,7 @@ export default function ReportesPage() {
       }
 
       // Usar EXACTAMENTE la misma lógica que cashRevenue y transferRevenue arriba (líneas 425-440)
-      if (sale.paymentMethod === 'cash') {
+      if (sale.paymentMethod === 'cash' || sale.paymentMethod === 'card') {
         acc[date].amount += sale.total
         acc[date].count += 1
       } else if (sale.paymentMethod === 'transfer') {
@@ -965,11 +991,15 @@ export default function ReportesPage() {
             acc[date].amount += payment.amount || 0
           } else if (payment.paymentType === 'transfer') {
             acc[date].amount += payment.amount || 0
+          } else if (payment.paymentType === 'card') {
+            acc[date].amount += payment.amount || 0
           }
         })
         // Solo incrementar count si hay al menos un pago en efectivo/transferencia
         const hasRealPayment = sale.payments.some(p =>
-          p.paymentType === 'cash' || p.paymentType === 'transfer'
+          p.paymentType === 'cash' ||
+          p.paymentType === 'transfer' ||
+          p.paymentType === 'card'
         )
         if (hasRealPayment) {
           acc[date].count += 1
@@ -993,6 +1023,8 @@ export default function ReportesPage() {
         salesByDay[date].amount += payment.amount
       } else if (payment.paymentMethod === 'transfer') {
         salesByDay[date].amount += payment.amount
+      } else if (payment.paymentMethod === 'card') {
+        salesByDay[date].amount += payment.amount
       }
       // No incrementar count para abonos, solo para ventas nuevas
     })
@@ -1010,6 +1042,7 @@ export default function ReportesPage() {
         validPaymentRecordsTotal: validPaymentRecords.reduce((sum, p) => sum + p.amount, 0),
         cashRevenue,
         transferRevenue,
+        cardRevenue,
         activeSalesCount: activeSales.length,
         salesByDayDetails: Object.entries(salesByDay).map(([date, data]) => ({
           date,
@@ -1067,6 +1100,7 @@ export default function ReportesPage() {
     const paymentMethodData = [
       { name: 'Efectivo', value: cashRevenue, color: '#69B275' },
       { name: 'Transferencia', value: transferRevenue, color: '#9DC2D1' },
+      { name: 'Tarjeta / datáfono', value: cardRevenue, color: '#8B5CF6' },
       { name: 'Crédito', value: creditRevenue, color: '#F7BE4B' },
     ].filter(item => item.value > 0)
 
@@ -1083,6 +1117,8 @@ export default function ReportesPage() {
       creditPaymentsRevenue,
       cashRevenue,
       transferRevenue,
+      cardRevenue,
+      transferBreakdown,
       creditRevenue,
       knownPaymentMethodsTotal,
       // Mismo período que totalRevenue (filteredData), no salesSummary: ese contaba la ventana cruda de getDashboardSales (p. ej. 7 días con filtro "Hoy").
@@ -1528,15 +1564,15 @@ export default function ReportesPage() {
                 {formatCurrency(metrics.cashRevenue)}
               </p>
               <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-                {(metrics.cashRevenue + metrics.transferRevenue) > 0
-                  ? `${((metrics.cashRevenue / (metrics.cashRevenue + metrics.transferRevenue)) * 100).toFixed(1)}% del total`
+                {metrics.totalRevenue > 0
+                  ? `${((metrics.cashRevenue / metrics.totalRevenue) * 100).toFixed(1)}% del total`
                   : '0% del total'}
               </p>
             </button>
 
             <button
               type="button"
-              onClick={() => router.push('/sales')}
+              onClick={() => setShowTransferBreakdown(true)}
               className={cn(dashMetricTile, dashMetricTileInteractive)}
             >
               <div className={dashMetricRow}>
@@ -1547,8 +1583,27 @@ export default function ReportesPage() {
                 {formatCurrency(metrics.transferRevenue)}
               </p>
               <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-                {(metrics.cashRevenue + metrics.transferRevenue) > 0
-                  ? `${((metrics.transferRevenue / (metrics.cashRevenue + metrics.transferRevenue)) * 100).toFixed(1)}% del total`
+                {metrics.totalRevenue > 0
+                  ? `${((metrics.transferRevenue / metrics.totalRevenue) * 100).toFixed(1)}% del total`
+                  : '0% del total'}
+              </p>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => router.push('/sales')}
+              className={cn(dashMetricTile, dashMetricTileInteractive)}
+            >
+              <div className={dashMetricRow}>
+                <CreditCard className={dashMetricIconEm} strokeWidth={1.5} aria-hidden />
+                <span className={dashMetricLabelClass}>Tarjeta / datáfono</span>
+              </div>
+              <p className="mt-2.5 text-lg font-semibold tabular-nums text-zinc-900 dark:text-zinc-50 md:text-xl">
+                {formatCurrency(metrics.cardRevenue)}
+              </p>
+              <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
+                {metrics.totalRevenue > 0
+                  ? `${((metrics.cardRevenue / metrics.totalRevenue) * 100).toFixed(1)}% del total`
                   : '0% del total'}
               </p>
             </button>
@@ -1757,11 +1812,11 @@ export default function ReportesPage() {
                         }
 
                         // Sumar efectivo y transferencia
-                        if (sale.paymentMethod === 'cash' || sale.paymentMethod === 'transfer') {
+                        if (sale.paymentMethod === 'cash' || sale.paymentMethod === 'transfer' || sale.paymentMethod === 'card') {
                           monthlyData[monthKey] += sale.total || 0
                         } else if (sale.paymentMethod === 'mixed' && sale.payments) {
                           sale.payments.forEach(payment => {
-                            if (payment.paymentType === 'cash' || payment.paymentType === 'transfer') {
+                            if (payment.paymentType === 'cash' || payment.paymentType === 'transfer' || payment.paymentType === 'card') {
                               monthlyData[monthKey] += payment.amount || 0
                             }
                           })
@@ -1771,7 +1826,7 @@ export default function ReportesPage() {
 
                     // Agregar abonos de créditos
                     filteredData.paymentRecords.forEach((payment: any) => {
-                      if (payment.status !== 'cancelled' && (payment.paymentMethod === 'cash' || payment.paymentMethod === 'efectivo' || payment.paymentMethod === 'transfer')) {
+                      if (payment.status !== 'cancelled' && (payment.paymentMethod === 'cash' || payment.paymentMethod === 'efectivo' || payment.paymentMethod === 'transfer' || payment.paymentMethod === 'card')) {
                         const paymentDate = new Date(payment.paymentDate)
                         const monthKey = paymentDate.toLocaleDateString('es-CO', {
                           month: 'short',
@@ -1971,11 +2026,11 @@ export default function ReportesPage() {
                         const dateKey = getDateKey(saleDate)
 
                         // Sumar efectivo y transferencia
-                        if (sale.paymentMethod === 'cash' || sale.paymentMethod === 'transfer') {
+                        if (sale.paymentMethod === 'cash' || sale.paymentMethod === 'transfer' || sale.paymentMethod === 'card') {
                           dailyData[dateKey] = (dailyData[dateKey] || 0) + (sale.total || 0)
                         } else if (sale.paymentMethod === 'mixed' && sale.payments) {
                           sale.payments.forEach(payment => {
-                            if (payment.paymentType === 'cash' || payment.paymentType === 'transfer') {
+                            if (payment.paymentType === 'cash' || payment.paymentType === 'transfer' || payment.paymentType === 'card') {
                               dailyData[dateKey] = (dailyData[dateKey] || 0) + (payment.amount || 0)
                             }
                           })
@@ -2004,7 +2059,7 @@ export default function ReportesPage() {
                       }
                     }
 
-                    if (payment.status !== 'cancelled' && (payment.paymentMethod === 'cash' || payment.paymentMethod === 'efectivo' || payment.paymentMethod === 'transfer')) {
+                    if (payment.status !== 'cancelled' && (payment.paymentMethod === 'cash' || payment.paymentMethod === 'efectivo' || payment.paymentMethod === 'transfer' || payment.paymentMethod === 'card')) {
                       const paymentDate = new Date(payment.paymentDate)
                       paymentDate.setHours(0, 0, 0, 0)
 
@@ -2093,6 +2148,14 @@ export default function ReportesPage() {
             </div>
           )}
         </div>
+
+        <TransferBreakdownModal
+          open={showTransferBreakdown}
+          onOpenChange={setShowTransferBreakdown}
+          breakdown={metrics.transferBreakdown}
+          total={metrics.transferRevenue}
+          formatCurrency={formatCurrency}
+        />
 
         {/* Modal de Facturas Anuladas - Disponible para todos */}
         <CancelledInvoicesModal

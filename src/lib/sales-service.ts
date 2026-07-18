@@ -126,6 +126,7 @@ export class SalesService {
             id,
             sale_id,
             payment_type,
+            transfer_provider,
             amount,
             created_at
           )
@@ -233,10 +234,12 @@ export class SalesService {
           discountType: sale.discount_type || 'amount',
           status: sale.status,
           paymentMethod: sale.payment_method,
+          transferProvider: sale.transfer_provider || undefined,
           payments: sale.sale_payments?.map((payment: any) => ({
             id: payment.id,
             saleId: payment.sale_id,
             paymentType: payment.payment_type,
+            transferProvider: payment.transfer_provider || undefined,
             amount: payment.amount,
             createdAt: payment.created_at,
             updatedAt: payment.updated_at || payment.created_at
@@ -292,6 +295,7 @@ export class SalesService {
             id,
             sale_id,
             payment_type,
+            transfer_provider,
             amount,
             created_at
           )
@@ -362,6 +366,7 @@ export class SalesService {
               id,
               sale_id,
               payment_type,
+              transfer_provider,
               amount,
               created_at
             )
@@ -476,10 +481,12 @@ export class SalesService {
           discountType: sale.discount_type || 'amount',
           status: sale.status,
           paymentMethod: sale.payment_method,
+          transferProvider: sale.transfer_provider || undefined,
           payments: sale.sale_payments?.map((payment: any) => ({
             id: payment.id,
             saleId: payment.sale_id,
             paymentType: payment.payment_type,
+            transferProvider: payment.transfer_provider || undefined,
             amount: payment.amount,
             createdAt: payment.created_at,
             updatedAt: payment.updated_at || payment.created_at
@@ -525,6 +532,7 @@ export class SalesService {
             id,
             sale_id,
             payment_type,
+            transfer_provider,
             amount,
             created_at
           )
@@ -593,10 +601,12 @@ export class SalesService {
         cancellationReason: data.cancellation_reason || undefined,
         status: data.status,
         paymentMethod: data.payment_method,
+        transferProvider: data.transfer_provider || undefined,
         payments: data.sale_payments?.map((payment: any) => ({
           id: payment.id,
           saleId: payment.sale_id,
           paymentType: payment.payment_type,
+          transferProvider: payment.transfer_provider || undefined,
           amount: payment.amount,
           createdAt: payment.created_at,
           updatedAt: payment.updated_at || payment.created_at
@@ -642,6 +652,8 @@ export class SalesService {
           discount_type: saleData.discountType || 'amount',
           status: saleData.status,
           payment_method: saleData.paymentMethod,
+          transfer_provider:
+            saleData.paymentMethod === 'transfer' ? saleData.transferProvider || null : null,
           invoice_number: invoiceNumber,
           seller_id: currentUser?.id || currentUserId,
           seller_name: currentUser?.name || 'Usuario',
@@ -716,7 +728,9 @@ export class SalesService {
           const paymentRecords = saleData.payments.map(payment => ({
             sale_id: sale.id,
             payment_type: payment.paymentType,
-            amount: payment.amount
+            amount: payment.amount,
+            transfer_provider:
+              payment.paymentType === 'transfer' ? payment.transferProvider || null : null
           }))
 
           const { error: paymentsError } = await supabase
@@ -749,6 +763,8 @@ export class SalesService {
           })
         } else {
           // Crear pago único para métodos no mixtos (cash, transfer, etc.)
+          const isImmediatePayment =
+            saleData.paymentMethod === 'cash' || saleData.paymentMethod === 'card'
           const { error: paymentError } = await supabase
             .from('payments')
             .insert({
@@ -757,9 +773,9 @@ export class SalesService {
               client_name: saleData.clientName,
               invoice_number: invoiceNumber,
               total_amount: saleData.total,
-              paid_amount: saleData.paymentMethod === 'cash' ? saleData.total : 0,
-              pending_amount: saleData.paymentMethod === 'cash' ? 0 : saleData.total,
-              status: saleData.paymentMethod === 'cash' ? 'completed' : 'pending'
+              paid_amount: isImmediatePayment ? saleData.total : 0,
+              pending_amount: isImmediatePayment ? 0 : saleData.total,
+              status: isImmediatePayment ? 'completed' : 'pending'
             })
 
           if (paymentError) {
@@ -773,6 +789,7 @@ export class SalesService {
       const paymentMethodLabel = saleData.paymentMethod === 'credit' ? 'Venta a Crédito' :
         saleData.paymentMethod === 'cash' ? 'Venta en Efectivo' :
           saleData.paymentMethod === 'transfer' ? 'Venta por Transferencia' :
+            saleData.paymentMethod === 'card' ? 'Venta con Tarjeta' :
             saleData.paymentMethod === 'mixed' ? 'Venta Mixta' : 'Venta'
 
       // Usar acción diferente según el tipo de venta
@@ -837,6 +854,7 @@ export class SalesService {
         discountType: (sale as any).discount_type || 'amount',
         status: sale.status,
         paymentMethod: sale.payment_method,
+        transferProvider: sale.transfer_provider || undefined,
         invoiceNumber: sale.invoice_number,
         sellerId: sale.seller_id,
         sellerName: sale.seller_name,
@@ -849,6 +867,7 @@ export class SalesService {
               id: `temp-${sale.id}-${i}`,
               saleId: sale.id,
               paymentType: p.paymentType,
+              transferProvider: p.transferProvider,
               amount: p.amount,
               createdAt: now,
               updatedAt: now
@@ -894,6 +913,8 @@ export class SalesService {
           discount_type: saleData.discountType || 'amount',
           status: saleData.status,
           payment_method: saleData.paymentMethod,
+          transfer_provider:
+            saleData.paymentMethod === 'transfer' ? saleData.transferProvider || null : null,
           updated_at: new Date().toISOString()
         })
         .eq('id', id)
@@ -929,6 +950,26 @@ export class SalesService {
           // Error silencioso en producción
           throw itemsError
         }
+      }
+
+      await supabase.from('sale_payments').delete().eq('sale_id', id)
+      if (
+        saleData.paymentMethod === 'mixed' &&
+        saleData.payments &&
+        saleData.payments.length > 0
+      ) {
+        const { error: paymentError } = await supabase.from('sale_payments').insert(
+          saleData.payments.map((payment) => ({
+            sale_id: id,
+            payment_type: payment.paymentType,
+            amount: payment.amount,
+            transfer_provider:
+              payment.paymentType === 'transfer'
+                ? payment.transferProvider || null
+                : null,
+          }))
+        )
+        if (paymentError) throw paymentError
       }
 
       // Obtener la venta actualizada con los items
@@ -1152,8 +1193,12 @@ export class SalesService {
             cancellingUserName
           )
         }
-      } else if (sale.paymentMethod === 'cash' || sale.paymentMethod === 'transfer') {
-        // Para ventas en efectivo o transferencia, el reembolso es el total de la venta
+      } else if (
+        sale.paymentMethod === 'cash' ||
+        sale.paymentMethod === 'transfer' ||
+        sale.paymentMethod === 'card'
+      ) {
+        // Para ventas cobradas directamente, el reembolso es el total de la venta
         totalRefund = sale.total
       } else if (sale.paymentMethod === 'mixed' && sale.payments) {
         // Para pagos mixtos, calcular el reembolso basado en los pagos directos (efectivo/transferencia)
@@ -1519,6 +1564,7 @@ export class SalesService {
         discountType: sale.discount_type || 'amount',
         status: sale.status,
         paymentMethod: sale.payment_method,
+        transferProvider: sale.transfer_provider || undefined,
         invoiceNumber: sale.invoice_number,
         sellerId: sale.seller_id,
         sellerName: sale.seller_name,
@@ -1656,13 +1702,14 @@ export class SalesService {
         if (sale.payment_method === 'mixed') {
           const { data: paymentData } = await supabase
             .from('sale_payments')
-            .select('id,sale_id,payment_type,amount,created_at')
+            .select('id,sale_id,payment_type,transfer_provider,amount,created_at')
             .eq('sale_id', sale.id)
 
           payments = (paymentData || []).map((p: any) => ({
             id: p.id,
             saleId: p.sale_id,
             paymentType: p.payment_type,
+            transferProvider: p.transfer_provider || undefined,
             amount: p.amount,
             createdAt: p.created_at,
             updatedAt: p.updated_at || p.created_at
@@ -1694,6 +1741,7 @@ export class SalesService {
           discountType: sale.discount_type || 'amount',
           status: sale.status,
           paymentMethod: sale.payment_method,
+          transferProvider: sale.transfer_provider || undefined,
           invoiceNumber: sale.invoice_number,
           sellerId: sale.seller_id,
           sellerName: sale.seller_name || '',
@@ -1768,6 +1816,7 @@ export class SalesService {
               id,
               sale_id,
               payment_type,
+              transfer_provider,
               amount,
               created_at
             )
@@ -1859,6 +1908,7 @@ export class SalesService {
           discountType: sale.discount_type || 'amount',
           status: sale.status,
           paymentMethod: sale.payment_method,
+          transferProvider: sale.transfer_provider || undefined,
           invoiceNumber: sale.invoice_number,
           sellerId: sale.seller_id,
           sellerName: sale.seller_name || '',
@@ -1870,6 +1920,7 @@ export class SalesService {
             id: payment.id,
             saleId: payment.sale_id,
             paymentType: payment.payment_type,
+            transferProvider: payment.transfer_provider || undefined,
             amount: payment.amount,
             createdAt: payment.created_at,
             updatedAt: payment.updated_at || payment.created_at
@@ -1894,6 +1945,7 @@ export class SalesService {
     totalRevenue: number,
     cashRevenue: number,
     transferRevenue: number,
+    cardRevenue: number,
     salesCount: number
   }> {
     try {
@@ -1902,6 +1954,7 @@ export class SalesService {
 
       let cashRevenue = 0
       let transferRevenue = 0
+      let cardRevenue = 0
       let salesCount = 0
       let hasMore = true
       let offset = 0
@@ -1947,10 +2000,12 @@ export class SalesService {
             sale.sale_payments.forEach((payment: any) => {
               if (payment.payment_type === 'cash') cashRevenue += payment.amount || 0
               if (payment.payment_type === 'transfer') transferRevenue += payment.amount || 0
+              if (payment.payment_type === 'card') cardRevenue += payment.amount || 0
             })
           } else {
             if (sale.payment_method === 'cash') cashRevenue += sale.total || 0
             if (sale.payment_method === 'transfer') transferRevenue += sale.total || 0
+            if (sale.payment_method === 'card') cardRevenue += sale.total || 0
           }
         })
 
@@ -1962,14 +2017,15 @@ export class SalesService {
       }
 
       return {
-        totalRevenue: cashRevenue + transferRevenue,
+        totalRevenue: cashRevenue + transferRevenue + cardRevenue,
         cashRevenue,
         transferRevenue,
+        cardRevenue,
         salesCount
       }
     } catch (error) {
       console.error('Error en getDashboardSummary:', error)
-      return { totalRevenue: 0, cashRevenue: 0, transferRevenue: 0, salesCount: 0 }
+      return { totalRevenue: 0, cashRevenue: 0, transferRevenue: 0, cardRevenue: 0, salesCount: 0 }
     }
   }
 

@@ -1,5 +1,5 @@
 import { supabase, supabaseAdmin } from './supabase'
-import { Credit, PaymentRecord } from '@/types'
+import { Credit, PaymentRecord, TransferProvider } from '@/types'
 import { AuthService } from './auth-service'
 import { getCurrentUserStoreId, canAccessAllStores, getCurrentUser } from './store-helper'
 
@@ -9,6 +9,7 @@ type PaymentRecordRow = {
   amount: number
   payment_date: string
   payment_method: string
+  transfer_provider?: string | null
   description?: string | null
   user_id: string
   user_name: string
@@ -34,6 +35,7 @@ function mapPaymentRecordFromRow(row: PaymentRecordRow, creditId: string | null 
     amount: row.amount,
     paymentDate: row.payment_date,
     paymentMethod: row.payment_method as PaymentRecord['paymentMethod'],
+    transferProvider: row.transfer_provider as TransferProvider | undefined,
     description: row.description ?? undefined,
     userId: row.user_id,
     userName: row.user_name,
@@ -644,6 +646,7 @@ export class CreditsService {
         amount: paymentData.transferAmount,
         payment_date: paymentData.paymentDate,
         payment_method: 'transfer',
+        transfer_provider: paymentData.transferProvider || null,
         user_id: userId,
         user_name: userName,
         store_id: storeId,
@@ -679,6 +682,10 @@ export class CreditsService {
         amount: paymentData.amount,
         payment_date: paymentData.paymentDate,
         payment_method: paymentData.paymentMethod,
+        transfer_provider:
+          paymentData.paymentMethod === 'transfer'
+            ? paymentData.transferProvider || null
+            : null,
         user_id: userId,
         user_name: userName,
         store_id: storeId
@@ -773,6 +780,7 @@ export class CreditsService {
       amount: paymentData.amount, // Monto total original
       paymentDate: firstRecord.payment_date,
       paymentMethod: paymentData.paymentMethod, // Método original (mixed)
+      transferProvider: paymentData.transferProvider,
       cashAmount: paymentData.cashAmount, // Mantener los valores originales
       transferAmount: paymentData.transferAmount, // Mantener los valores originales
       description: paymentData.description,

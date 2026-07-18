@@ -1,11 +1,14 @@
 'use client'
 
+import { Logo } from '@/components/ui/logo'
+
 export default function RootLoading() {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-white dark:bg-black">
-      <div className="flex flex-col items-center gap-4">
-        <div className="h-10 w-10 animate-spin rounded-full border-2 border-cyan-600 border-t-transparent dark:border-cyan-400 dark:border-t-transparent" />
-        <p className="text-sm text-gray-500 dark:text-gray-400">Cargando...</p>
+      <div className="flex scale-150 items-center justify-center overflow-hidden rounded-full">
+        <div className="animate-pulse">
+          <Logo size="lg" showText={false} />
+        </div>
       </div>
     </div>
   )

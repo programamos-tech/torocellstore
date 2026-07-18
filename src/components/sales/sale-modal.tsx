@@ -23,7 +23,7 @@ import {
   Wrench,
   Gift
 } from 'lucide-react'
-import { Sale, SaleItem, Product, Client, SalePayment } from '@/types'
+import { Sale, SaleItem, Product, Client, SalePayment, TransferProvider } from '@/types'
 import { useClients } from '@/contexts/clients-context'
 import { useProducts } from '@/contexts/products-context'
 import { useAuth } from '@/contexts/auth-context'
@@ -33,6 +33,7 @@ import { isStoreClient } from '@/lib/client-helpers'
 import { AddServiceDialog } from '@/components/sales/add-service-dialog'
 import { isServiceSaleItem } from '@/lib/sale-item-helpers'
 import { BIRTHDAY_DISCOUNT_OPTIONS, isBirthdayToday } from '@/lib/birthday'
+import { TRANSFER_PROVIDER_OPTIONS } from '@/lib/payment-methods'
 import { cn } from '@/lib/utils'
 
 // Constante para identificar la tienda principal
@@ -58,7 +59,8 @@ export function SaleModal({ isOpen, onClose, onSave, sale, onUpdate }: SaleModal
   
   const [selectedClient, setSelectedClient] = useState<Client | null>(null)
   const [selectedProducts, setSelectedProducts] = useState<SaleItem[]>([])
-  const [paymentMethod, setPaymentMethod] = useState<'cash' | 'transfer' | 'credit' | 'warranty' | 'mixed' | ''>('')
+  const [paymentMethod, setPaymentMethod] = useState<'cash' | 'transfer' | 'card' | 'credit' | 'warranty' | 'mixed' | ''>('')
+  const [transferProvider, setTransferProvider] = useState<TransferProvider | ''>('')
   const [clientSearch, setClientSearch] = useState('')
   const [productSearch, setProductSearch] = useState('')
   const [debouncedProductSearch, setDebouncedProductSearch] = useState('')
@@ -121,6 +123,7 @@ export function SaleModal({ isOpen, onClose, onSave, sale, onUpdate }: SaleModal
         
         // Cargar método de pago
         setPaymentMethod(sale.paymentMethod)
+        setTransferProvider(sale.transferProvider || '')
         
         // Cargar pagos mixtos si aplica
         if (sale.paymentMethod === 'mixed' && sale.payments) {
@@ -145,6 +148,7 @@ export function SaleModal({ isOpen, onClose, onSave, sale, onUpdate }: SaleModal
         setSelectedClient(null)
         setSelectedProducts([])
         setPaymentMethod('')
+        setTransferProvider('')
         setClientSearch('')
         setProductSearch('')
         setInvoiceNumber('Pendiente')
@@ -159,13 +163,18 @@ export function SaleModal({ isOpen, onClose, onSave, sale, onUpdate }: SaleModal
 
   // Manejar cambio de método de pago
   useEffect(() => {
+    if (paymentMethod !== 'transfer') setTransferProvider('')
     if (paymentMethod === 'mixed') {
       setShowMixedPayments(true)
       // Inicializar con efectivo y transferencia
-      setMixedPayments([
-        { id: '', saleId: '', paymentType: 'cash', amount: 0, reference: '', notes: '', createdAt: '', updatedAt: '' },
-        { id: '', saleId: '', paymentType: 'transfer', amount: 0, reference: '', notes: '', createdAt: '', updatedAt: '' }
-      ])
+      setMixedPayments((current) =>
+        current.length > 0
+          ? current
+          : [
+              { id: '', saleId: '', paymentType: 'cash', amount: 0, reference: '', notes: '', createdAt: '', updatedAt: '' },
+              { id: '', saleId: '', paymentType: 'transfer', amount: 0, reference: '', notes: '', createdAt: '', updatedAt: '' }
+            ]
+      )
     } else {
       setShowMixedPayments(false)
       setMixedPayments([])
@@ -753,8 +762,18 @@ export function SaleModal({ isOpen, onClose, onSave, sale, onUpdate }: SaleModal
       return
     }
 
+    if (!isDraft && paymentMethod === 'transfer' && !transferProvider) {
+      setPaymentError('Selecciona Nequi, Daviplata o Bancolombia.')
+      return
+    }
+
     // Si NO es borrador, validar pagos mixtos si es necesario
     if (!isDraft && paymentMethod === 'mixed') {
+      const transferPart = mixedPayments.find((payment) => payment.paymentType === 'transfer')
+      if ((transferPart?.amount || 0) > 0 && !transferPart?.transferProvider) {
+        setPaymentError('Selecciona el canal de la transferencia del pago mixto.')
+        return
+      }
       const totalMixedPayments = getTotalMixedPayments()
       const roundedTotal = Math.round(total)
       const roundedPayments = Math.round(totalMixedPayments)
@@ -778,6 +797,7 @@ export function SaleModal({ isOpen, onClose, onSave, sale, onUpdate }: SaleModal
       discountType: birthdayDiscountPercent > 0 ? 'percentage' : 'amount',
       status: isDraft ? 'draft' : 'completed',
       paymentMethod,
+      transferProvider: paymentMethod === 'transfer' ? transferProvider || undefined : undefined,
       payments: paymentMethod === 'mixed' ? mixedPayments : undefined,
       items: saleItems, // Solo incluir productos con cantidad > 0
       invoiceNumber: sale?.invoiceNumber // Mantener número de factura si es edición
@@ -1342,6 +1362,7 @@ export function SaleModal({ isOpen, onClose, onSave, sale, onUpdate }: SaleModal
                         <option value="" className="bg-white dark:bg-neutral-700 text-gray-500 dark:text-gray-400">Seleccionar método de pago</option>
                         <option value="cash" className="bg-white dark:bg-neutral-700 text-gray-900 dark:text-white">Efectivo/Contado</option>
                         <option value="transfer" className="bg-white dark:bg-neutral-700 text-gray-900 dark:text-white">Transferencia</option>
+                        <option value="card" className="bg-white dark:bg-neutral-700 text-gray-900 dark:text-white">Tarjeta / datáfono</option>
                         <option value="mixed" className="bg-white dark:bg-neutral-700 text-gray-900 dark:text-white">Mixto</option>
                       </select>
                       <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
@@ -1350,6 +1371,24 @@ export function SaleModal({ isOpen, onClose, onSave, sale, onUpdate }: SaleModal
                         </svg>
                       </div>
                     </div>
+
+                    {paymentMethod === 'transfer' && (
+                      <select
+                        value={transferProvider}
+                        onChange={(event) => {
+                          setTransferProvider(event.target.value as TransferProvider)
+                          setPaymentError('')
+                        }}
+                        className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 focus:border-green-500 focus:ring-2 focus:ring-green-500 dark:border-neutral-600 dark:bg-neutral-800 dark:text-white"
+                      >
+                        <option value="">Seleccionar cuenta...</option>
+                        {TRANSFER_PROVIDER_OPTIONS.map((option) => (
+                          <option key={option.value} value={option.value}>
+                            {option.label}
+                          </option>
+                        ))}
+                      </select>
+                    )}
 
                     {/* Sección de Pagos Mixtos */}
                     {showMixedPayments && (
@@ -1376,6 +1415,26 @@ export function SaleModal({ isOpen, onClose, onSave, sale, onUpdate }: SaleModal
                                   placeholder="0"
                                   className="w-full px-3 py-2 border border-gray-300 dark:border-neutral-600 rounded-md focus:ring-2 focus:ring-green-500 focus:border-transparent bg-white dark:bg-neutral-700 text-gray-900 dark:text-white text-sm"
                                 />
+                                {payment.paymentType === 'transfer' && (
+                                  <select
+                                    value={payment.transferProvider || ''}
+                                    onChange={(event) =>
+                                      updateMixedPayment(
+                                        index,
+                                        'transferProvider',
+                                        event.target.value as TransferProvider
+                                      )
+                                    }
+                                    className="mt-2 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-green-500 focus:ring-2 focus:ring-green-500 dark:border-neutral-600 dark:bg-neutral-700 dark:text-white"
+                                  >
+                                    <option value="">Seleccionar cuenta...</option>
+                                    {TRANSFER_PROVIDER_OPTIONS.map((option) => (
+                                      <option key={option.value} value={option.value}>
+                                        {option.label}
+                                      </option>
+                                    ))}
+                                  </select>
+                                )}
                               </div>
                             </div>
                           ))}

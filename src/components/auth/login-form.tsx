@@ -89,8 +89,15 @@ export function LoginForm() {
       />
       <div className="relative z-10 mx-auto flex min-h-screen max-w-md flex-col justify-center px-6 py-12">
         <div className="mb-10 flex justify-center">
-          <div className="relative h-20 w-20 overflow-hidden rounded-full md:h-24 md:w-24">
-            <Image src="/logo.jpeg?v=2" alt="TOROCELL STORE" width={96} height={96} className="h-full w-full object-contain" priority />
+          <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-full bg-black md:h-24 md:w-24">
+            <Image
+              src="/logo.jpeg?v=2"
+              alt="TOROCELL STORE"
+              fill
+              sizes="96px"
+              className="rounded-full object-cover"
+              priority
+            />
           </div>
         </div>
 

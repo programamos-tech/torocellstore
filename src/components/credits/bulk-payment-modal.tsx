@@ -8,6 +8,7 @@ import {
   X,
   DollarSign,
   CreditCard,
+  Landmark,
   Banknote,
   Shuffle,
   AlertCircle,
@@ -16,9 +17,12 @@ import {
 import { useAuth } from '@/contexts/auth-context'
 import { getCurrentUser } from '@/lib/store-helper'
 import { cn } from '@/lib/utils'
+import type { TransferProvider } from '@/types'
+import { TRANSFER_PROVIDER_OPTIONS } from '@/lib/payment-methods'
 
 export type BulkPaymentSubmitPayload = {
-  paymentMethod: 'cash' | 'transfer' | 'mixed'
+  paymentMethod: 'cash' | 'transfer' | 'card' | 'mixed'
+  transferProvider?: TransferProvider
   cashAmount: number
   transferAmount: number
   description?: string
@@ -53,7 +57,8 @@ export function BulkPaymentModal({
 }: BulkPaymentModalProps) {
   const { user } = useAuth()
   const [formData, setFormData] = useState({
-    paymentMethod: 'transfer' as 'cash' | 'transfer' | 'mixed',
+    paymentMethod: 'transfer' as 'cash' | 'transfer' | 'card' | 'mixed',
+    transferProvider: '' as TransferProvider | '',
     cashAmount: '',
     transferAmount: '',
     receivedAmount: '',
@@ -85,6 +90,7 @@ export function BulkPaymentModal({
   const resetForm = () => {
     setFormData({
       paymentMethod: 'transfer',
+      transferProvider: '',
       cashAmount: '',
       transferAmount: '',
       receivedAmount: '',
@@ -103,10 +109,11 @@ export function BulkPaymentModal({
     resetForm()
   }
 
-  const handlePaymentMethodChange = (value: 'cash' | 'transfer' | 'mixed') => {
+  const handlePaymentMethodChange = (value: 'cash' | 'transfer' | 'card' | 'mixed') => {
     setFormData((prev) => ({
       ...prev,
       paymentMethod: value,
+      transferProvider: '',
       cashAmount: '',
       transferAmount: '',
       receivedAmount: '',
@@ -115,7 +122,7 @@ export function BulkPaymentModal({
   }
 
   const calculateChange = (): number => {
-    if (formData.paymentMethod === 'transfer') return 0
+    if (formData.paymentMethod === 'transfer' || formData.paymentMethod === 'card') return 0
     const receivedValue = parseFormattedNumber(formData.receivedAmount)
     if (!formData.receivedAmount) return 0
     if (formData.paymentMethod === 'cash') {
@@ -130,6 +137,13 @@ export function BulkPaymentModal({
     if (totalPending <= 0 || creditCount < 1) return
 
     const nextErrors: Record<string, string> = {}
+
+    if (
+      (formData.paymentMethod === 'transfer' || formData.paymentMethod === 'mixed') &&
+      !formData.transferProvider
+    ) {
+      nextErrors.transferProvider = 'Selecciona Nequi, Daviplata o Bancolombia'
+    }
 
     if (formData.paymentMethod === 'cash') {
       if (formData.receivedAmount) {
@@ -188,6 +202,7 @@ export function BulkPaymentModal({
     if (formData.paymentMethod === 'transfer') {
       await onSubmit({
         paymentMethod: 'transfer',
+        transferProvider: formData.transferProvider || undefined,
         cashAmount: 0,
         transferAmount: totalPending,
         description: formData.description || undefined,
@@ -211,8 +226,22 @@ export function BulkPaymentModal({
       return
     }
 
+    if (formData.paymentMethod === 'card') {
+      await onSubmit({
+        paymentMethod: 'card',
+        cashAmount: 0,
+        transferAmount: 0,
+        description: formData.description || undefined,
+        paymentDate,
+        userId,
+        userName: userName || 'Usuario Actual',
+      })
+      return
+    }
+
     await onSubmit({
       paymentMethod: 'mixed',
+      transferProvider: formData.transferProvider || undefined,
       cashAmount: parseFormattedNumber(formData.cashAmount),
       transferAmount: parseFormattedNumber(formData.transferAmount),
       description: formData.description || undefined,
@@ -266,11 +295,12 @@ export function BulkPaymentModal({
 
             <div className="space-y-2">
               <Label className="text-zinc-700 dark:text-zinc-300">Método</Label>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                 {(
                   [
-                    { v: 'transfer' as const, label: 'Transferencia', Icon: CreditCard },
+                    { v: 'transfer' as const, label: 'Transferencia', Icon: Landmark },
                     { v: 'cash' as const, label: 'Efectivo', Icon: Banknote },
+                    { v: 'card' as const, label: 'Tarjeta', Icon: CreditCard },
                     { v: 'mixed' as const, label: 'Mixto', Icon: Shuffle },
                   ] as const
                 ).map(({ v, label, Icon }) => (
@@ -292,6 +322,42 @@ export function BulkPaymentModal({
                 ))}
               </div>
             </div>
+
+            {(formData.paymentMethod === 'transfer' || formData.paymentMethod === 'mixed') && (
+              <div className="space-y-2">
+                <Label className="text-zinc-700 dark:text-zinc-300">
+                  Cuenta de transferencia
+                </Label>
+                <select
+                  value={formData.transferProvider}
+                  onChange={(event) => {
+                    setFormData((prev) => ({
+                      ...prev,
+                      transferProvider: event.target.value as TransferProvider,
+                    }))
+                    setErrors((prev) => ({ ...prev, transferProvider: '' }))
+                  }}
+                  disabled={submitting}
+                  className={cn(
+                    inputClass,
+                    'h-11 text-sm',
+                    errors.transferProvider ? 'border-red-500/80' : ''
+                  )}
+                >
+                  <option value="">Seleccionar cuenta...</option>
+                  {TRANSFER_PROVIDER_OPTIONS.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+                {errors.transferProvider && (
+                  <p className="text-sm text-red-600 dark:text-red-400">
+                    {errors.transferProvider}
+                  </p>
+                )}
+              </div>
+            )}
 
             {(formData.paymentMethod === 'cash' || formData.paymentMethod === 'mixed') && (
               <div className="space-y-2 rounded-lg border border-zinc-200 bg-zinc-50/80 p-3 dark:border-zinc-700 dark:bg-zinc-950/40">

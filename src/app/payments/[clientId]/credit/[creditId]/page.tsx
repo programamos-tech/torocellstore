@@ -24,6 +24,7 @@ import { PaymentModal } from '@/components/credits/payment-modal'
 import { UserAvatar } from '@/components/ui/user-avatar'
 import { cn } from '@/lib/utils'
 import { cardShell } from '@/lib/card-shell'
+import { getPaymentMethodLabel, getTransferProviderLabel } from '@/lib/payment-methods'
 import {
   creditStatusBadgeClass,
   creditStatusIconClass,
@@ -473,11 +474,10 @@ export default function CreditDetailPage() {
                                 )}
                               >
                                 {getPaymentMethodIcon(payment.paymentMethod)}
-                                {payment.paymentMethod === 'cash'
-                                  ? 'Efectivo'
-                                  : payment.paymentMethod === 'transfer'
-                                    ? 'Transferencia'
-                                    : payment.paymentMethod}
+                                {getPaymentMethodLabel(payment.paymentMethod)}
+                                {payment.paymentMethod === 'transfer' && payment.transferProvider
+                                  ? ` · ${getTransferProviderLabel(payment.transferProvider)}`
+                                  : ''}
                               </Badge>
                             </div>
                             <div>

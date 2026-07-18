@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react'
 import {
   ArrowLeft,
   Banknote,
+  CreditCard,
   ChevronLeft,
   ChevronRight,
   LayoutGrid,
@@ -23,10 +24,11 @@ import {
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
-import type { Client, Product, SaleItem, SalePayment } from '@/types'
+import type { Client, Product, SaleItem, SalePayment, TransferProvider } from '@/types'
 import { StoreBadge } from '@/components/ui/store-badge'
 import { isServiceSaleItem } from '@/lib/sale-item-helpers'
 import { BIRTHDAY_DISCOUNT_OPTIONS } from '@/lib/birthday'
+import { TRANSFER_PROVIDER_OPTIONS } from '@/lib/payment-methods'
 
 const inputClass =
   'w-full rounded-xl border border-zinc-200 bg-white px-3 py-2.5 text-sm text-zinc-900 placeholder:text-zinc-400 focus:border-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-400/25 dark:border-zinc-700 dark:bg-zinc-950 dark:text-zinc-100 dark:placeholder:text-zinc-500 dark:focus:border-zinc-500 dark:focus:ring-zinc-500/20'
@@ -39,6 +41,7 @@ const posInputClass =
 const PAYMENT_OPTIONS = [
   { id: 'cash' as const, label: 'Efectivo', icon: Banknote },
   { id: 'transfer' as const, label: 'Transferencia', icon: Wallet },
+  { id: 'card' as const, label: 'Tarjeta', icon: CreditCard },
   { id: 'mixed' as const, label: 'Mixto', icon: Split },
 ]
 
@@ -76,8 +79,10 @@ export interface PosSaleViewProps {
   formatInputNumber: (value: number) => string
   parseInputNumber: (value: string) => number
   findProductById: (productId: string | null | undefined) => Product | undefined
-  paymentMethod: 'cash' | 'transfer' | 'warranty' | 'mixed' | ''
-  setPaymentMethod: (value: 'cash' | 'transfer' | 'warranty' | 'mixed' | '') => void
+  paymentMethod: 'cash' | 'transfer' | 'card' | 'warranty' | 'mixed' | ''
+  setPaymentMethod: (value: 'cash' | 'transfer' | 'card' | 'warranty' | 'mixed' | '') => void
+  transferProvider: TransferProvider | ''
+  setTransferProvider: (value: TransferProvider | '') => void
   showMixedPayments: boolean
   mixedPayments: SalePayment[]
   updateMixedPayment: (index: number, field: keyof SalePayment, value: unknown) => void
@@ -184,6 +189,8 @@ export function PosSaleView({
   findProductById,
   paymentMethod,
   setPaymentMethod,
+  transferProvider,
+  setTransferProvider,
   showMixedPayments,
   mixedPayments,
   updateMixedPayment,
@@ -462,7 +469,7 @@ export function PosSaleView({
               <p className="mb-2 text-[10px] font-semibold uppercase tracking-wide text-zinc-500">
                 Método de pago
               </p>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
                 {PAYMENT_OPTIONS.map(({ id, label, icon: Icon }) => (
                   <button
                     key={id}
@@ -484,6 +491,28 @@ export function PosSaleView({
                 ))}
               </div>
             </div>
+
+            {paymentMethod === 'transfer' && (
+              <div className="rounded-2xl border-2 border-zinc-200 bg-white p-3 dark:border-zinc-700 dark:bg-zinc-950">
+                <label className="mb-2 block text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                  Cuenta de transferencia
+                </label>
+                <select
+                  value={transferProvider}
+                  onChange={(event) =>
+                    setTransferProvider(event.target.value as TransferProvider | '')
+                  }
+                  className={inputClass}
+                >
+                  <option value="">Seleccionar cuenta...</option>
+                  {TRANSFER_PROVIDER_OPTIONS.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
 
             {paymentMethod === 'cash' && validProducts.length > 0 && (
               <div className="space-y-2 rounded-2xl border-2 border-zinc-200 bg-white p-3 dark:border-zinc-700 dark:bg-zinc-950">
@@ -533,6 +562,26 @@ export function PosSaleView({
                         className={cn(posInputClass, 'text-center text-xl sm:text-2xl')}
                         placeholder="0"
                       />
+                      {payment.paymentType === 'transfer' && (
+                        <select
+                          value={payment.transferProvider || ''}
+                          onChange={(event) =>
+                            updateMixedPayment(
+                              index,
+                              'transferProvider',
+                              event.target.value as TransferProvider
+                            )
+                          }
+                          className={cn(inputClass, 'mt-2')}
+                        >
+                          <option value="">Seleccionar cuenta...</option>
+                          {TRANSFER_PROVIDER_OPTIONS.map((option) => (
+                            <option key={option.value} value={option.value}>
+                              {option.label}
+                            </option>
+                          ))}
+                        </select>
+                      )}
                     </div>
                   ))}
                 </div>

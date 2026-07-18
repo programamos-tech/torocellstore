@@ -13,19 +13,21 @@ export function Logo({ className, showText = false, size = 'md' }: LogoProps) {
   const logoSize = {
     sm: 32,
     md: 48,
-    lg: 64
+    lg: 64,
   }[size]
 
   return (
-    <div className={cn("flex items-center", className)}>
-      {/* Logo Image */}
-      <div className="relative overflow-hidden rounded-full" style={{ width: logoSize, height: logoSize }}>
+    <div className={cn('flex items-center', className)}>
+      <div
+        className="relative shrink-0 overflow-hidden rounded-full bg-black"
+        style={{ width: logoSize, height: logoSize }}
+      >
         <Image
           src="/logo.jpeg?v=2"
           alt="TOROCELL STORE Logo"
-          width={logoSize}
-          height={logoSize}
-          className="h-full w-full object-contain"
+          fill
+          sizes={`${logoSize}px`}
+          className="rounded-full object-cover"
           priority
           unoptimized
         />

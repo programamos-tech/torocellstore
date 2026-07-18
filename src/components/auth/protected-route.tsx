@@ -76,13 +76,10 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
   // Durante el render inicial en el servidor, no mostrar nada
   if (!isMounted) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white dark:bg-neutral-950">
-        <div className="text-center">
-          {/* Logo con animación simple */}
-          <div className="relative">
-            <div className="animate-pulse scale-150">
-              <Logo size="lg" showText={false} />
-            </div>
+      <div className="flex min-h-screen items-center justify-center bg-white dark:bg-neutral-950">
+        <div className="flex scale-150 items-center justify-center overflow-hidden rounded-full">
+          <div className="animate-pulse">
+            <Logo size="lg" showText={false} />
           </div>
         </div>
       </div>
@@ -91,13 +88,10 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-white dark:bg-neutral-950">
-        <div className="text-center">
-          {/* Logo con animación simple */}
-          <div className="relative">
-            <div className="animate-pulse scale-150">
-              <Logo size="lg" showText={false} />
-            </div>
+      <div className="flex min-h-screen items-center justify-center bg-white dark:bg-neutral-950">
+        <div className="flex scale-150 items-center justify-center overflow-hidden rounded-full">
+          <div className="animate-pulse">
+            <Logo size="lg" showText={false} />
           </div>
         </div>
       </div>

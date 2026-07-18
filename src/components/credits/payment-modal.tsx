@@ -7,16 +7,18 @@ import {
   X,
   DollarSign,
   CreditCard,
+  Landmark,
   Banknote,
   Shuffle,
   AlertCircle,
   Coins,
 } from 'lucide-react'
-import { Credit, PaymentRecord } from '@/types'
+import { Credit, PaymentRecord, TransferProvider } from '@/types'
 import { useAuth } from '@/contexts/auth-context'
 import { getCurrentUser } from '@/lib/store-helper'
 import { cn } from '@/lib/utils'
 import { MODAL_BACKDROP_PAD } from '@/config/modal-layout'
+import { TRANSFER_PROVIDER_OPTIONS } from '@/lib/payment-methods'
 
 interface PaymentModalProps {
   isOpen: boolean
@@ -37,7 +39,8 @@ export function PaymentModal({ isOpen, onClose, onAddPayment, credit }: PaymentM
 
   const [formData, setFormData] = useState({
     amount: '',
-    paymentMethod: 'transfer' as 'cash' | 'transfer' | 'mixed',
+    paymentMethod: 'transfer' as 'cash' | 'transfer' | 'card' | 'mixed',
+    transferProvider: '' as TransferProvider | '',
     cashAmount: '',
     transferAmount: '',
     receivedAmount: '',
@@ -93,6 +96,7 @@ export function PaymentModal({ isOpen, onClose, onAddPayment, credit }: PaymentM
     setFormData({
       amount: '',
       paymentMethod: 'transfer',
+      transferProvider: '',
       cashAmount: '',
       transferAmount: '',
       receivedAmount: '',
@@ -106,10 +110,11 @@ export function PaymentModal({ isOpen, onClose, onAddPayment, credit }: PaymentM
     resetForm()
   }
 
-  const handlePaymentMethodChange = (value: 'cash' | 'transfer' | 'mixed') => {
+  const handlePaymentMethodChange = (value: 'cash' | 'transfer' | 'card' | 'mixed') => {
     setFormData((prev) => ({
       ...prev,
       paymentMethod: value,
+      transferProvider: '',
       cashAmount: '',
       transferAmount: '',
       receivedAmount: '',
@@ -118,7 +123,7 @@ export function PaymentModal({ isOpen, onClose, onAddPayment, credit }: PaymentM
   }
 
   const calculateChange = (): number => {
-    if (formData.paymentMethod === 'transfer') return 0
+    if (formData.paymentMethod === 'transfer' || formData.paymentMethod === 'card') return 0
     if (!formData.amount || !formData.receivedAmount) return 0
 
     const amountValue = parseFormattedNumber(formData.amount)
@@ -146,6 +151,13 @@ export function PaymentModal({ isOpen, onClose, onAddPayment, credit }: PaymentM
     }
     if (amountValue > credit.pendingAmount) {
       nextErrors.amount = 'El monto no puede ser mayor al saldo pendiente'
+    }
+
+    if (
+      (formData.paymentMethod === 'transfer' || formData.paymentMethod === 'mixed') &&
+      !formData.transferProvider
+    ) {
+      nextErrors.transferProvider = 'Selecciona Nequi, Daviplata o Bancolombia'
     }
 
     if (formData.paymentMethod === 'cash') {
@@ -204,6 +216,10 @@ export function PaymentModal({ isOpen, onClose, onAddPayment, credit }: PaymentM
       amount: parseFormattedNumber(formData.amount),
       paymentDate: new Date().toISOString(),
       paymentMethod: formData.paymentMethod,
+      transferProvider:
+        formData.paymentMethod === 'transfer' || formData.paymentMethod === 'mixed'
+          ? formData.transferProvider || undefined
+          : undefined,
       description: formData.description,
       userId: userId,
       userName: userName || 'Usuario Actual',
@@ -226,8 +242,14 @@ export function PaymentModal({ isOpen, onClose, onAddPayment, credit }: PaymentM
     {
       v: 'transfer' as const,
       label: 'Transferencia',
-      Icon: CreditCard,
+      Icon: Landmark,
       active: 'bg-sky-600 text-white shadow-md ring-2 ring-sky-500/35 dark:bg-sky-500',
+    },
+    {
+      v: 'card' as const,
+      label: 'Tarjeta',
+      Icon: CreditCard,
+      active: 'bg-violet-600 text-white shadow-md ring-2 ring-violet-500/35 dark:bg-violet-500',
     },
     {
       v: 'cash' as const,
@@ -345,7 +367,7 @@ export function PaymentModal({ isOpen, onClose, onAddPayment, credit }: PaymentM
               <span className="mb-2 block text-sm font-medium text-zinc-700 dark:text-zinc-300">
                 Método <span className="text-red-500">*</span>
               </span>
-              <div className="flex gap-1.5 rounded-xl bg-zinc-100/90 p-1.5 ring-1 ring-zinc-200 dark:bg-zinc-900/80 dark:ring-zinc-700">
+              <div className="grid grid-cols-2 gap-1.5 rounded-xl bg-zinc-100/90 p-1.5 ring-1 ring-zinc-200 dark:bg-zinc-900/80 dark:ring-zinc-700 sm:grid-cols-4">
                 {methodOptions.map(({ v, label, Icon, active }) => {
                   const selected = formData.paymentMethod === v
                   return (
@@ -368,6 +390,44 @@ export function PaymentModal({ isOpen, onClose, onAddPayment, credit }: PaymentM
                 })}
               </div>
             </div>
+
+            {(formData.paymentMethod === 'transfer' || formData.paymentMethod === 'mixed') && (
+              <div>
+                <label
+                  htmlFor="abono-transfer-provider"
+                  className="mb-1.5 block text-sm font-medium text-zinc-700 dark:text-zinc-300"
+                >
+                  Cuenta de transferencia <span className="text-red-500">*</span>
+                </label>
+                <select
+                  id="abono-transfer-provider"
+                  value={formData.transferProvider}
+                  onChange={(event) => {
+                    setFormData((prev) => ({
+                      ...prev,
+                      transferProvider: event.target.value as TransferProvider,
+                    }))
+                    setErrors((prev) => ({ ...prev, transferProvider: '' }))
+                  }}
+                  className={cn(
+                    inputClass,
+                    errors.transferProvider && 'border-red-500/70 ring-1 ring-red-500/30'
+                  )}
+                >
+                  <option value="">Seleccionar cuenta...</option>
+                  {TRANSFER_PROVIDER_OPTIONS.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+                {errors.transferProvider && (
+                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">
+                    {errors.transferProvider}
+                  </p>
+                )}
+              </div>
+            )}
 
             {(formData.paymentMethod === 'cash' || formData.paymentMethod === 'mixed') && (
               <div className="space-y-2 rounded-xl border border-emerald-500/25 bg-emerald-500/[0.06] p-3 dark:border-emerald-400/30 dark:bg-emerald-500/10">

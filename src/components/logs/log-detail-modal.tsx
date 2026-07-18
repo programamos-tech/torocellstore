@@ -425,7 +425,7 @@ export function LogDetailModal({ isOpen, onClose, log }: LogDetailModalProps) {
 
   const modal = (
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center zonat-modal-backdrop px-3 sm:px-6 xl:left-56"
+      className="fixed inset-0 z-[100] flex items-center justify-center zonat-modal-backdrop px-3 sm:px-6 xl:left-60"
       style={{
         paddingTop: 'max(0.75rem, env(safe-area-inset-top, 0px))',
         paddingBottom: 'max(0.75rem, env(safe-area-inset-bottom, 0px))',

@@ -113,7 +113,7 @@ export function SupplierInvoiceHeaderActions({
       {cancelModalOpen && (
         <div
           className={cn(
-            'fixed inset-0 z-[60] flex items-center justify-center zonat-modal-backdrop xl:left-56',
+            'fixed inset-0 z-[60] flex items-center justify-center zonat-modal-backdrop xl:left-60',
             MODAL_BACKDROP_PAD
           )}
           role="dialog"

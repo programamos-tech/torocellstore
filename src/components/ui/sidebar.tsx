@@ -151,7 +151,7 @@ export function Sidebar({ className, onMobileMenuToggle }: SidebarProps) {
       <div 
         ref={sidebarRef}
         className={cn(
-          'zonat-preserve-surface fixed inset-y-0 left-0 z-40 w-60 transform overflow-hidden border-r border-zinc-800/90 bg-[#000000] shadow-[2px_0_24px_-8px_rgba(0,0,0,0.55)] backdrop-blur-xl transition-all duration-300 ease-in-out xl:translate-x-0',
+          'zonat-preserve-surface fixed inset-y-0 left-0 z-40 w-60 transform overflow-hidden border-r border-zinc-800/90 bg-[#000000] transition-all duration-300 ease-in-out xl:translate-x-0',
           isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full',
           /* Cerrado en móvil/tablet: sin pointer-events para que WebKit no intercepte toques en la barra inferior (z-40 compartida con bottom nav). */
           !isMobileMenuOpen && 'max-xl:pointer-events-none max-xl:invisible',

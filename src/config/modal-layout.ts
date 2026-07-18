@@ -11,3 +11,9 @@ export const MODAL_PANEL =
 
 /** Padding del backdrop alrededor del panel */
 export const MODAL_BACKDROP_PAD = 'px-3 py-5 sm:py-8'
+
+/**
+ * En desktop el overlay empieza después del sidebar (`w-60`).
+ * No usar `left-56`: solapa el menú y genera un borde difuminado.
+ */
+export const MODAL_BACKDROP_SIDEBAR_OFFSET = 'xl:left-60'

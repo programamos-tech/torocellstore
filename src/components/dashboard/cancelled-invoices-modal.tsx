@@ -24,7 +24,7 @@ interface CancelledInvoicesModalProps {
 }
 
 const overlayClass =
-  'fixed inset-0 z-[60] flex items-stretch justify-center zonat-modal-backdrop p-0  sm:items-center sm:p-4 sm:pb-[max(1rem,env(safe-area-inset-bottom))] sm:pt-[max(1rem,env(safe-area-inset-top))] xl:left-56'
+  'fixed inset-0 z-[60] flex items-stretch justify-center zonat-modal-backdrop p-0  sm:items-center sm:p-4 sm:pb-[max(1rem,env(safe-area-inset-bottom))] sm:pt-[max(1rem,env(safe-area-inset-top))] xl:left-60'
 
 const shellClass =
   'flex w-full max-w-[min(72rem,calc(100vw-1.5rem))] max-h-[calc(100dvh-2.5rem)] sm:max-h-[calc(100dvh-4rem)] flex-col overflow-hidden border-0 border-zinc-200 bg-white shadow-none dark:border-zinc-700 dark:bg-zinc-900 sm:rounded-2xl sm:border sm:shadow-2xl'

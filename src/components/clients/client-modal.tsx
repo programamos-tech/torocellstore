@@ -193,7 +193,7 @@ export function ClientModal({ isOpen, onClose, onSave, client }: ClientModalProp
   ]
 
   const modal = (
-    <div className={cn('fixed inset-0 z-[100] flex items-center justify-center zonat-modal-backdrop xl:left-56', MODAL_BACKDROP_PAD)}>
+    <div className={cn('fixed inset-0 z-[100] flex items-center justify-center zonat-modal-backdrop xl:left-60', MODAL_BACKDROP_PAD)}>
       <div
         className={cn(
           'zonat-preserve-surface border border-zinc-200 bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-950',

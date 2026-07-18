@@ -11,7 +11,7 @@ import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 
 const overlayClass =
-  'fixed inset-0 z-[100] flex items-center justify-center zonat-modal-backdrop p-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-[max(1rem,env(safe-area-inset-top))]  xl:left-56'
+  'fixed inset-0 z-[100] flex items-center justify-center zonat-modal-backdrop p-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-[max(1rem,env(safe-area-inset-top))]  xl:left-60'
 
 const shellClass =
   'flex w-full max-w-[min(72rem,calc(100vw-1.5rem))] max-h-[calc(100dvh-2.5rem)] sm:max-h-[calc(100dvh-4rem)] flex-col overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-2xl dark:border-zinc-700 dark:bg-zinc-900'

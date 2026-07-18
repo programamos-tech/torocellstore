@@ -308,11 +308,11 @@ export function SupplierInvoiceModal({
   const blocked =
     invoice?.status === 'cancelled' || invoice?.status === 'paid'
 
-  /* Portal + z-[100]: solo workspace (xl:left-56 = no sidebar), mismo tamaño que productos. */
+  /* Portal + z-[100]: solo workspace (xl:left-60 = no sidebar), mismo tamaño que productos. */
   const modal = (
     <div
       className={cn(
-        'fixed inset-0 z-[100] flex items-center justify-center zonat-modal-backdrop xl:left-56',
+        'fixed inset-0 z-[100] flex items-center justify-center zonat-modal-backdrop xl:left-60',
         MODAL_BACKDROP_PAD
       )}
     >

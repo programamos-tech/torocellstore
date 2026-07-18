@@ -98,7 +98,7 @@ export function SupplierEditModal({ isOpen, onClose, supplierId, onSaved }: Supp
   return (
     <div
       className={cn(
-        'fixed inset-0 z-[100] flex items-center justify-center zonat-modal-backdrop xl:left-56',
+        'fixed inset-0 z-[100] flex items-center justify-center zonat-modal-backdrop xl:left-60',
         MODAL_BACKDROP_PAD
       )}
     >

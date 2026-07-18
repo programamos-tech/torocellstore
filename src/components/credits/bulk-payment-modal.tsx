@@ -254,7 +254,7 @@ export function BulkPaymentModal({
   if (!isOpen || !mounted || typeof document === 'undefined') return null
 
   const modal = (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center zonat-modal-backdrop p-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-[max(1rem,env(safe-area-inset-top))] xl:left-56">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center zonat-modal-backdrop p-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-[max(1rem,env(safe-area-inset-top))] xl:left-60">
       <div
         className="w-full max-w-[min(72rem,calc(100vw-1.5rem))] max-h-[calc(100dvh-2.5rem)] sm:max-h-[calc(100dvh-4rem)] overflow-y-auto rounded-2xl border border-zinc-200 bg-white shadow-2xl dark:border-zinc-700 dark:bg-zinc-900"
         role="dialog"

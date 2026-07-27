@@ -157,6 +157,14 @@ export function ProductTable({
     return category?.name || 'Sin categoría'
   }
 
+  const formatSalePrice = (amount: number) =>
+    new Intl.NumberFormat('es-CO', {
+      style: 'currency',
+      currency: 'COP',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(amount || 0)
+
   const getStatusBadgeClass = (status: string) => {
     switch (status) {
       case 'active':
@@ -433,14 +441,24 @@ export function ProductTable({
                           </div>
                           {isMainStore ? (
                             <div className="mt-3 grid grid-cols-3 gap-2 border-t border-zinc-200/80 pt-3 dark:border-zinc-800">
-                              {(['Bodega', 'Local', 'Total'] as const).map((label, i) => (
-                                <div key={label} className="text-center">
-                                  <div className="text-[11px] font-medium uppercase tracking-wide text-zinc-500">{label}</div>
-                                  <div className="mt-0.5 text-sm font-semibold tabular-nums text-zinc-900 dark:text-zinc-100">
-                                    {i === 0 ? product.stock.warehouse : i === 1 ? product.stock.store : product.stock.total}
-                                  </div>
+                              <div className="text-center">
+                                <div className="text-[11px] font-medium uppercase tracking-wide text-zinc-500">Precio</div>
+                                <div className="mt-0.5 text-sm font-semibold tabular-nums text-zinc-900 dark:text-zinc-100">
+                                  {formatSalePrice(product.price)}
                                 </div>
-                              ))}
+                              </div>
+                              <div className="text-center">
+                                <div className="text-[11px] font-medium uppercase tracking-wide text-zinc-500">Local</div>
+                                <div className="mt-0.5 text-sm font-semibold tabular-nums text-zinc-900 dark:text-zinc-100">
+                                  {product.stock.store}
+                                </div>
+                              </div>
+                              <div className="text-center">
+                                <div className="text-[11px] font-medium uppercase tracking-wide text-zinc-500">Total</div>
+                                <div className="mt-0.5 text-sm font-semibold tabular-nums text-zinc-900 dark:text-zinc-100">
+                                  {product.stock.total}
+                                </div>
+                              </div>
                             </div>
                           ) : (
                             <div className="mt-3 border-t border-zinc-200/80 pt-3 text-center dark:border-zinc-800">
@@ -493,7 +511,7 @@ export function ProductTable({
                           <th className={thClass}>Proveedor</th>
                           {isMainStore ? (
                             <>
-                              <th className={thClass}>Bodega</th>
+                              <th className={thClass}>Precio</th>
                               <th className={thClass}>Local</th>
                               <th className={thClass}>Total</th>
                             </>
@@ -539,7 +557,9 @@ export function ProductTable({
                               </td>
                               {isMainStore ? (
                                 <>
-                                  <td className="whitespace-nowrap px-3 py-3 tabular-nums text-zinc-800 dark:text-zinc-200">{product.stock.warehouse}</td>
+                                  <td className="whitespace-nowrap px-3 py-3 font-medium tabular-nums text-zinc-800 dark:text-zinc-200">
+                                    {formatSalePrice(product.price)}
+                                  </td>
                                   <td className="whitespace-nowrap px-3 py-3 tabular-nums text-zinc-800 dark:text-zinc-200">{product.stock.store}</td>
                                   <td className="whitespace-nowrap px-3 py-3 font-medium tabular-nums text-zinc-900 dark:text-zinc-100">{product.stock.total}</td>
                                 </>

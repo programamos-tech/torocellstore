@@ -8,6 +8,7 @@ import { X, Package, DollarSign, BarChart3, AlertTriangle, Store, ImageIcon, Bui
 import { Product, Category, Supplier } from '@/types'
 import { useProducts } from '@/contexts/products-context'
 import { useAuth } from '@/contexts/auth-context'
+import { ProductsService } from '@/lib/products-service'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 import { MODAL_PANEL, MODAL_BACKDROP_PAD } from '@/config/modal-layout'
@@ -86,6 +87,7 @@ export function ProductModal({ isOpen, onClose, onSave, product, categories, sup
   const [catalogImageUrl, setCatalogImageUrl] = useState<string | null>(null)
   const [uploadingImage, setUploadingImage] = useState(false)
   const [uploadPreview, setUploadPreview] = useState<string | null>(null)
+  const [suggestedReference, setSuggestedReference] = useState<string | null>(null)
   const catalogFileInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -110,11 +112,36 @@ export function ProductModal({ isOpen, onClose, onSave, product, categories, sup
         initialLocation: 'store' as 'warehouse' | 'store',
       })
       setCatalogImageUrl(product.imageUrl?.trim() || null)
+      setSuggestedReference(null)
     } else {
       setCatalogImageUrl(null)
     }
     setUploadPreview(null)
   }, [product])
+
+  useEffect(() => {
+    if (!isOpen || product) {
+      if (!isOpen) setSuggestedReference(null)
+      return
+    }
+
+    let cancelled = false
+    ProductsService.getNextNumericReference()
+      .then((nextRef) => {
+        if (cancelled) return
+        setSuggestedReference(nextRef)
+        setFormData((prev) =>
+          prev.reference.trim() ? prev : { ...prev, reference: nextRef }
+        )
+      })
+      .catch(() => {
+        if (!cancelled) setSuggestedReference(null)
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [isOpen, product])
 
   const formatNumber = (value: number | string): string => {
     const numValue = typeof value === 'string' ? parseFloat(value) : value
@@ -288,6 +315,7 @@ export function ProductModal({ isOpen, onClose, onSave, product, categories, sup
     })
     setCatalogImageUrl(null)
     setUploadPreview(null)
+    setSuggestedReference(null)
     setErrors({})
     onClose()
   }
@@ -367,8 +395,20 @@ export function ProductModal({ isOpen, onClose, onSave, product, categories, sup
                           value={formData.reference}
                           onChange={e => handleInputChange('reference', e.target.value)}
                           className={cn(inputBase, errors.reference && 'border-red-500/70 ring-1 ring-red-500/30')}
-                          placeholder="REF-001"
+                          placeholder={suggestedReference || '001'}
                         />
+                        {!isEdit && suggestedReference ? (
+                          <p className="mt-1.5 text-xs text-zinc-500 dark:text-zinc-400">
+                            Próxima referencia sugerida:{' '}
+                            <button
+                              type="button"
+                              className="font-semibold text-emerald-700 underline-offset-2 hover:underline dark:text-emerald-400"
+                              onClick={() => handleInputChange('reference', suggestedReference)}
+                            >
+                              {suggestedReference}
+                            </button>
+                          </p>
+                        ) : null}
                         {errors.reference && <p className="mt-1.5 text-sm text-red-400">{errors.reference}</p>}
                       </div>
                     </div>

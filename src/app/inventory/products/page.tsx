@@ -30,7 +30,7 @@ const STOCK_FILTERS: StockFilter[] = [
 
 export default function ProductsPage() {
   const searchParams = useSearchParams()
-  const { products, loading, currentPage, totalProducts, hasMore, isSearching, stockFilter, setStockFilter, createProduct, updateProduct, deleteProduct, transferStock, adjustStock, refreshProducts, goToPage, searchProducts, productsLastUpdated } = useProducts()
+  const { products, loading, currentPage, totalProducts, hasMore, isSearching, stockFilter, setStockFilter, categoryFilter, setCategoryFilter, createProduct, updateProduct, deleteProduct, transferStock, adjustStock, refreshProducts, goToPage, searchProducts, productsLastUpdated } = useProducts()
   const { categories, createCategory, toggleCategoryStatus, deleteCategory } = useCategories()
   const { user } = useAuth()
   const [suppliers, setSuppliers] = useState<Supplier[]>([])
@@ -215,7 +215,9 @@ export default function ProductsPage() {
         hasMore={hasMore}
         isSearching={isSearching}
         stockFilter={stockFilter}
+        categoryFilter={categoryFilter}
         onFilterChange={setStockFilter}
+        onCategoryFilterChange={setCategoryFilter}
         onEdit={handleEdit}
         onDelete={handleDelete}
         onCreate={handleCreate}

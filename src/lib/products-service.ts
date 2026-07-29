@@ -367,16 +367,18 @@ export class ProductsService {
     return stockMap
   }
 
-  // Obtener todos los productos con paginación y filtro de stock
+  // Obtener todos los productos con paginación y filtro de stock / categoría
   static async getAllProducts(
     page: number = 1,
     limit: number = 10,
-    stockFilter?: StockFilter
+    stockFilter?: StockFilter,
+    categoryId?: string | null
   ): Promise<{ products: Product[], total: number, hasMore: boolean }> {
     try {
       const currentStoreId = getCurrentUserStoreId()
       const MAIN_STORE_ID = '00000000-0000-0000-0000-000000000001'
       const isMainStore = !currentStoreId || currentStoreId === MAIN_STORE_ID
+      const activeCategoryId = categoryId && categoryId !== 'all' ? categoryId : null
 
       // Para filtros de stock, necesitamos obtener más productos y filtrar después
       // porque el stock real puede venir de store_stock (microtiendas)
@@ -391,9 +393,13 @@ export class ProductsService {
 
       // Obtener productos paginados
       // Ordenar por created_at (más recientes primero)
-      const { data, error } = await supabase
-        .from('products')
-        .select('*')
+      let productsQuery = supabase.from('products').select('*')
+
+      if (activeCategoryId) {
+        productsQuery = productsQuery.eq('category_id', activeCategoryId)
+      }
+
+      const { data, error } = await productsQuery
         .order('created_at', { ascending: false })
         .range(from, to)
 
@@ -403,9 +409,15 @@ export class ProductsService {
       }
 
       // Obtener el total de productos
-      const { count, error: countError } = await supabase
+      let countQuery = supabase
         .from('products')
         .select('*', { count: 'exact', head: true })
+
+      if (activeCategoryId) {
+        countQuery = countQuery.eq('category_id', activeCategoryId)
+      }
+
+      const { count, error: countError } = await countQuery
 
       if (countError) {
         // Error silencioso en producción
@@ -803,6 +815,38 @@ export class ProductsService {
       }
     } catch (error) {
       return 0
+    }
+  }
+
+  /**
+   * Siguiente referencia numérica libre (secuencia del inventario).
+   * Ignora códigos de prueba altos (p. ej. 999).
+   */
+  static async getNextNumericReference(): Promise<string> {
+    try {
+      const { data, error } = await supabaseAdmin
+        .from('products')
+        .select('reference')
+        .not('reference', 'is', null)
+
+      if (error || !data?.length) {
+        return '001'
+      }
+
+      let maxRef = 0
+      for (const row of data) {
+        const raw = String(row.reference ?? '').trim()
+        if (!/^\d+$/.test(raw)) continue
+        const n = Number.parseInt(raw, 10)
+        // Reservar 900+ para pruebas / códigos especiales
+        if (Number.isFinite(n) && n > 0 && n < 900 && n > maxRef) {
+          maxRef = n
+        }
+      }
+
+      return String(maxRef + 1).padStart(3, '0')
+    } catch {
+      return '001'
     }
   }
 
@@ -1391,7 +1435,12 @@ export class ProductsService {
 
   // Buscar productos
   // storeId: opcional, si se pasa se usa ese, si no se intenta obtener del localStorage
-  static async searchProducts(query: string, stockFilter?: StockFilter, storeId?: string | null): Promise<Product[]> {
+  static async searchProducts(
+    query: string,
+    stockFilter?: StockFilter,
+    storeId?: string | null,
+    categoryId?: string | null
+  ): Promise<Product[]> {
     try {
       const cleanQuery = query.trim()
 
@@ -1399,10 +1448,18 @@ export class ProductsService {
         return []
       }
 
+      const activeCategoryId = categoryId && categoryId !== 'all' ? categoryId : null
+
       // Búsqueda simplificada sin timeout - buscar en referencia y nombre
-      const { data, error } = await supabase
+      let searchQuery = supabase
         .from('products')
         .select('id, name, description, category_id, brand, reference, price, minimum_sale_price, online_price, cost, stock_warehouse, stock_store, status, image_url, created_at, updated_at')
+
+      if (activeCategoryId) {
+        searchQuery = searchQuery.eq('category_id', activeCategoryId)
+      }
+
+      const { data, error } = await searchQuery
         .or(`reference.ilike.%${cleanQuery}%,name.ilike.%${cleanQuery}%`)
         .order('created_at', { ascending: false })
         .limit(100)

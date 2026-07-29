@@ -65,7 +65,9 @@ interface ProductTableProps {
   hasMore: boolean
   isSearching: boolean
   stockFilter: StockFilter
+  categoryFilter: string
   onFilterChange: (filter: StockFilter) => void
+  onCategoryFilterChange: (categoryId: string) => void
   onEdit: (product: Product) => void
   onDelete: (product: Product) => void
   onCreate: () => void
@@ -87,7 +89,9 @@ export function ProductTable({
   hasMore,
   isSearching,
   stockFilter,
+  categoryFilter,
   onFilterChange,
+  onCategoryFilterChange,
   onEdit,
   onDelete,
   onCreate,
@@ -261,6 +265,16 @@ export function ProductTable({
       : []),
   ]
 
+  const categoryOptions = [
+    { value: 'all', label: 'Todas las categorías' },
+    ...[...categories]
+      .sort((a, b) => a.name.localeCompare(b.name, 'es'))
+      .map((category) => ({ value: category.id, label: category.name })),
+  ]
+
+  const filterSelectClass =
+    'h-11 min-w-[9.5rem] max-w-[42vw] cursor-pointer appearance-none border-0 bg-transparent py-2 pl-3 pr-9 text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-zinc-400/30 dark:text-zinc-100 dark:focus:ring-zinc-500/25 sm:min-w-[11.5rem] sm:max-w-none'
+
   const thClass =
     'whitespace-nowrap bg-zinc-50/80 px-3 py-3 text-left text-[11px] font-medium uppercase tracking-wider text-zinc-500 dark:bg-zinc-900/50 dark:text-zinc-500'
 
@@ -359,10 +373,28 @@ export function ProductTable({
               </div>
               <div className="relative flex shrink-0 items-stretch border-l border-zinc-200 dark:border-zinc-700">
                 <select
+                  value={categoryFilter}
+                  onChange={(e) => onCategoryFilterChange(e.target.value)}
+                  aria-label="Filtrar por categoría"
+                  className={filterSelectClass}
+                >
+                  {categoryOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+                <ChevronDown
+                  className="pointer-events-none absolute right-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400 dark:text-zinc-500"
+                  aria-hidden
+                />
+              </div>
+              <div className="relative flex shrink-0 items-stretch border-l border-zinc-200 dark:border-zinc-700">
+                <select
                   value={stockFilter}
                   onChange={(e) => onFilterChange(e.target.value as StockFilter)}
                   aria-label="Filtrar por estado de stock"
-                  className="h-11 min-w-[10.25rem] max-w-[46vw] cursor-pointer appearance-none border-0 bg-transparent py-2 pl-3 pr-9 text-sm text-zinc-900 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-zinc-400/30 dark:text-zinc-100 dark:focus:ring-zinc-500/25 sm:min-w-[12.5rem] sm:max-w-none"
+                  className={filterSelectClass}
                 >
                   {stockStatusOptions.map((s) => (
                     <option key={s.value} value={s.value}>

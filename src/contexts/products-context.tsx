@@ -14,8 +14,10 @@ interface ProductsContextType {
   hasMore: boolean
   isSearching: boolean
   stockFilter: StockFilter
+  categoryFilter: string
   productsLastUpdated: number
   setStockFilter: (filter: StockFilter) => void
+  setCategoryFilter: (categoryId: string) => void
   createProduct: (productData: Omit<Product, 'id' | 'createdAt' | 'updatedAt'>) => Promise<boolean>
   updateProduct: (id: string, updates: Partial<Product>) => Promise<boolean>
   deleteProduct: (id: string) => Promise<{ success: boolean, error?: string }>
@@ -43,6 +45,7 @@ export const ProductsProvider = ({ children }: { children: ReactNode }) => {
   const [hasMore, setHasMore] = useState(false)
   const [isSearching, setIsSearching] = useState(false)
   const [stockFilter, setStockFilterState] = useState<StockFilter>('all')
+  const [categoryFilter, setCategoryFilterState] = useState<string>('all')
   const [productsLastUpdated, setProductsLastUpdated] = useState(Date.now()) // Timestamp para notificar cambios
   const { user: currentUser } = useAuth()
 
@@ -51,7 +54,7 @@ export const ProductsProvider = ({ children }: { children: ReactNode }) => {
     const silent = options?.silent === true
     if (!silent) setLoading(true)
     try {
-      const result = await ProductsService.getAllProducts(1, ITEMS_PER_PAGE, activeFilter)
+      const result = await ProductsService.getAllProducts(1, ITEMS_PER_PAGE, activeFilter, categoryFilter)
       setProducts(await ProductSupplierService.enrichProducts(result.products))
       setCurrentPage(1)
       setTotalProducts(result.total)
@@ -62,14 +65,18 @@ export const ProductsProvider = ({ children }: { children: ReactNode }) => {
     } finally {
       if (!silent) setLoading(false)
     }
-  }, [currentUser?.storeId, stockFilter]) // Recargar cuando cambie el storeId o el filtro
+  }, [currentUser?.storeId, stockFilter, categoryFilter]) // Recargar cuando cambie el storeId o los filtros
 
   useEffect(() => {
     refreshProducts()
-  }, [refreshProducts, currentUser?.storeId, stockFilter]) // Recargar cuando cambie el storeId o filtro
+  }, [refreshProducts, currentUser?.storeId, stockFilter, categoryFilter]) // Recargar cuando cambie el storeId o filtros
   
   const setStockFilter = (filter: StockFilter) => {
     setStockFilterState(filter)
+  }
+
+  const setCategoryFilter = (categoryId: string) => {
+    setCategoryFilterState(categoryId || 'all')
   }
 
   const createProduct = async (productData: Omit<Product, 'id' | 'createdAt' | 'updatedAt'>): Promise<boolean> => {
@@ -128,7 +135,12 @@ export const ProductsProvider = ({ children }: { children: ReactNode }) => {
     
     try {
       // Pasar el storeId del usuario para obtener precios correctos de store_stock
-      const results = await ProductsService.searchProducts(searchTerm, stockFilter, currentUser?.storeId)
+      const results = await ProductsService.searchProducts(
+        searchTerm,
+        stockFilter,
+        currentUser?.storeId,
+        categoryFilter
+      )
       const enrichedResults = await ProductSupplierService.enrichProducts(results)
       setProducts(enrichedResults)
       setCurrentPage(1) // Resetear a página 1 en búsquedas
@@ -145,7 +157,7 @@ export const ProductsProvider = ({ children }: { children: ReactNode }) => {
     setIsSearching(false)
     try {
       setLoading(true)
-      const result = await ProductsService.getAllProducts(1, ITEMS_PER_PAGE, stockFilter)
+      const result = await ProductsService.getAllProducts(1, ITEMS_PER_PAGE, stockFilter, categoryFilter)
       setProducts(await ProductSupplierService.enrichProducts(result.products))
       setCurrentPage(1)
       setTotalProducts(result.total)
@@ -161,7 +173,7 @@ export const ProductsProvider = ({ children }: { children: ReactNode }) => {
     if (page >= 1 && page <= Math.ceil(totalProducts / ITEMS_PER_PAGE) && !loading) {
       try {
         setLoading(true)
-        const result = await ProductsService.getAllProducts(page, ITEMS_PER_PAGE, stockFilter)
+        const result = await ProductsService.getAllProducts(page, ITEMS_PER_PAGE, stockFilter, categoryFilter)
         setProducts(await ProductSupplierService.enrichProducts(result.products))
         setCurrentPage(page)
         setTotalProducts(result.total)
@@ -238,8 +250,10 @@ export const ProductsProvider = ({ children }: { children: ReactNode }) => {
     hasMore,
     isSearching,
     stockFilter,
+    categoryFilter,
     productsLastUpdated,
     setStockFilter,
+    setCategoryFilter,
     createProduct, 
     updateProduct, 
     deleteProduct, 

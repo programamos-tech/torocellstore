@@ -1099,8 +1099,7 @@ export default function ReportesPage() {
 
     const paymentMethodData = [
       { name: 'Efectivo', value: cashRevenue, color: '#69B275' },
-      { name: 'Transferencia', value: transferRevenue, color: '#9DC2D1' },
-      { name: 'Tarjeta / datáfono', value: cardRevenue, color: '#8B5CF6' },
+      { name: 'Transferencia', value: transferRevenue + cardRevenue, color: '#9DC2D1' },
       { name: 'Crédito', value: creditRevenue, color: '#F7BE4B' },
     ].filter(item => item.value > 0)
 
@@ -1580,31 +1579,12 @@ export default function ReportesPage() {
                 <span className={dashMetricLabelClass}>Transferencia</span>
               </div>
               <p className="mt-2.5 text-lg font-semibold tabular-nums text-zinc-900 dark:text-zinc-50 md:text-xl">
-                {formatCurrency(metrics.transferRevenue)}
+                {formatCurrency(metrics.transferRevenue + metrics.cardRevenue)}
               </p>
               <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
                 {metrics.totalRevenue > 0
-                  ? `${((metrics.transferRevenue / metrics.totalRevenue) * 100).toFixed(1)}% del total`
-                  : '0% del total'}
-              </p>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => router.push('/sales')}
-              className={cn(dashMetricTile, dashMetricTileInteractive)}
-            >
-              <div className={dashMetricRow}>
-                <CreditCard className={dashMetricIconEm} strokeWidth={1.5} aria-hidden />
-                <span className={dashMetricLabelClass}>Tarjeta / datáfono</span>
-              </div>
-              <p className="mt-2.5 text-lg font-semibold tabular-nums text-zinc-900 dark:text-zinc-50 md:text-xl">
-                {formatCurrency(metrics.cardRevenue)}
-              </p>
-              <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-                {metrics.totalRevenue > 0
-                  ? `${((metrics.cardRevenue / metrics.totalRevenue) * 100).toFixed(1)}% del total`
-                  : '0% del total'}
+                  ? `${(((metrics.transferRevenue + metrics.cardRevenue) / metrics.totalRevenue) * 100).toFixed(1)}% del total · ver detalle`
+                  : '0% del total · ver detalle'}
               </p>
             </button>
 
@@ -2153,7 +2133,8 @@ export default function ReportesPage() {
           open={showTransferBreakdown}
           onOpenChange={setShowTransferBreakdown}
           breakdown={metrics.transferBreakdown}
-          total={metrics.transferRevenue}
+          transferTotal={metrics.transferRevenue}
+          cardAmount={metrics.cardRevenue}
           formatCurrency={formatCurrency}
         />
 

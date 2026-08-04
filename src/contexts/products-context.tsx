@@ -82,10 +82,7 @@ export const ProductsProvider = ({ children }: { children: ReactNode }) => {
   const createProduct = async (productData: Omit<Product, 'id' | 'createdAt' | 'updatedAt'>): Promise<boolean> => {
     const newProduct = await ProductsService.createProduct(productData, currentUser?.id)
     if (newProduct) {
-      const [enrichedProduct] = await ProductSupplierService.enrichProducts([newProduct])
-      setProducts(prev => [enrichedProduct || newProduct, ...prev])
-      // Actualizar el total de productos para que el dashboard se actualice
-      setTotalProducts(prev => prev + 1)
+      await refreshProducts(undefined, { silent: true })
       // Notificar cambio para que el dashboard se actualice
       setProductsLastUpdated(Date.now())
       return true

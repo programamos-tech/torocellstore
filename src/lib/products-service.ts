@@ -17,6 +17,21 @@ export type StockFilter =
   | 'Solo Bodega (Bajo)'
   | 'Solo Bodega (Muy Bajo)'
 
+/** Orden numérico de referencia (001, 002, …); no numéricas al final. */
+function compareProductReferences(
+  a: string | null | undefined,
+  b: string | null | undefined
+): number {
+  const ra = String(a ?? '').trim()
+  const rb = String(b ?? '').trim()
+  const na = /^\d+$/.test(ra) ? Number.parseInt(ra, 10) : NaN
+  const nb = /^\d+$/.test(rb) ? Number.parseInt(rb, 10) : NaN
+  if (Number.isFinite(na) && Number.isFinite(nb) && na !== nb) return na - nb
+  if (Number.isFinite(na) && !Number.isFinite(nb)) return -1
+  if (!Number.isFinite(na) && Number.isFinite(nb)) return 1
+  return ra.localeCompare(rb, 'es', { sensitivity: 'base' })
+}
+
 type StoreStockPricing = {
   cost: number | null
   price: number | null
@@ -391,8 +406,7 @@ export class ProductsService {
       const from = (page - 1) * (needsStockFilter ? fetchLimit : limit)
       const to = from + fetchLimit - 1
 
-      // Obtener productos paginados
-      // Ordenar por created_at (más recientes primero)
+      // Obtener productos paginados por referencia (001 → …)
       let productsQuery = supabase.from('products').select('*')
 
       if (activeCategoryId) {
@@ -400,7 +414,7 @@ export class ProductsService {
       }
 
       const { data, error } = await productsQuery
-        .order('created_at', { ascending: false })
+        .order('reference', { ascending: true })
         .range(from, to)
 
       if (error) {
@@ -475,20 +489,10 @@ export class ProductsService {
       // Aplicar filtro de stock si se especificó
       const filteredProducts = this.applyStockFilterToProducts(mappedProducts, stockFilter)
 
-      // Ordenar: productos con stock primero, luego por fecha más reciente
-      const sortedProducts = filteredProducts.sort((a, b) => {
-        const aHasStock = a.stock.total > 0
-        const bHasStock = b.stock.total > 0
-
-        // Si uno tiene stock y el otro no, el que tiene stock va primero
-        if (aHasStock && !bHasStock) return -1
-        if (!aHasStock && bHasStock) return 1
-
-        // Si ambos tienen stock o ambos no tienen stock, ordenar por fecha más reciente
-        const aDate = a.updatedAt || a.createdAt
-        const bDate = b.updatedAt || b.createdAt
-        return new Date(bDate).getTime() - new Date(aDate).getTime()
-      })
+      // Mantener orden por referencia (001 → …)
+      const sortedProducts = filteredProducts.sort((a, b) =>
+        compareProductReferences(a.reference, b.reference)
+      )
 
       // Paginar los resultados filtrados
       const paginatedProducts = needsStockFilter
@@ -575,7 +579,7 @@ export class ProductsService {
         const { data, error, count } = await supabase
           .from('products')
           .select('*', { count: 'exact' })
-          .order('created_at', { ascending: false })
+          .order('reference', { ascending: true })
           .range(from, to)
 
         if (error) {
@@ -703,18 +707,10 @@ export class ProductsService {
           }
         })
 
-        // Ordenar: productos con stock primero, luego por fecha más reciente
-        const sortedProducts = mappedProducts.sort((a, b) => {
-          const aHasStock = a.stock.total > 0
-          const bHasStock = b.stock.total > 0
-
-          if (aHasStock && !bHasStock) return -1
-          if (!aHasStock && bHasStock) return 1
-
-          const aDate = a.updatedAt || a.createdAt
-          const bDate = b.updatedAt || b.createdAt
-          return new Date(bDate).getTime() - new Date(aDate).getTime()
-        })
+        // Ordenar por referencia (001 → …)
+        const sortedProducts = mappedProducts.sort((a, b) =>
+          compareProductReferences(a.reference, b.reference)
+        )
 
         allProducts.push(...sortedProducts)
 
@@ -732,18 +728,10 @@ export class ProductsService {
         }
       }
 
-      // Ordenar todos los productos al final: productos con stock primero, luego por fecha más reciente
-      return allProducts.sort((a, b) => {
-        const aHasStock = a.stock.total > 0
-        const bHasStock = b.stock.total > 0
-
-        if (aHasStock && !bHasStock) return -1
-        if (!aHasStock && bHasStock) return 1
-
-        const aDate = a.updatedAt || a.createdAt
-        const bDate = b.updatedAt || b.createdAt
-        return new Date(bDate).getTime() - new Date(aDate).getTime()
-      })
+      // Ordenar todos los productos por referencia (001 → …)
+      return allProducts.sort((a, b) =>
+        compareProductReferences(a.reference, b.reference)
+      )
     } catch (error) {
       // Error silencioso en producción
       return []
@@ -1461,7 +1449,7 @@ export class ProductsService {
 
       const { data, error } = await searchQuery
         .or(`reference.ilike.%${cleanQuery}%,name.ilike.%${cleanQuery}%`)
-        .order('created_at', { ascending: false })
+        .order('reference', { ascending: true })
         .limit(100)
 
       if (error) {
@@ -1526,18 +1514,10 @@ export class ProductsService {
       // Aplicar filtro de stock si se especificó
       const filteredProducts = this.applyStockFilterToProducts(mappedProducts, stockFilter)
 
-      // Ordenar: productos con stock primero, luego por fecha más reciente
-      return filteredProducts.sort((a, b) => {
-        const aHasStock = a.stock.total > 0
-        const bHasStock = b.stock.total > 0
-
-        if (aHasStock && !bHasStock) return -1
-        if (!aHasStock && bHasStock) return 1
-
-        const aDate = a.updatedAt || a.createdAt
-        const bDate = b.updatedAt || b.createdAt
-        return new Date(bDate).getTime() - new Date(aDate).getTime()
-      })
+      // Ordenar por referencia (001 → …)
+      return filteredProducts.sort((a, b) =>
+        compareProductReferences(a.reference, b.reference)
+      )
     } catch (error) {
       // Error silencioso en producción
       return []

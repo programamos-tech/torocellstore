@@ -7,7 +7,7 @@ import { ProductModal } from '@/components/products/product-modal'
 import { CategoryModal } from '@/components/categories/category-modal'
 import { StockTransferModal } from '@/components/products/stock-transfer-modal'
 import { StockAdjustmentModal } from '@/components/products/stock-adjustment-modal'
-import { ConfirmModal } from '@/components/ui/confirm-modal'
+import { DeleteProductModal } from '@/components/products/delete-product-modal'
 import { RoleProtectedRoute } from '@/components/auth/role-protected-route'
 import { useProducts } from '@/contexts/products-context'
 import { useCategories } from '@/contexts/categories-context'
@@ -77,15 +77,17 @@ export default function ProductsPage() {
   }
 
   const confirmDelete = async () => {
-    if (productToDelete) {
-      const result = await deleteProduct(productToDelete.id)
-      if (result.success) {
-        toast.success('Producto eliminado exitosamente')
-        setIsDeleteModalOpen(false)
-        setProductToDelete(null)
-      } else {
-        toast.error(result.error || 'Error eliminando producto')
-      }
+    if (!productToDelete) return
+    const result = await deleteProduct(productToDelete.id)
+    if (result.success) {
+      toast.success(`Producto "${productToDelete.name}" eliminado`)
+      setIsDeleteModalOpen(false)
+      setProductToDelete(null)
+    } else {
+      toast.error('No se pudo eliminar el producto', {
+        description: result.error,
+        duration: 8000,
+      })
     }
   }
 
@@ -273,18 +275,14 @@ export default function ProductsPage() {
                 product={productToAdjust}
               />
 
-              <ConfirmModal
+              <DeleteProductModal
                 isOpen={isDeleteModalOpen}
+                product={productToDelete}
                 onClose={() => {
                   setIsDeleteModalOpen(false)
                   setProductToDelete(null)
                 }}
                 onConfirm={confirmDelete}
-                title="Eliminar Producto"
-                message={`¿Estás seguro de que quieres eliminar el producto "${productToDelete?.name}"? Esta acción no se puede deshacer.`}
-                confirmText="Eliminar"
-                cancelText="Cancelar"
-                type="danger"
               />
 
       </div>

@@ -132,7 +132,7 @@ export function ProductTable({
   const canEdit = isVendedor ? false : (canDoProductActionsSincelejo || isSuperAdmin) && hasPermission('products', 'edit')
   const canAdjust = isVendedor ? false : (canDoProductActionsSincelejo || isSuperAdmin) && hasPermission('products', 'edit')
   const canCreate = isVendedor ? false : canDoProductActionsSincelejo && hasPermission('products', 'create')
-  const canDelete = isVendedor ? false : canDoProductActionsSincelejo && hasPermission('products', 'delete')
+  const canDelete = isVendedor ? false : (canDoProductActionsSincelejo || isSuperAdmin) && hasPermission('products', 'delete')
   const canTransfer = isVendedor ? false : canDoProductActionsSincelejo && hasPermission('products', 'edit')
 
   const [searchTerm, setSearchTerm] = useState('')

@@ -17,6 +17,31 @@ export type StockFilter =
   | 'Solo Bodega (Bajo)'
   | 'Solo Bodega (Muy Bajo)'
 
+/** Resultado de la verificación previa a eliminar un producto. */
+export interface ProductDeletionCheck {
+  totalStock: number
+  salesCount: number
+  openSalesCount: number
+  openCreditsCount: number
+  openCreditsAmount: number
+  warrantiesCount: number
+  openWarrantiesCount: number
+  transfersCount: number
+  /** Motivos que impiden eliminar */
+  blockers: string[]
+  /** Consecuencias que el usuario debe conocer antes de confirmar */
+  warnings: string[]
+}
+
+function formatCurrencyCOP(amount: number): string {
+  return new Intl.NumberFormat('es-CO', {
+    style: 'currency',
+    currency: 'COP',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(Number(amount) || 0)
+}
+
 /** Orden numérico de referencia (001, 002, …); no numéricas al final. */
 function compareProductReferences(
   a: string | null | undefined,
@@ -1367,7 +1392,124 @@ export class ProductsService {
     return mainStock + microStock
   }
 
-  // Eliminar producto (solo desde Sincelejo; no se permite si tiene stock en cualquier tienda)
+  /**
+   * Vínculos del producto que deben mostrarse antes de eliminarlo.
+   * `blockers` impide la eliminación; `warnings` solo advierte (el borrado arrastra esos registros).
+   */
+  static async checkProductDeletion(productId: string): Promise<ProductDeletionCheck> {
+    const check: ProductDeletionCheck = {
+      totalStock: 0,
+      salesCount: 0,
+      openSalesCount: 0,
+      openCreditsCount: 0,
+      openCreditsAmount: 0,
+      warrantiesCount: 0,
+      openWarrantiesCount: 0,
+      transfersCount: 0,
+      blockers: [],
+      warnings: [],
+    }
+
+    try {
+      check.totalStock = await this.getTotalStockAcrossAllStores(productId)
+      if (check.totalStock > 0) {
+        check.blockers.push(
+          `Tiene ${check.totalStock} unidad(es) en stock. Debe quedar en 0 en todas las tiendas.`
+        )
+      }
+
+      const { data: saleItems } = await supabaseAdmin
+        .from('sale_items')
+        .select('sale_id')
+        .eq('product_id', productId)
+
+      const saleIds = Array.from(
+        new Set((saleItems || []).map((row: { sale_id: string | null }) => row.sale_id).filter(Boolean))
+      ) as string[]
+      check.salesCount = saleIds.length
+
+      if (saleIds.length > 0) {
+        const { data: sales } = await supabaseAdmin
+          .from('sales')
+          .select('id, status')
+          .in('id', saleIds)
+        check.openSalesCount = (sales || []).filter((sale: { status: string | null }) =>
+          ['pending', 'draft'].includes(String(sale.status || '').toLowerCase())
+        ).length
+
+        const { data: credits } = await supabaseAdmin
+          .from('credits')
+          .select('id, status, pending_amount, is_cancelled')
+          .in('sale_id', saleIds)
+
+        const openCredits = (credits || []).filter(
+          (credit: { status: string | null; pending_amount: number | null; is_cancelled: boolean | null }) =>
+            !credit.is_cancelled &&
+            ['pending', 'partial', 'overdue'].includes(String(credit.status || '').toLowerCase()) &&
+            Number(credit.pending_amount || 0) > 0
+        )
+        check.openCreditsCount = openCredits.length
+        check.openCreditsAmount = openCredits.reduce(
+          (sum: number, credit: { pending_amount: number | null }) => sum + Number(credit.pending_amount || 0),
+          0
+        )
+
+        check.warnings.push(
+          `Aparece en ${saleIds.length} factura(s) de venta. Al eliminarlo se borra el detalle del producto en esas facturas.`
+        )
+      }
+
+      if (check.openCreditsCount > 0) {
+        check.blockers.push(
+          `Tiene ${check.openCreditsCount} crédito(s) abierto(s) por ${formatCurrencyCOP(check.openCreditsAmount)} pendientes de pago.`
+        )
+      }
+      if (check.openSalesCount > 0) {
+        check.blockers.push(`Está en ${check.openSalesCount} venta(s) pendiente(s) o en borrador.`)
+      }
+
+      const { data: warranties } = await supabaseAdmin
+        .from('warranties')
+        .select('id, status')
+        .or(`product_received_id.eq.${productId},product_delivered_id.eq.${productId}`)
+
+      check.warrantiesCount = (warranties || []).length
+      check.openWarrantiesCount = (warranties || []).filter((warranty: { status: string | null }) =>
+        ['pending', 'in_progress'].includes(String(warranty.status || '').toLowerCase())
+      ).length
+
+      if (check.openWarrantiesCount > 0) {
+        check.blockers.push(`Tiene ${check.openWarrantiesCount} garantía(s) en trámite.`)
+      } else if (check.warrantiesCount > 0) {
+        check.warnings.push(`Tiene ${check.warrantiesCount} garantía(s) cerrada(s) en el historial.`)
+      }
+
+      const [{ count: transferItemsCount }, { count: legacyTransfersCount }] = await Promise.all([
+        supabaseAdmin
+          .from('transfer_items')
+          .select('id', { count: 'exact', head: true })
+          .eq('product_id', productId),
+        supabaseAdmin
+          .from('stock_transfers')
+          .select('id', { count: 'exact', head: true })
+          .eq('product_id', productId),
+      ])
+
+      check.transfersCount = (transferItemsCount || 0) + (legacyTransfersCount || 0)
+      if (check.transfersCount > 0) {
+        check.blockers.push(
+          `Está en ${check.transfersCount} traslado(s) de stock. La base de datos no permite borrarlo mientras existan.`
+        )
+      }
+
+      return check
+    } catch (error) {
+      check.blockers.push('No se pudieron verificar los movimientos del producto. Intenta de nuevo.')
+      return check
+    }
+  }
+
+  // Eliminar producto (solo desde Sincelejo; no se permite si tiene stock o movimientos abiertos)
   static async deleteProduct(id: string, currentUserId?: string): Promise<{ success: boolean, error?: string }> {
     try {
       const productToDelete = await this.getProductById(id)
@@ -1375,11 +1517,11 @@ export class ProductsService {
         return { success: false, error: 'Producto no encontrado' }
       }
 
-      const totalStock = await this.getTotalStockAcrossAllStores(id)
-      if (totalStock > 0) {
+      const check = await this.checkProductDeletion(id)
+      if (check.blockers.length > 0) {
         return {
           success: false,
-          error: `No se puede eliminar el producto "${productToDelete.name}" porque tiene ${totalStock} unidad(es) en stock en una o más tiendas. El stock debe estar en 0 en todas las tiendas para poder eliminarlo.`
+          error: `No se puede eliminar "${productToDelete.name}": ${check.blockers.join(' ')}`
         }
       }
 
